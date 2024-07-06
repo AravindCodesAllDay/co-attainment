@@ -169,7 +169,7 @@ export default function Modal({ isOpen, onClose }) {
               name="namelist"
               value={namelist_id || ""}
               onChange={(e) => setNamelistId(e.target.value)}
-              className="border border-gray-300 p-2 mb-2 rounded-lg"
+              className="border border-gray-300 p-2 mb-2 rounded-lg w-full"
             >
               <option value="" disabled>
                 Select namelist

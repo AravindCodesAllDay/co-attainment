@@ -40,9 +40,9 @@ const ViewNamelists = () => {
   return (
     <>
       <Navbar />
-      <div className="flex justify-center p-2 font-primary">
+      <div className="flex flex-row justify-end   p-2 font-primary">
         <button
-          className="bg-green-600 text-2xl p-2 w-3/12 text-white border-2 border-none rounded-md mt-4"
+          className="bg-green-600 text-xl p-2 w-fit text-white border-2 border-none rounded-md mt-4"
           onClick={toggleModal}
         >
           Add Title

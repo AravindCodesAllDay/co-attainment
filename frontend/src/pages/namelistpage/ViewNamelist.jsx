@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import del from "../../assets/delete.svg";
+import edit from "../../assets/edit.svg";
 import Navbar from "../../components/Navbar";
 import AddStudentModal from "./AddStudent.modal";
 
@@ -78,7 +80,7 @@ const ViewNamelist = () => {
       <Navbar />
       <div className="flex justify-end p-2 font-primary">
         <button
-          className="bg-green-600 text-xl p-2 w-48 text-white border-2 border-none rounded-md mt-4"
+          className="bg-green-600 text-xl p-2 w-fit text-white border-2 border-none rounded-md mt-4"
           onClick={() => setIsModalOpen(true)}
         >
           Add Student
@@ -124,45 +126,8 @@ const ViewNamelist = () => {
                   <td className="border px-4 py-2">{student.name}</td>
                   <td className="border px-4 py-2">{student.rollno}</td>
                   <td className="py-2 px-4 flex flex-row gap-4 items-center">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      class="icon icon-tabler icon-tabler-pencil-plus"
-                      className="cursor-pointer"
-                      width="30"
-                      height="30"
-                      viewBox="0 0 24 24"
-                      stroke-width="1.5"
-                      stroke="#00b341"
-                      fill="none"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    >
-                      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
-                      <path d="M13.5 6.5l4 4" />
-                      <path d="M16 19h6" />
-                      <path d="M19 16v6" />
-                    </svg>
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      class="icon icon-tabler icon-tabler-trash"
-                      className="cursor-pointer"
-                      width="30"
-                      height="30"
-                      viewBox="0 0 24 24"
-                      stroke-width="1.5"
-                      stroke="#ff2825"
-                      fill="none"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    >
-                      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                      <path d="M4 7l16 0" />
-                      <path d="M10 11l0 6" />
-                      <path d="M14 11l0 6" />
-                      <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
-                      <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
-                    </svg>
+                    <img className=" cursor-pointer" src={edit} />
+                    <img className="cursor-pointer" src={del} />
                   </td>
                 </tr>
               ))}

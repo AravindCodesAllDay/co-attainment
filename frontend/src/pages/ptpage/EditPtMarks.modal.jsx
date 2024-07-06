@@ -18,24 +18,24 @@ export default function Editptmark({ student, onClose }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // try {
-    //   const response = await fetch(
-    //     `${import.meta.env.VITE_API}/pt/update-marks`,
-    //     {
-    //       method: "PUT",
-    //       headers: {
-    //         "Content-Type": "application/json",
-    //       },
-    //       body: JSON.stringify(formData),
-    //     }
-    //   );
-    //   if (!response.ok) {
-    //     throw new Error("Failed to update marks");
-    //   }
-    //   onClose();
-    // } catch (error) {
-    //   console.error("Error updating marks:", error);
-    // }
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_API}/pt/update-marks`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: {},
+        }
+      );
+      if (!response.ok) {
+        throw new Error("Failed to update marks");
+      }
+      onClose();
+    } catch (error) {
+      console.error("Error updating marks:", error);
+    }
   };
 
   return (

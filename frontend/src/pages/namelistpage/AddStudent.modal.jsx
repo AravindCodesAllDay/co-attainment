@@ -1,5 +1,6 @@
 import React from "react";
 import Modal from "react-modal";
+import close from "../../assets/close.svg";
 
 const AddStudentModal = ({
   isOpen,
@@ -26,7 +27,7 @@ const AddStudentModal = ({
           onClick={onRequestClose}
           className="absolute top-2 right-2 text-gray-700"
         >
-          &times;
+          <img className="cursor-pointer" src={close} />
         </button>
         <form className="flex flex-col items-center" onSubmit={handleSubmit}>
           <p className="mb-4 font-semibold text-lg">{title}</p>

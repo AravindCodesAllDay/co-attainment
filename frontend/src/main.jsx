@@ -11,6 +11,7 @@ import ViewNamelists from "./pages/namelistpage/ViewNamelists";
 import ViewPtList from "./pages/ptpage/ViewPtList";
 import ViewPtLists from "./pages/ptpage/ViewPtLists";
 import SelectCoatt from "./pages/co-attainment/SelectCoatt";
+import CreateSaa from "./pages/saapage/CreateSaa";
 
 // Set the app element for react-modal
 Modal.setAppElement("#root");
@@ -27,6 +28,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         <Route path="/ptlists" element={<ViewPtLists />} />
         <Route path="/ptlists/:ptlistid" element={<ViewPtList />} />
         <Route path="/coattainment" element={<SelectCoatt />} />
+        <Route path="/saa" element={<CreateSaa />} />
       </Routes>
     </HashRouter>
   </React.StrictMode>

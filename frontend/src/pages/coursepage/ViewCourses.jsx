@@ -44,7 +44,7 @@ const ViewCourses = () => {
       <div className="flex justify-end p-2 font-primary">
         <button
           onClick={toggleModal}
-          className="bg-green-600 text-2xl p-2 w-fit text-white border-2 border-none rounded-md mt-4"
+          className="bg-green-600 text-xl p-2 w-fit text-white border-2 border-none rounded-md mt-4"
         >
           Add Course
         </button>

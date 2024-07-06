@@ -47,15 +47,13 @@ function SelectCoatt() {
     <>
       <Navbar />
       <div className="flex flex-col justify-center items-center mt-2 p-2">
-        <div className="border-2 border-gray-600 p-2 w-96 items-center rounded-md">
-          <div className="flex justify-center">
-            <button
-              onClick={handleCreateButtonClick}
-              className="bg-red-600 text-white w-48 text-2xl p-2 mt-4 rounded-md hover:bg-green-500"
-            >
-              Create
-            </button>
-          </div>
+        <div className="flex flex-col gap-5 border-2 border-gray-600 p-2 w-96 items-center rounded-md">
+          <button
+            onClick={handleCreateButtonClick}
+            className="bg-red-600 text-white text-xl p-2 mt-4 rounded-md hover:bg-green-500"
+          >
+            Add
+          </button>
           {loading ? (
             <p>Loading...</p>
           ) : (
@@ -71,6 +69,9 @@ function SelectCoatt() {
               </div>
             ))
           )}
+          <button className="bg-green-600 text-white p-3 rounded-md ">
+            Submit
+          </button>
         </div>
       </div>
     </>

@@ -37,7 +37,7 @@ export default function ViewPtLists() {
       <Navbar />
       <div className="flex justify-end p-2 font-primary">
         <button
-          className="bg-green-600 text-xl p-2 w-48 text-white border-2 border-none rounded-md mt-4"
+          className="bg-green-600 text-xl p-2 w-fit text-white border-2 border-none rounded-md mt-4"
           onClick={() => setIsModalOpen(true)}
         >
           Add PtList

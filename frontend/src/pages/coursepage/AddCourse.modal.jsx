@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import close from "../../assets/close.svg";
 
 const AddCourseModal = ({ isModalOpen, toggleModal }) => {
   if (!isModalOpen) return null;
@@ -68,12 +69,14 @@ const AddCourseModal = ({ isModalOpen, toggleModal }) => {
   return (
     <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
       <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg">
-        <button
-          onClick={toggleModal}
-          className="bg-red-600 text-sm p-2 w-fit text-white border-2 border-none rounded-md mb-4"
-        >
-          Close
-        </button>
+        <div className="flex justify-end">
+          <button
+            onClick={toggleModal}
+            className=" text-sm p-2 w-fit text-white border-2 border-none rounded-md mb-4 items-end"
+          >
+            <img className="cursor-pointer" src={close} />
+          </button>
+        </div>
         <form onSubmit={handleSubmit}>
           <div className="flex flex-col mb-4">
             <label className="block text-gray-700 text-sm font-bold mb-2">

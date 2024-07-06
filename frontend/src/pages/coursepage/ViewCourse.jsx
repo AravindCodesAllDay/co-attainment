@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import Navbar from "../../components/Navbar";
 import { useParams } from "react-router-dom";
+import edit from "../../assets/edit.svg";
+import del from "../../assets/delete.svg";
 
 export default function ViewCourse() {
   const user = JSON.parse(localStorage.getItem("user"));
@@ -60,13 +62,9 @@ export default function ViewCourse() {
                       </td>
                     ))}
                     <td className="py-2 px-4">{student.averageScore}</td>
-                    <td className="py-2 px-4">
-                      <button className="bg-blue-500 text-white py-1 px-2 rounded mr-2 hover:bg-blue-700">
-                        Edit
-                      </button>
-                      <button className="bg-red-500 text-white py-1 px-2 rounded hover:bg-red-700">
-                        Delete
-                      </button>
+                    <td className="py-2 px-4 flex flex-row gap-4 items-center">
+                      <img className="cursor-pointer" src={edit} />
+                      <img className="cursor-pointer" src={del} />
                     </td>
                   </tr>
                 ))}
