@@ -11,19 +11,22 @@ export default function Modal({ isOpen, onClose }) {
     {
       title: "",
       maxMark: "",
-      questions: [{ number: "", option: "understand" }],
+      questions: [{ number: 1, option: "understand" }],
     },
   ]);
+  const [questionCounter, setQuestionCounter] = useState(1);
 
   const handleAddRow = () => {
+    const newQuestionNumber = questionCounter + 1;
     setRows([
       ...rows,
       {
         title: "",
         maxMark: "",
-        questions: [{ number: "", option: "understand" }],
+        questions: [{ number: newQuestionNumber, option: "understand" }],
       },
     ]);
+    setQuestionCounter(newQuestionNumber);
   };
 
   const handleDeleteRow = (index) => {
@@ -31,15 +34,20 @@ export default function Modal({ isOpen, onClose }) {
   };
 
   const handleAddQuestion = (rowIndex) => {
+    const newQuestionNumber = questionCounter + 1;
     const newRows = rows.map((row, i) =>
       i === rowIndex
         ? {
             ...row,
-            questions: [...row.questions, { number: "", option: "understand" }],
+            questions: [
+              ...row.questions,
+              { number: newQuestionNumber, option: "understand" },
+            ],
           }
         : row
     );
     setRows(newRows);
+    setQuestionCounter(newQuestionNumber);
   };
 
   const handleDeleteQuestion = (rowIndex, questionIndex) => {
