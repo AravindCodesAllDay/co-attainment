@@ -45,7 +45,10 @@ const Navbar = () => {
   };
 
   return (
-    <div className="bg-sky-600 p-3 items-center flex flex-row w-screen gap-6 relative">
+    <div
+      className="bg-sky-600 p-3 items-center flex flex-row w-screen gap-6 relative"
+      onMouseLeave={handleMouseLeave}
+    >
       <img
         className="ml-12 cursor-pointer size-12 rounded-full"
         src={logo}
@@ -54,21 +57,20 @@ const Navbar = () => {
       <div className="flex flex-row gap-6 justify-center items-center font-bold text-white cursor-pointer">
         <h2 onClick={() => navigate(`/namelists`)}>Namelist</h2>
         <h2 onClick={() => navigate("/courses")}>Course</h2>
-        <h2 onClick={() => navigate("/ptlists")}>ptLists</h2>
+        <h2 onClick={() => navigate("/ptlists")}>PtLists</h2>
         <h2 onClick={() => navigate("/saa")}>Saa</h2>
       </div>
       <div
         className="ml-auto relative"
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
         ref={dropdownRef}
+        onMouseEnter={handleMouseEnter}
       >
         <img className="cursor-pointer" src={profile} alt="Profile" />
         {dropdownOpen && (
-          <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-2">
+          <div className="absolute right-0 mt-1 w-48 bg-white rounded-md shadow-lg p-2">
             <div
-              className="block px-4 py-2 text-gray-800 hover:bg-gray-200 cursor-pointer"
-              onClick={() => navigate("/ptlists")}
+              className="block px-4 py-2 text-gray-800 hover:bg-gray-200 cursor-pointer border-b-2"
+              onClick={() => navigate("/coattainment")}
             >
               Create Co
             </div>
