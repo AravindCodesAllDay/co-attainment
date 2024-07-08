@@ -1,8 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import close from "../../assets/close.svg";
 
 const AddSaamodal = ({ handleClose }) => {
   const [courses, setCourses] = useState([{ id: 1, value: "" }]);
+  const user = JSON.parse(localStorage.getItem("user"));
+  const [namelistId, setNamelistId] = useState("");
+  const [titles, setTitles] = useState([]);
 
   const handleAddCourse = () => {
     setCourses([...courses, { id: courses.length + 1, value: "" }]);
@@ -20,6 +23,26 @@ const AddSaamodal = ({ handleClose }) => {
     try {
     } catch (error) {}
   };
+
+  const fetchTitles = async () => {
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_API}/student/namelists/${user.userId}`
+      );
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+      const data = await response.json();
+      setTitles(data);
+    } catch (error) {
+      console.error("Failed to fetch titles:", error);
+      setError("Failed to fetch titles.");
+    }
+  };
+  useEffect(() => {
+    fetchTitles();
+  }, [user.userId]);
+
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
       <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md relative">
@@ -40,12 +63,23 @@ const AddSaamodal = ({ handleClose }) => {
             />
           </div>
           <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2">
+            <label className="block text-gray-700 text-sm font-bold mb-2 ">
               Name List
             </label>
-            <select className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-              <option value="">Select Name</option>
-              {/* Add more options as needed */}
+            <select
+              name="namelist"
+              value={namelistId}
+              onChange={(e) => setNamelistId(e.target.value)}
+              className="border border-gray-300 p-2 mb-2 rounded-lg w-full"
+            >
+              <option value="" disabled>
+                Select namelist
+              </option>
+              {titles.map((title, index) => (
+                <option key={index} value={title._id}>
+                  {title.title}
+                </option>
+              ))}
             </select>
           </div>
           <div className="mb-4">
@@ -61,9 +95,9 @@ const AddSaamodal = ({ handleClose }) => {
               >
                 <option value="">Select Course</option>
                 {/* Add course options here */}
-                <option value="course1">Course 1</option>
-                <option value="course2">Course 2</option>
-                <option value="course3">Course 3</option>
+                <option value="course1">underStand</option>
+                <option value="course2">Analyse</option>
+                <option value="course3">Apply</option>
               </select>
             ))}
           </div>

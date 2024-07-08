@@ -94,8 +94,8 @@ export default function ViewPtList() {
             {ptlist &&
               ptlist.students.map((student) => (
                 <tr className="justify-center" key={student.id}>
-                  <td className="border  border-gray-300 px-4 py-2">
-                    <img src={edit} />
+                  <td className="border  border-gray-300 px-4 py-2 cursor-pointer">
+                    <img src={edit} onClick={() => handleEditClick(student)} />
                   </td>
                   <td className="border border-gray-300 px-4 py-2 font-bold">
                     {student.name}

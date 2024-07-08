@@ -1,6 +1,8 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import close from "../../assets/close.svg";
 
 export default function Editptmark({ student, onClose }) {
+  const user = JSON.parse(localStorage.getItem("user"));
   const [formData, setFormData] = useState({
     name: student.name,
     rollno: student.rollno,
@@ -20,13 +22,13 @@ export default function Editptmark({ student, onClose }) {
     e.preventDefault();
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API}/pt/update-marks`,
+        `${import.meta.env.VITE_API}/pt/score/${user.userId}`,
         {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
           },
-          body: {},
+          body: JSON.stringify(formData),
         }
       );
       if (!response.ok) {
@@ -41,25 +43,11 @@ export default function Editptmark({ student, onClose }) {
   return (
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center">
       <div className="relative bg-white p-6 rounded shadow-lg w-full max-w-3xl h-3/4 overflow-y-auto">
-        <button
+        <img
+          src={close}
           onClick={onClose}
-          className="absolute top-2 right-2 text-gray-700 hover:text-gray-900"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-6 w-6"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="#ff2825"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M6 18L18 6M6 6l12 12"
-            />
-          </svg>
-        </button>
+          className="absolute top-2 right-2 text-gray-700 hover:text-gray-900 cursor-pointer"
+        />
         <h2 className="text-xl font-bold mb-4">Edit Student Marks</h2>
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
@@ -104,7 +92,7 @@ export default function Editptmark({ student, onClose }) {
               type="submit"
               className="px-4 py-2 bg-blue-500 text-white rounded"
             >
-              Save
+              Submit
             </button>
           </div>
         </form>
