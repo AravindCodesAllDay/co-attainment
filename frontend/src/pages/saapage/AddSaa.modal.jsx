@@ -48,14 +48,15 @@ const AddSaamodal = ({ handleClose }) => {
               {/* Add more options as needed */}
             </select>
           </div>
-          {courses.map((course) => (
-            <div className="mb-4" key={course.id}>
-              <label className="block text-gray-700 text-sm font-bold mb-2">
-                Courses
-              </label>
+          <div className="mb-4">
+            <label className="block text-gray-700 text-sm font-bold mb-2">
+              Courses
+            </label>
+            {courses.map((course) => (
               <select
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                className="shadow appearance-none border rounded w-full py-2 px-3 m-1 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                 value={course.value}
+                key={course.id}
                 onChange={(e) => handleCourseChange(course.id, e.target.value)}
               >
                 <option value="">Select Course</option>
@@ -64,8 +65,8 @@ const AddSaamodal = ({ handleClose }) => {
                 <option value="course2">Course 2</option>
                 <option value="course3">Course 3</option>
               </select>
-            </div>
-          ))}
+            ))}
+          </div>
           <button
             className="bg-blue-600 text-white p-2 rounded mt-2"
             type="button"
