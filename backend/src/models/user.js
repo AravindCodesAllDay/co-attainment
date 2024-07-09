@@ -8,6 +8,10 @@ const userSchema = new Schema(
       required: true,
       unique: true,
     },
+    cotypes: {
+      type: Array,
+      default: [],
+    },
     namelists: [
       {
         type: Schema.Types.ObjectId,

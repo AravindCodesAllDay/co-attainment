@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import close from "../../assets/close.svg";
 
 export default function Modal({ isOpen, onClose }) {
   const user = JSON.parse(localStorage.getItem("user") || "{}");
@@ -9,57 +10,58 @@ export default function Modal({ isOpen, onClose }) {
   const [mainMark, setMainMark] = useState("");
   const [rows, setRows] = useState([
     {
-      title: "",
+      title: "Part 1",
       maxMark: "",
       questions: [{ number: 1, option: "understand" }],
     },
   ]);
-  const [globalQuestionCounter, setGlobalQuestionCounter] = useState(1);
 
   const handleAddRow = () => {
+    const newPartNumber = rows.length + 1;
     setRows([
       ...rows,
       {
-        title: "",
+        title: `Part ${newPartNumber}`,
         maxMark: "",
-        questions: [
-          { number: globalQuestionCounter + 1, option: "understand" },
-        ],
+        questions: [{ number: 1, option: "understand" }],
       },
     ]);
-    setGlobalQuestionCounter(globalQuestionCounter + 1);
   };
 
   const handleDeleteRow = (index) => {
-    setRows(rows.filter((_, i) => i !== index));
+    const newRows = rows
+      .filter((_, i) => i !== index)
+      .map((row, i) => ({
+        ...row,
+        title: `Part ${i + 1}`,
+      }));
+    setRows(newRows);
   };
 
   const handleAddQuestion = (rowIndex) => {
-    const newQuestionNumber = globalQuestionCounter + 1;
-    const newRows = rows.map((row, i) =>
-      i === rowIndex
-        ? {
-            ...row,
-            questions: [
-              ...row.questions,
-              { number: newQuestionNumber, option: "understand" },
-            ],
-          }
-        : row
-    );
+    const newRows = rows.map((row, i) => {
+      if (i === rowIndex) {
+        const newQuestions = [
+          ...row.questions,
+          { number: row.questions.length + 1, option: "understand" },
+        ];
+        return { ...row, questions: newQuestions };
+      }
+      return row;
+    });
     setRows(newRows);
-    setGlobalQuestionCounter(newQuestionNumber);
   };
 
   const handleDeleteQuestion = (rowIndex, questionIndex) => {
-    const newRows = rows.map((row, i) =>
-      i === rowIndex
-        ? {
-            ...row,
-            questions: row.questions.filter((_, j) => j !== questionIndex),
-          }
-        : row
-    );
+    const newRows = rows.map((row, i) => {
+      if (i === rowIndex) {
+        const newQuestions = row.questions
+          .filter((_, j) => j !== questionIndex)
+          .map((question, j) => ({ ...question, number: j + 1 }));
+        return { ...row, questions: newQuestions };
+      }
+      return row;
+    });
     setRows(newRows);
   };
 
@@ -144,7 +146,7 @@ export default function Modal({ isOpen, onClose }) {
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-2xl">Add PtList</h2>
           <button className="text-red-600" onClick={onClose}>
-            X
+            <img src={close} alt="" />
           </button>
         </div>
         <form onSubmit={handleSubmit}>
@@ -190,89 +192,78 @@ export default function Modal({ isOpen, onClose }) {
               ))}
             </select>
           </div>
-          <div className="overflow-y-auto max-h-96">
-            {rows.map((row, rowIndex) => (
-              <div key={rowIndex} className="mb-4">
-                <div className="flex space-x-2 mb-2">
-                  <input
-                    type="text"
-                    placeholder="Title"
-                    className="mt-1 block p-2 border border-gray-300 rounded-md w-1/2"
-                    value={row.title}
-                    onChange={(e) =>
-                      handleRowChange(rowIndex, "title", e.target.value)
-                    }
-                  />
+          {rows.map((row, rowIndex) => (
+            <div key={rowIndex} className="mb-4">
+              <div className="flex space-x-2 mb-2">
+                <input
+                  type="text"
+                  placeholder="Title"
+                  className="mt-1 block p-2 border border-gray-300 rounded-md w-1/2"
+                  value={row.title}
+                  disabled
+                />
+                <input
+                  type="number"
+                  placeholder="Max Mark"
+                  className="mt-1 block p-2 border border-gray-300 rounded-md w-1/2"
+                  value={row.maxMark}
+                  onChange={(e) =>
+                    handleRowChange(rowIndex, "maxMark", e.target.value)
+                  }
+                />
+                <button
+                  type="button"
+                  className="text-red-900"
+                  onClick={() => handleDeleteRow(rowIndex)}
+                >
+                  X
+                </button>
+              </div>
+              <button
+                type="button"
+                className="bg-blue-600 text-white p-2 rounded-md mb-2"
+                onClick={() => handleAddQuestion(rowIndex)}
+              >
+                Add Question
+              </button>
+              {row.questions.map((question, questionIndex) => (
+                <div key={questionIndex} className="flex space-x-2 mb-2">
                   <input
                     type="number"
-                    placeholder="Max Mark"
-                    className="mt-1 block p-2 border border-gray-300 rounded-md w-1/2"
-                    value={row.maxMark}
-                    onChange={(e) =>
-                      handleRowChange(rowIndex, "maxMark", e.target.value)
-                    }
+                    placeholder="Question Number"
+                    className="mt-1 block p-2 border border-gray-300 rounded-md w-1/4"
+                    value={question.number}
+                    disabled
                   />
+                  <select
+                    className="mt-1 block p-2 border border-gray-300 rounded-md w-1/4"
+                    value={question.option}
+                    onChange={(e) =>
+                      handleQuestionChange(
+                        rowIndex,
+                        questionIndex,
+                        "option",
+                        e.target.value
+                      )
+                    }
+                  >
+                    <option value="understand">Understand</option>
+                    <option value="apply">Apply</option>
+                    <option value="analyse">Analyse</option>
+                  </select>
                   <button
                     type="button"
                     className="text-red-900"
-                    onClick={() => handleDeleteRow(rowIndex)}
+                    onClick={() =>
+                      handleDeleteQuestion(rowIndex, questionIndex)
+                    }
                   >
                     X
                   </button>
                 </div>
-                <button
-                  type="button"
-                  className="bg-blue-600 text-white p-2 rounded-md mb-2"
-                  onClick={() => handleAddQuestion(rowIndex)}
-                >
-                  Add Question
-                </button>
-                {row.questions.map((question, questionIndex) => (
-                  <div key={questionIndex} className="flex space-x-2 mb-2">
-                    <input
-                      type="number"
-                      placeholder="Question Number"
-                      className="mt-1 block p-2 border border-gray-300 rounded-md w-1/4"
-                      value={question.number}
-                      onChange={(e) =>
-                        handleQuestionChange(
-                          rowIndex,
-                          questionIndex,
-                          "number",
-                          e.target.value
-                        )
-                      }
-                    />
-                    <select
-                      className="mt-1 block p-2 border border-gray-300 rounded-md w-1/4"
-                      value={question.option}
-                      onChange={(e) =>
-                        handleQuestionChange(
-                          rowIndex,
-                          questionIndex,
-                          "option",
-                          e.target.value
-                        )
-                      }
-                    >
-                      <option value="understand">Understand</option>
-                      <option value="apply">Apply</option>
-                      <option value="analyse">Analyse</option>
-                    </select>
-                    <button
-                      type="button"
-                      className="text-red-900"
-                      onClick={() =>
-                        handleDeleteQuestion(rowIndex, questionIndex)
-                      }
-                    >
-                      X
-                    </button>
-                  </div>
-                ))}
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          ))}
           <button
             type="button"
             className="bg-green-600 text-white p-2 rounded-md mb-2"
