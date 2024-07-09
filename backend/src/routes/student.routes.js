@@ -182,9 +182,9 @@ router.delete("/student/:userId", async (req, res) => {
 router.put("/students/:userId", async (req, res) => {
   try {
     const { userId } = req.params;
-    const { namelistId, rollno, newRollno, newName } = req.body;
+    const { namelistId, studentId, studentDetail } = req.body;
 
-    if (!userId || !namelistId || !rollno || (!newRollno && !newName)) {
+    if (!userId || !namelistId || !studentDetail || !studentId) {
       return handleErrorResponse(
         res,
         400,
@@ -199,9 +199,7 @@ router.put("/students/:userId", async (req, res) => {
       return handleErrorResponse(res, 404, "Name list not found.");
     }
 
-    const student = namelist.students.find(
-      (student) => student.rollno === rollno
-    );
+    const student = namelist.students.id(studentId); // Use the id method to find the subdocument
     if (!student) {
       return handleErrorResponse(
         res,
@@ -210,8 +208,8 @@ router.put("/students/:userId", async (req, res) => {
       );
     }
 
-    if (newRollno) student.rollno = newRollno;
-    if (newName) student.name = newName;
+    student.rollno = studentDetail.rollno;
+    student.name = studentDetail.name;
 
     await namelist.save();
 
