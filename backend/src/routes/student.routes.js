@@ -141,41 +141,62 @@ router.delete("/:id", async (req, res) => {
 router.delete("/student/:userId", async (req, res) => {
   try {
     const { userId } = req.params;
-    const { namelistId, rollno } = req.body;
+    const { namelistId, studentId } = req.body;
 
-    if (!userId || !namelistId || !rollno) {
+    // Validate required fields
+    if (!userId || !namelistId || !studentId) {
       return handleErrorResponse(
         res,
         400,
-        "All required fields must be provided."
+        "All required fields must be provided (userId, namelistId, studentId)."
       );
     }
 
+    // Validate student ID (assuming it's a Mongoose ObjectId)
+    if (!mongoose.Types.ObjectId.isValid(studentId)) {
+      return handleErrorResponse(res, 400, "Invalid student ID format.");
+    }
+
+    // Verify user ownership (replace with your implementation)
     await verifyUserOwnership(userId, namelistId, "namelists");
 
+    // Find the namelist
     const namelist = await NameList.findById(namelistId);
     if (!namelist) {
       return handleErrorResponse(res, 404, "Name list not found.");
     }
 
+    // Check if student exists in the namelist
     const studentIndex = namelist.students.findIndex(
-      (student) => student.rollno === rollno
+      (student) => student._id.toString() === studentId
     );
     if (studentIndex === -1) {
       return handleErrorResponse(
         res,
         404,
-        "Student not found in the name list."
+        "Student not found in the namelist."
       );
     }
 
+    // Remove the student from the namelist array
     namelist.students.splice(studentIndex, 1);
+
+    // Save the modified namelist
     await namelist.save();
 
     return res.status(200).json({ message: "Student deleted successfully." });
   } catch (error) {
     console.error(error.message);
-    return handleErrorResponse(res, 500, "Internal Server Error");
+    let statusCode = 500;
+    let errorMessage = "Internal Server Error";
+
+    // Provide more specific error messages based on error type
+    if (error.name === "MongoError") {
+      statusCode = 400; // Or a custom code for database errors
+      errorMessage = "Database error occurred.";
+    }
+
+    return handleErrorResponse(res, statusCode, errorMessage);
   }
 });
 

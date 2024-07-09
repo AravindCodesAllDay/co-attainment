@@ -4,6 +4,7 @@ import del from "../../assets/delete.svg";
 import edit from "../../assets/edit.svg";
 import Navbar from "../../components/Navbar";
 import AddStudentModal from "./AddStudent.modal";
+import EditNamelistModal from "./EditNamelist.Modal";
 
 const ViewNamelist = () => {
   const user = JSON.parse(localStorage.getItem("user"));
@@ -15,6 +16,38 @@ const ViewNamelist = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
+
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editStudentData, setEditStudentData] = useState({
+    name: "",
+    rollno: "",
+  });
+
+  const handleEditClick = (student) => {
+    setEditStudentData(student);
+    setIsEditModalOpen(true);
+  };
+
+  const handledelete = async (student) => {
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_API}/student/student/${user.userId}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            namelistId: namelistid,
+            studentId: student._id,
+          }),
+        }
+      );
+      const data = await response.json();
+    } catch (error) {
+      console.log("An error occured while deleting");
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -97,6 +130,16 @@ const ViewNamelist = () => {
         error={error}
         title={namelist.title}
       />
+
+      <EditNamelistModal
+        isOpen={isEditModalOpen}
+        onRequestClose={() => setIsEditModalOpen(false)}
+        studentData={editStudentData}
+        setStudentData={setEditStudentData}
+        namelistId={namelistid}
+        fetchStudent={fetchStudent}
+      />
+
       <div className="flex justify-center flex-col p-4">
         <h2 className="font-bold text-2xl text-blue-600 mb-6">
           {namelist.title}
@@ -126,8 +169,16 @@ const ViewNamelist = () => {
                   <td className="border px-4 py-2">{student.name}</td>
                   <td className="border px-4 py-2">{student.rollno}</td>
                   <td className="py-2 px-4 flex flex-row gap-4 items-center">
-                    <img className=" cursor-pointer" src={edit} />
-                    <img className="cursor-pointer" src={del} />
+                    <img
+                      className="cursor-pointer"
+                      src={edit}
+                      onClick={() => handleEditClick(student)}
+                    />
+                    <img
+                      className="cursor-pointer"
+                      src={del}
+                      onClick={() => handledelete(student)}
+                    />
                   </td>
                 </tr>
               ))}
