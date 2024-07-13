@@ -2,11 +2,12 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 
-const CourseRoutes = require("./routes/course.routes");
-const PtRoutes = require("./routes/pt.routes");
-const SaaRoutes = require("./routes/saa.routes");
-const StudentRoutes = require("./routes/student.routes");
+// const CourseRoutes = require("./routes/course.routes");
+// const PtRoutes = require("./routes/pt.routes");
+// const SeeRoutes = require("./routes/see.routes");
+// const StudentRoutes = require("./routes/student.routes");
 const UserRoutes = require("./routes/user.routes");
+const BunSem = require("./routes/bundle-sem.routes");
 
 const app = express();
 
@@ -16,11 +17,12 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Routes
-app.use("/course", CourseRoutes);
-app.use("/pt", PtRoutes);
-app.use("/saa", SaaRoutes);
-app.use("/student", StudentRoutes);
+// app.use("/course", CourseRoutes);
+// app.use("/pt", PtRoutes);
+// app.use("/see", SeeRoutes);
+// app.use("/student", StudentRoutes);
 app.use("/user", UserRoutes);
+app.use("/bunsem", BunSem);
 
 // Load environment variables
 if (process.env.NODE_ENV !== "production") {

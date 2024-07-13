@@ -1,9 +1,13 @@
 const express = require("express");
+const mongoose = require("mongoose");
 
-const PtList = require("../models/ptlist");
-const NameList = require("../models/namelist");
-const User = require("../models/user");
-
+const {
+  NameList,
+  SEE,
+  User,
+  COlist,
+  PtList,
+} = require("../models/co_attainment");
 const router = express.Router();
 
 // Helper function to calculate average mark
@@ -36,13 +40,18 @@ router.get("/:userId", async (req, res) => {
       return res.status(400).send("Invalid user ID");
     }
 
-    const user = await User.findById(userId).populate("ptlists", "title _id");
+    const user = await User.findById(userId).populate(
+      "bundles.ptlists",
+      "title _id"
+    );
 
     if (!user) {
       return res.status(404).send("User not found");
     }
 
-    res.status(200).json(user.ptlists);
+    // Flattening the ptlists from bundles
+    const ptLists = user.bundles.flatMap((bundle) => bundle.ptlists);
+    res.status(200).json(ptLists);
   } catch (err) {
     console.error(err);
     res.status(500).send(err.message);
@@ -60,7 +69,9 @@ router.get("/ptlist/:ptListId/:userId", async (req, res) => {
 
     await verifyUserOwnership(userId, ptListId);
 
-    const ptList = await PtList.findById(ptListId);
+    const ptList = await PtList.findById(ptListId).populate(
+      "students.parts.questions"
+    );
 
     if (!ptList) {
       return res.status(404).send("PtList not found");
@@ -138,116 +149,7 @@ router.post("/create/:userId", async (req, res) => {
   }
 });
 
-// // Route to enter marks for a question
-// router.put("/score/:userId", async (req, res) => {
-//   try {
-//     const { partTitle, questionNumber, mark, ptListId, studentId } = req.body;
-//     const { userId } = req.params;
-
-//     if (
-//       !ptListId ||
-//       !userId ||
-//       !studentId ||
-//       !questionNumber ||
-//       !partTitle ||
-//       typeof mark !== "number"
-//     ) {
-//       return res.status(400).json({ message: "Invalid input data" });
-//     }
-
-//     await verifyUserOwnership(userId, ptListId);
-
-//     const ptList = await PtList.findById(ptListId);
-//     if (!ptList) {
-//       return res.status(404).send("PtList not found");
-//     }
-
-//     const student = ptList.students.id(studentId);
-//     if (!student) {
-//       return res.status(404).send("Student not found");
-//     }
-
-//     let part = student.parts.find((p) => p.title === partTitle);
-//     if (!part) {
-//       return res.status(404).send("Part not found");
-//     }
-
-//     if (mark > part.maxmark) {
-//       return res.status(400).send("Mark exceeds the maximum mark for the part");
-//     }
-
-//     let question = part.questions.find((q) => q.number === questionNumber);
-//     if (!question) {
-//       return res.status(404).send("Question not found");
-//     }
-
-//     const previousMark = question.mark;
-//     question.mark = mark;
-
-//     // Update total mark and type mark
-//     student.totalMark = student.totalMark - previousMark + mark;
-//     const questionType = question.type;
-//     student.typemark.set(
-//       questionType,
-//       (student.typemark.get(questionType) || 0) - previousMark + mark
-//     );
-
-//     // Recalculate the average mark for the ptList
-//     ptList.averagemark = calculateAverageMark(ptList.students);
-
-//     await ptList.save();
-//     res.status(200).send(ptList);
-//   } catch (err) {
-//     console.error(err);
-//     res.status(500).send(err.message);
-//   }
-// });
-
 // Route to enter marks for multiple questions in multiple parts
-
-//Sample input for parts
-
-// {
-//   "ptListId": "60d21b4667d0d8992e610c85",
-//   "studentId": "60d21b4967d0d8992e610c86",
-//   "parts": [
-//     {
-//       "title": "Part 1",
-//       "questions": [
-//         {
-//           "number": 1,
-//           "mark": 4
-//         },
-//         {
-//           "number": 2,
-//           "mark": 5
-//         },
-//         {
-//           "number": 3,
-//           "mark": 3
-//         }
-//       ]
-//     },
-//     {
-//       "title": "Part 2",
-//       "questions": [
-//         {
-//           "number": 1,
-//           "mark": 4
-//         },
-//         {
-//           "number": 2,
-//           "mark": 5
-//         },
-//         {
-//           "number": 3,
-//           "mark": 3
-//         }
-//       ]
-//     }
-//   ]
-// }
-
 router.put("/score/:userId", async (req, res) => {
   try {
     const { ptListId, studentId, parts } = req.body;
@@ -288,7 +190,7 @@ router.put("/score/:userId", async (req, res) => {
         question.mark = mark;
 
         totalMarkAdjustment += mark - previousMark;
-        const questionType = question.type;
+        const questionType = question.option;
         if (!typemarkAdjustment[questionType]) {
           typemarkAdjustment[questionType] = 0;
         }
