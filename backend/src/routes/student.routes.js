@@ -76,38 +76,6 @@ router.get("/students/:semlistId/:userId", async (req, res) => {
   }
 });
 
-// Route to add a new semester list
-router.post("/addlist/:userId", async (req, res) => {
-  try {
-    const { userId } = req.params;
-    const { title, bundleId } = req.body;
-
-    if (!title || !userId || !bundleId) {
-      return handleErrorResponse(
-        res,
-        400,
-        "All required fields must be provided."
-      );
-    }
-
-    const semlist = await COlist.create({ title });
-    const user = await User.findById(userId);
-    const bundle = user.bundles.id(bundleId);
-
-    if (!bundle) {
-      return handleErrorResponse(res, 404, "Bundle not found.");
-    }
-
-    bundle.semlists.push(semlist._id);
-    await user.save();
-
-    return res.status(201).json(semlist);
-  } catch (error) {
-    console.error(error.message);
-    return handleErrorResponse(res, 500, "Internal Server Error");
-  }
-});
-
 // Route to add a new student to a semester list
 router.put("/addstudent/:userId", async (req, res) => {
   try {

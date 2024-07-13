@@ -228,6 +228,8 @@ const userSchema = new Schema(
 
 module.exports = {
   User: mongoose.model("User", userSchema),
+  Bundle: mongoose.model("Bundle", bundleSchema),
+  Sem: mongoose.model("Sem", semSchema),
   SEE: mongoose.model("SEE", seeSchema),
   PtList: mongoose.model("PtList", ptListSchema),
   NameList: mongoose.model("NameList", namelistSchema),
