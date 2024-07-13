@@ -1,7 +1,12 @@
 const express = require("express");
-const COlist = require("../models/colist");
-const NameList = require("../models/namelist");
-const User = require("../models/user");
+
+const {
+  NameList,
+  SEE,
+  User,
+  COlist,
+  PtList,
+} = require("../models/co_attainment");
 
 const router = express.Router();
 
@@ -12,7 +17,7 @@ const verifyUserOwnership = async (userId, coId) => {
     throw new Error("User not found");
   }
 
-  if (!user.courselists.includes(coId)) {
+  if (!user.bundles.some((bundle) => bundle.courselists.includes(coId))) {
     throw new Error("User does not have access to this CO list");
   }
 };
@@ -26,16 +31,26 @@ router.get("/:userId", async (req, res) => {
       return res.status(400).send("Invalid user ID");
     }
 
-    const user = await User.findById(userId).populate(
-      "courselists",
-      "title _id"
-    );
+    const user = await User.findById(userId).populate({
+      path: "bundles",
+      populate: {
+        path: "semLists",
+        populate: {
+          path: "courselists",
+          select: "title _id",
+        },
+      },
+    });
 
     if (!user) {
       return res.status(404).send("User not found");
     }
 
-    res.status(200).json(user.courselists);
+    const coLists = user.bundles.flatMap((bundle) =>
+      bundle.semLists.flatMap((sem) => sem.courselists)
+    );
+
+    res.status(200).json(coLists);
   } catch (err) {
     console.error(err);
     res.status(500).send(err.message);
@@ -97,7 +112,7 @@ router.post("/create/:userId", async (req, res) => {
       return {
         rollno: student.rollno,
         name: student.name,
-        scores,
+        scores: scores,
       };
     });
 
@@ -108,13 +123,18 @@ router.post("/create/:userId", async (req, res) => {
     });
 
     await newList.save();
-    user.courselists.push(newList._id);
-    await user.save();
+    user.bundles.forEach(async (bundle) => {
+      bundle.semLists.forEach(async (sem) => {
+        if (sem.courselists.includes(newList._id)) {
+          await bundle.save();
+        }
+      });
+    });
 
-    return res.status(201).json(newList);
+    res.status(201).json(newList);
   } catch (error) {
     console.error(error.message);
-    return res.status(500).json({ message: "Internal Server Error" });
+    res.status(500).json({ message: "Internal Server Error" });
   }
 });
 
@@ -170,10 +190,15 @@ router.delete("/delete/:userId", async (req, res) => {
     }
 
     const user = await User.findById(userId);
-    user.courselists = user.courselists.filter(
-      (listId) => listId.toString() !== coId
-    );
-    await user.save();
+    user.bundles.forEach(async (bundle) => {
+      bundle.semLists.forEach(async (sem) => {
+        sem.courselists = sem.courselists.filter(
+          (listId) => listId.toString() !== coId
+        );
+        await sem.save();
+      });
+      await bundle.save();
+    });
 
     res.status(200).json({ message: "COlist deleted successfully" });
   } catch (error) {

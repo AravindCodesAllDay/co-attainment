@@ -4,7 +4,7 @@ const cors = require("cors");
 
 const CourseRoutes = require("./routes/course.routes");
 const PtRoutes = require("./routes/pt.routes");
-const SaaRoutes = require("./routes/saa.routes");
+const SeeRoutes = require("./routes/see.routes");
 const StudentRoutes = require("./routes/student.routes");
 const UserRoutes = require("./routes/user.routes");
 
@@ -18,7 +18,7 @@ app.use(express.urlencoded({ extended: true }));
 // Routes
 app.use("/course", CourseRoutes);
 app.use("/pt", PtRoutes);
-app.use("/saa", SaaRoutes);
+app.use("/see", SeeRoutes);
 app.use("/student", StudentRoutes);
 app.use("/user", UserRoutes);
 

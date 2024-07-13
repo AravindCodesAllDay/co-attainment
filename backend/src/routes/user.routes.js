@@ -1,6 +1,14 @@
 const express = require("express");
 const jwt = require("jsonwebtoken");
-const User = require("../models/user");
+const mongoose = require("mongoose");
+
+const {
+  User,
+  SEE,
+  PtList,
+  NameList,
+  COlist,
+} = require("../models/co_attainment");
 
 const router = express.Router();
 
@@ -61,11 +69,16 @@ router.get("/colist/:userId", async (req, res) => {
       .status(400)
       .json({ message: "All required fields must be provided." });
   }
-  const user = await User.findById(userId);
+  const user = await User.findById(userId).populate(
+    "bundles.semlists.courselists"
+  );
   if (!user) {
     return res.status(404).json({ message: "User not found." });
   }
-  return res.status(200).json(user.cotypes);
+  const coLists = user.bundles.flatMap((bundle) =>
+    bundle.semlists.flatMap((sem) => sem.courselists)
+  );
+  return res.status(200).json(coLists);
 });
 
 router.post("/cotype/:userId", async (req, res) => {
