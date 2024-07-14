@@ -13,6 +13,8 @@ import ViewPtLists from "./pages/ptpage/ViewPtLists";
 import SelectCoatt from "./pages/co-attainment/SelectCoatt";
 import ViewSaas from "./pages/saapage/ViewSaas";
 import ViewSaa from "./pages/saapage/ViewSaa";
+import Dasboard from "./pages/dasboardpage/Dashboard";
+import Sem from "./pages/dasboardpage/Sem";
 
 // Set the app element for react-modal
 Modal.setAppElement("#root");
@@ -22,6 +24,8 @@ ReactDOM.createRoot(document.getElementById("root")).render(
     <HashRouter>
       <Routes>
         <Route path="/" element={<Login />} />
+        <Route path="/dashboard" element={<Dasboard />} />
+        <Route path="/sem" element={<Sem />} />
         <Route path="/namelists" element={<ViewNamelists />} />
         <Route path="/namelists/:namelistid" element={<ViewNamelist />} />
         <Route path="/courses" element={<ViewCourses />} />

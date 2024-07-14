@@ -10,7 +10,7 @@ const Login = () => {
   useEffect(() => {
     const checkLogin = () => {
       if (user) {
-        navigate("/namelists");
+        navigate("/dashboard");
       }
     };
     checkLogin();
@@ -38,7 +38,7 @@ const Login = () => {
           const data = await response.json();
           localStorage.setItem("user", JSON.stringify(data));
 
-          navigate("/namelists");
+          navigate("/dashboard");
         } else {
           const data = await response.json();
           console.error("Error logging in:", data.message);
