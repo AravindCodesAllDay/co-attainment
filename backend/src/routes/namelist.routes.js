@@ -120,7 +120,7 @@ router.get("/:bundleId/:userId", async (req, res) => {
       path: "bundles.namelists",
       populate: {
         path: "namelists",
-        model: "NameList",
+        model: "Namelist",
         select: "title _id",
       },
     });

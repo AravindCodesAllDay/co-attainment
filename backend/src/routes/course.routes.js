@@ -1,19 +1,41 @@
 const express = require("express");
+const mongoose = require("mongoose");
+
 const COlist = require("../models/colist");
-const NameList = require("../models/namelist");
+const Namelist = require("../models/namelist");
 const User = require("../models/user");
 
 const router = express.Router();
 
+const handleErrorResponse = (res, status, message) => {
+  return res.status(status).json({ message });
+};
+
 // Helper function to verify user ownership of COlist
-const verifyUserOwnership = async (userId, coId) => {
-  const user = await User.findById(userId);
-  if (!user) {
-    throw new Error("User not found");
+const verifyUserOwnership = async (userId, listId, listType) => {
+  if (
+    !mongoose.Types.ObjectId.isValid(userId) ||
+    !mongoose.Types.ObjectId.isValid(listId)
+  ) {
+    throw new Error("Invalid user ID or list ID.");
   }
 
-  if (!user.courselists.includes(coId)) {
-    throw new Error("User does not have access to this CO list");
+  const user = await User.findById(userId);
+
+  if (!user) {
+    throw new Error("User not found.");
+  }
+
+  let found = false;
+  for (let bundle of user.bundles) {
+    if (bundle[listType].includes(listId)) {
+      found = true;
+      break;
+    }
+  }
+
+  if (!found) {
+    throw new Error("List not associated with the user.");
   }
 };
 
@@ -76,7 +98,7 @@ router.post("/create/:userId", async (req, res) => {
       return res.status(400).json({ message: "All fields must be provided." });
     }
 
-    const namelist = await NameList.findById(namelistId);
+    const namelist = await Namelist.findById(namelistId);
 
     if (!namelist) {
       return res.status(404).json({ message: "NameList not found." });
