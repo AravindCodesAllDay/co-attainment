@@ -5,7 +5,7 @@ const cors = require("cors");
 // const CourseRoutes = require("./routes/course.routes");
 // const PtRoutes = require("./routes/pt.routes");
 // const SeeRoutes = require("./routes/see.routes");
-// const StudentRoutes = require("./routes/student.routes");
+const NamelistRoutes = require("./routes/namelist.routes");
 const UserRoutes = require("./routes/user.routes");
 const BunSem = require("./routes/bundle-sem.routes");
 
@@ -20,7 +20,7 @@ app.use(express.urlencoded({ extended: true }));
 // app.use("/course", CourseRoutes);
 // app.use("/pt", PtRoutes);
 // app.use("/see", SeeRoutes);
-// app.use("/student", StudentRoutes);
+app.use("/namelist", NamelistRoutes);
 app.use("/user", UserRoutes);
 app.use("/bunsem", BunSem);
 

@@ -2,13 +2,7 @@ const express = require("express");
 const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
 
-const {
-  User,
-  SEE,
-  PtList,
-  NameList,
-  COlist,
-} = require("../models/co_attainment");
+const { User } = require("../models/user");
 
 const router = express.Router();
 
@@ -85,7 +79,7 @@ router.post("/cotype/:userId", async (req, res) => {
   const { userId } = req.params;
   const { cotype } = req.body;
 
-  if (!userId || !cotype) {
+  if (!mongoose.Types.ObjectId.isValid(userId) || !cotype) {
     return res
       .status(400)
       .json({ message: "User ID and cotype must be provided." });
@@ -114,7 +108,7 @@ router.delete("/cotype/:userId", async (req, res) => {
   const { userId } = req.params;
   const { cotype } = req.body;
 
-  if (!userId || !cotype) {
+  if (!mongoose.Types.ObjectId.isValid(userId) || !cotype) {
     return res
       .status(400)
       .json({ message: "User ID and cotype must be provided." });
