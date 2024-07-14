@@ -77,4 +77,4 @@ const ptListSchema = new Schema(
   }
 );
 
-module.exports = mongoose.model("PtList", ptListSchema);
+module.exports = mongoose.model("Ptlist", ptListSchema);

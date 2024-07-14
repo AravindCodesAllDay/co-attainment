@@ -1,7 +1,6 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
-// Define the schema for semester (semSchema)
 const semSchema = new Schema({
   title: {
     type: String,
@@ -27,7 +26,6 @@ const semSchema = new Schema({
   ],
 });
 
-// Define the schema for bundle (bundleSchema)
 const bundleSchema = new Schema({
   title: {
     type: String,
@@ -36,13 +34,12 @@ const bundleSchema = new Schema({
   namelists: [
     {
       type: Schema.Types.ObjectId,
-      ref: "NameList",
+      ref: "Namelist",
     },
   ],
   semlists: [semSchema],
 });
 
-// Define the schema for user (userSchema)
 const userSchema = new Schema(
   {
     email: {
