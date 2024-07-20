@@ -1,8 +1,13 @@
 const express = require("express");
+const mongoose = require("mongoose");
 
 const { User, Sem, Bundle } = require("../models/user");
 
 const router = express.Router();
+
+const handleErrorResponse = (res, status, message) => {
+  return res.status(status).json({ message });
+};
 
 // Route to get all bundles for a user
 router.get("/bunsems/:userId", async (req, res) => {

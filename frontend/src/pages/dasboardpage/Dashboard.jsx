@@ -36,7 +36,7 @@ function Dashboard() {
           <div
             key={index}
             className="p-4 bg-gray-200 rounded-md shadow-md hover:shadow-2xl cursor-pointer"
-            onClick={() => navigate("/sem")}
+            onClick={() => navigate("/namelists")}
           >
             {item}
           </div>
