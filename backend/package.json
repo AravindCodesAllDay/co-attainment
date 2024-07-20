@@ -4,7 +4,12 @@
   "description": "",
   "main": "src/app.js",
   "scripts": {
-    "start": "nodemon src/app.js"
+    "build": "tsc",
+    "start": "nodemon dist/index.js",
+    "dev": "nodemon --exec ts-node src/app.ts",
+    "lint": "eslint 'src/**/*.ts'",
+    "lint:fix": "eslint 'src/**/*.ts' --fix",
+    "format": "prettier --write 'src/**/*.ts'"
   },
   "author": "",
   "license": "ISC",
@@ -16,12 +21,19 @@
     "express": "^4.19.2",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.4.3",
-    "multer": "^1.4.5-lts.1",
-    "nodemailer": "^6.9.9",
-    "nodemon": "^3.0.3",
     "otp-generator": "^4.0.1",
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0",
     "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/jsonwebtoken": "^9.0.6",
+    "@types/node": "^20.14.11",
+    "@types/nodemon": "^1.19.6",
+    "nodemon": "^3.1.4",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.5.3"
   }
 }
