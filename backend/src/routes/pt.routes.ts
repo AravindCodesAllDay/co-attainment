@@ -1,8 +1,6 @@
 import express, { Request, Response } from 'express';
 import mongoose from 'mongoose';
-import { PtList } from '../models/ptlist.model';
-import { Namelist } from '../models/namelist.model';
-import { User } from '../models/user.model';
+import { User, Namelist, PtList } from '../models/user.model';
 
 const router = express.Router();
 
