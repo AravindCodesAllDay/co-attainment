@@ -1,7 +1,7 @@
 const express = require("express");
 
-const PtList = require("../models/ptlist");
-const NameList = require("../models/namelist");
+const Ptlist = require("../models/ptlist");
+const Namelist = require("../models/namelist");
 const User = require("../models/user");
 
 const router = express.Router();
@@ -60,7 +60,7 @@ router.get("/ptlist/:ptListId/:userId", async (req, res) => {
 
     await verifyUserOwnership(userId, ptListId);
 
-    const ptList = await PtList.findById(ptListId);
+    const ptList = await Ptlist.findById(ptListId);
 
     if (!ptList) {
       return res.status(404).send("PtList not found");
@@ -83,7 +83,7 @@ router.post("/create/:userId", async (req, res) => {
       return res.status(400).send("Missing required fields");
     }
 
-    const nameList = await NameList.findById(nameListId);
+    const nameList = await Namelist.findById(nameListId);
     if (!nameList) {
       return res.status(404).send("NameList not found");
     }
@@ -114,7 +114,7 @@ router.post("/create/:userId", async (req, res) => {
       };
     });
 
-    const ptList = new PtList({
+    const ptList = new Ptlist({
       title: title,
       students: students,
       maxMark: maxMark,
@@ -259,7 +259,7 @@ router.put("/score/:userId", async (req, res) => {
 
     await verifyUserOwnership(userId, ptListId);
 
-    const ptList = await PtList.findById(ptListId);
+    const ptList = await Ptlist.findById(ptListId);
     if (!ptList) {
       return res.status(404).send("PtList not found");
     }
@@ -328,7 +328,7 @@ router.delete("/delete/:userId", async (req, res) => {
 
     await verifyUserOwnership(userId, ptListId);
 
-    const ptList = await PtList.findByIdAndDelete(ptListId);
+    const ptList = await Ptlist.findByIdAndDelete(ptListId);
 
     if (!ptList) {
       return res.status(404).send("PtList not found");

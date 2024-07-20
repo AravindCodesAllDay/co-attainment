@@ -10,7 +10,7 @@ const handleErrorResponse = (res, status, message) => {
 };
 
 // Route to get all bundles for a user
-router.get("/bunsems/:userId", async (req, res) => {
+router.get("/:userId", async (req, res) => {
   try {
     const { userId } = req.params;
     if (!mongoose.Types.ObjectId.isValid(userId)) {
@@ -30,7 +30,7 @@ router.get("/bunsems/:userId", async (req, res) => {
   }
 });
 
-// Route to add a new bundle
+// add a new bundle
 router.post("/addbundle/:userId", async (req, res) => {
   try {
     const { userId } = req.params;
@@ -42,6 +42,9 @@ router.post("/addbundle/:userId", async (req, res) => {
         400,
         "All required fields must be provided."
       );
+    }
+    if (!title || !mongoose.Types.ObjectId.isValid(userId)) {
+      throw new Error("Invalid inputs");
     }
 
     const user = await User.findById(userId);
@@ -62,18 +65,18 @@ router.post("/addbundle/:userId", async (req, res) => {
   }
 });
 
-// Route to add a new semester list
+// add a new semester list
 router.post("/addsem/:userId", async (req, res) => {
   try {
     const { userId } = req.params;
     const { title, bundleId } = req.body;
 
-    if (!title || !userId || !bundleId) {
-      return handleErrorResponse(
-        res,
-        400,
-        "All required fields must be provided."
-      );
+    if (
+      !title ||
+      !mongoose.Types.ObjectId.isValid(userId) ||
+      !mongoose.Types.ObjectId.isValid(bundleId)
+    ) {
+      return handleErrorResponse(res, 400, "Invalid inputs.");
     }
 
     const user = await User.findById(userId);

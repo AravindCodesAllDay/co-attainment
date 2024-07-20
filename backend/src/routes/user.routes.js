@@ -22,6 +22,13 @@ const verifyToken = (req, res, next) => {
   }
 };
 
+router.get("/protected", verifyToken, (req, res) => {
+  res
+    .status(200)
+    .json({ message: "Access to protected route granted", user: req.user });
+});
+
+//login a user || create one if no user
 router.post("/:email", async (req, res) => {
   try {
     const { email } = req.params;
@@ -50,31 +57,7 @@ router.post("/:email", async (req, res) => {
   }
 });
 
-router.get("/protected", verifyToken, (req, res) => {
-  res
-    .status(200)
-    .json({ message: "Access to protected route granted", user: req.user });
-});
-
-router.get("/colist/:userId", async (req, res) => {
-  const { userId } = req.params;
-  if (!userId) {
-    return res
-      .status(400)
-      .json({ message: "All required fields must be provided." });
-  }
-  const user = await User.findById(userId).populate(
-    "bundles.semlists.courselists"
-  );
-  if (!user) {
-    return res.status(404).json({ message: "User not found." });
-  }
-  const coLists = user.bundles.flatMap((bundle) =>
-    bundle.semlists.flatMap((sem) => sem.courselists)
-  );
-  return res.status(200).json(coLists);
-});
-
+//add a cotype
 router.post("/cotype/:userId", async (req, res) => {
   const { userId } = req.params;
   const { cotype } = req.body;
@@ -104,6 +87,27 @@ router.post("/cotype/:userId", async (req, res) => {
   }
 });
 
+//get all cotype
+router.get("/cotype/:userId", async (req, res) => {
+  const { userId } = req.params;
+  if (!userId) {
+    return res
+      .status(400)
+      .json({ message: "All required fields must be provided." });
+  }
+  const user = await User.findById(userId).populate(
+    "bundles.semlists.courselists"
+  );
+  if (!user) {
+    return res.status(404).json({ message: "User not found." });
+  }
+  const coLists = user.bundles.flatMap((bundle) =>
+    bundle.semlists.flatMap((sem) => sem.courselists)
+  );
+  return res.status(200).json(coLists);
+});
+
+//delete a cotype
 router.delete("/cotype/:userId", async (req, res) => {
   const { userId } = req.params;
   const { cotype } = req.body;

@@ -1,7 +1,8 @@
 const express = require("express");
 const mongoose = require("mongoose");
-const NameList = require("../models/namelist");
-const SAA = require("../models/saa");
+
+const Namelist = require("../models/namelist");
+const SEE = require("../models/saa");
 const User = require("../models/user");
 
 const router = express.Router();
@@ -66,7 +67,7 @@ router.get("/saalist/:saaId/:userId", async (req, res) => {
 
     await verifyUserOwnership(userId, saaId, "saalists");
 
-    const saaList = await SAA.findById(saaId);
+    const saaList = await SEE.findById(saaId);
 
     if (!saaList) {
       return handleErrorResponse(res, 404, "SAA list not found");
@@ -98,7 +99,7 @@ router.post("/create/:userId", async (req, res) => {
 
     await verifyUserOwnership(userId, namelistId, "namelists");
 
-    const nameList = await NameList.findById(namelistId);
+    const nameList = await Namelist.findById(namelistId);
     if (!nameList) {
       return handleErrorResponse(res, 404, "NameList not found");
     }
@@ -115,7 +116,7 @@ router.post("/create/:userId", async (req, res) => {
       };
     });
 
-    const newSAAList = new SAA({
+    const newSAAList = new SEE({
       title,
       courses,
       students: populatedStudents,
@@ -152,7 +153,7 @@ router.put("/score/:userId", async (req, res) => {
 
     await verifyUserOwnership(userId, saaId, "saalists");
 
-    const saaList = await SAA.findById(saaId);
+    const saaList = await SEE.findById(saaId);
     if (!saaList) {
       return handleErrorResponse(res, 404, "SAA list not found");
     }
@@ -193,7 +194,7 @@ router.delete("/delete/:userId", async (req, res) => {
 
     await verifyUserOwnership(userId, saaId, "saalists");
 
-    const saaList = await SAA.findById(saaId);
+    const saaList = await SEE.findById(saaId);
     if (!saaList) {
       return handleErrorResponse(res, 404, "SAA list not found");
     }
