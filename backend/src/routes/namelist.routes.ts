@@ -1,7 +1,6 @@
 import express, { Request, Response } from 'express';
 import mongoose from 'mongoose';
-import { User } from '../models/user.model';
-import { Namelist } from '../models/namelist.model';
+import { User, Namelist } from '../models/user.model';
 
 const router = express.Router();
 

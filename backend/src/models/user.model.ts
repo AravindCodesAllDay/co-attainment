@@ -211,6 +211,9 @@ const semSchema = new Schema<ISem>({
   seelists: [seeSchema],
 });
 
+const Semester: Model<ISem> = mongoose.model<ISem>('Semester', semSchema);
+export { Semester, ISem };
+
 // Define the IBundle interface
 interface IBundle extends Document {
   title: string;
