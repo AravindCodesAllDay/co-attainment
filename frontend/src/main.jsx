@@ -14,7 +14,7 @@ import SelectCoatt from "./pages/co-attainment/SelectCoatt";
 import ViewSaas from "./pages/saapage/ViewSaas";
 import ViewSaa from "./pages/saapage/ViewSaa";
 import Dasboard from "./pages/dasboardpage/Dashboard";
-import Sem from "./pages/dasboardpage/Sem";
+import ViewSems from "./pages/sempage/ViewSems";
 
 // Set the app element for react-modal
 Modal.setAppElement("#root");
@@ -25,9 +25,9 @@ ReactDOM.createRoot(document.getElementById("root")).render(
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/dashboard" element={<Dasboard />} />
-        <Route path="/sem" element={<Sem />} />
         <Route path="/namelists" element={<ViewNamelists />} />
         <Route path="/namelists/:namelistid" element={<ViewNamelist />} />
+        <Route path="/sem" element={<ViewSems />} />
         <Route path="/courses" element={<ViewCourses />} />
         <Route path="/courses/:courseid" element={<ViewCourse />} />
         <Route path="/ptlists" element={<ViewPtLists />} />
