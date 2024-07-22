@@ -37,19 +37,23 @@ router.post('/:userId', async (req: Request, res: Response) => {
       return handleErrorResponse(res, 404, 'User not found.');
     }
 
-    const bundle = user.bundles.id(bundleId);
+    const bundle = user.bundles.find((bundle) =>
+      (bundle as unknown as { _id: mongoose.Types.ObjectId })._id.equals(
+        bundleId
+      )
+    );
 
     if (!bundle) {
       return handleErrorResponse(res, 404, 'Bundle not found.');
     }
 
-    const namelist = await Namelist.create({ title });
+    const newNamelist = new Namelist({ title, students: [] });
 
-    bundle.namelists.push(namelist);
+    bundle.namelists.push(newNamelist);
 
     await user.save();
 
-    return res.status(201).json(namelist);
+    return res.status(201).json(newNamelist);
   } catch (error) {
     console.error((error as Error).message);
     return handleErrorResponse(res, 500, 'Internal Server Error');
@@ -57,7 +61,7 @@ router.post('/:userId', async (req: Request, res: Response) => {
 });
 
 // Get all namelists of a specific bundle
-router.get('/:userId/:bundleId', async (req: Request, res: Response) => {
+router.get('/:bundleId/:userId', async (req: Request, res: Response) => {
   try {
     const { userId, bundleId } = req.params;
 
@@ -74,7 +78,11 @@ router.get('/:userId/:bundleId', async (req: Request, res: Response) => {
       return handleErrorResponse(res, 404, 'User not found.');
     }
 
-    const bundle = user.bundles.id(bundleId);
+    const bundle = user.bundles.find((bundle) =>
+      (bundle as unknown as { _id: mongoose.Types.ObjectId })._id.equals(
+        bundleId
+      )
+    );
 
     if (!bundle) {
       return handleErrorResponse(res, 404, 'Bundle not found.');
@@ -91,11 +99,12 @@ router.get('/:userId/:bundleId', async (req: Request, res: Response) => {
 router.delete('/:userId', async (req: Request, res: Response) => {
   try {
     const { userId } = req.params;
-    const { namelistId } = req.body;
+    const { namelistId, bundleId } = req.body;
 
     if (
       !mongoose.Types.ObjectId.isValid(userId) ||
-      !mongoose.Types.ObjectId.isValid(namelistId)
+      !mongoose.Types.ObjectId.isValid(namelistId) ||
+      !mongoose.Types.ObjectId.isValid(bundleId)
     ) {
       return handleErrorResponse(
         res,
@@ -110,18 +119,27 @@ router.delete('/:userId', async (req: Request, res: Response) => {
       return handleErrorResponse(res, 404, 'User not found.');
     }
 
-    const namelist = await Namelist.findByIdAndDelete(namelistId);
+    const bundle = user.bundles.find((bundle) =>
+      (bundle as unknown as { _id: mongoose.Types.ObjectId })._id.equals(
+        bundleId
+      )
+    );
 
-    if (!namelist) {
+    if (!bundle) {
+      return handleErrorResponse(res, 404, 'Bundle not found.');
+    }
+
+    const namelistIndex = (
+      bundle as unknown as { namelists: mongoose.Types.ObjectId[] }
+    ).namelists.findIndex((namelist) => namelist._id.equals(namelistId));
+
+    if (namelistIndex === -1) {
       return handleErrorResponse(res, 404, 'Namelist not found.');
     }
 
-    user.bundles.forEach((bundle) => {
-      const index = bundle.namelists.indexOf(namelistId);
-      if (index !== -1) {
-        bundle.namelists.splice(index, 1);
-      }
-    });
+    (
+      bundle as unknown as { namelists: mongoose.Types.ObjectId[] }
+    ).namelists.splice(namelistIndex, 1);
 
     await user.save();
 
@@ -132,115 +150,252 @@ router.delete('/:userId', async (req: Request, res: Response) => {
   }
 });
 
-// The following routes are commented out. Uncomment and type if needed.
 // Add a student to a namelist
-// router.post('/student/:userId', async (req: Request, res: Response) => {
-//   try {
-//     const { userId } = req.params;
-//     const { namelistId, studentDetail } = req.body;
+router.post('/student/:userId', async (req: Request, res: Response) => {
+  try {
+    const { userId } = req.params;
+    const { namelistId, bundleId, studentDetail } = req.body;
 
-//     if (!mongoose.Types.ObjectId.isValid(userId) || !mongoose.Types.ObjectId.isValid(namelistId) || !studentDetail) {
-//       return handleErrorResponse(res, 400, 'All required fields must be provided.');
-//     }
+    if (
+      !mongoose.Types.ObjectId.isValid(userId) ||
+      !mongoose.Types.ObjectId.isValid(namelistId) ||
+      !mongoose.Types.ObjectId.isValid(bundleId) ||
+      !studentDetail
+    ) {
+      return handleErrorResponse(
+        res,
+        400,
+        'All required fields must be provided.'
+      );
+    }
 
-//     const namelist = await Namelist.findById(namelistId);
+    const user = await User.findById(userId);
 
-//     if (!namelist) {
-//       return handleErrorResponse(res, 404, 'Namelist not found.');
-//     }
+    if (!user) {
+      return handleErrorResponse(res, 404, 'User not found.');
+    }
 
-//     namelist.students.push(studentDetail);
-//     await namelist.save();
+    const bundle = user.bundles.find((bundle) =>
+      (bundle as unknown as { _id: mongoose.Types.ObjectId })._id.equals(
+        bundleId
+      )
+    );
 
-//     return res.status(200).json(namelist);
-//   } catch (error) {
-//     console.error((error as Error).message);
-//     return handleErrorResponse(res, 500, 'Internal Server Error');
-//   }
-// });
+    if (!bundle) {
+      return handleErrorResponse(res, 404, 'Bundle not found.');
+    }
+
+    const namelist = bundle.namelists.find((namelist) =>
+      (namelist as unknown as { _id: mongoose.Types.ObjectId })._id.equals(
+        namelistId
+      )
+    );
+
+    if (!namelist) {
+      return handleErrorResponse(res, 404, 'Namelist not found.');
+    }
+
+    namelist.students.push(studentDetail);
+    await user.save();
+
+    return res.status(200).json(namelist);
+  } catch (error) {
+    console.error((error as Error).message);
+    return handleErrorResponse(res, 500, 'Internal Server Error');
+  }
+});
 
 // Get students in a namelist
-// router.get('/student/:namelistId/:userId', async (req: Request, res: Response) => {
-//   try {
-//     const { userId, namelistId } = req.params;
+router.get(
+  '/student/:namelistId/:userId',
+  async (req: Request, res: Response) => {
+    try {
+      const { userId, bundleId, namelistId } = req.params;
 
-//     const namelist = await Namelist.findById(namelistId);
+      if (
+        !mongoose.Types.ObjectId.isValid(userId) ||
+        !mongoose.Types.ObjectId.isValid(namelistId) ||
+        !mongoose.Types.ObjectId.isValid(bundleId)
+      ) {
+        return handleErrorResponse(
+          res,
+          400,
+          'Invalid user ID, bundle ID, or namelist ID.'
+        );
+      }
 
-//     if (!namelist) {
-//       return handleErrorResponse(res, 404, 'Namelist not found.');
-//     }
+      const user = await User.findById(userId);
 
-//     return res.status(200).json(namelist.students);
-//   } catch (error) {
-//     console.error((error as Error).message);
-//     return handleErrorResponse(res, 500, 'Internal Server Error');
-//   }
-// });
+      if (!user) {
+        return handleErrorResponse(res, 404, 'User not found.');
+      }
+
+      const bundle = user.bundles.find((bundle) =>
+        (bundle as unknown as { _id: mongoose.Types.ObjectId })._id.equals(
+          bundleId
+        )
+      );
+
+      if (!bundle) {
+        return handleErrorResponse(res, 404, 'Bundle not found.');
+      }
+
+      const namelist = bundle.namelists.find((namelist) =>
+        (namelist as unknown as { _id: mongoose.Types.ObjectId })._id.equals(
+          namelistId
+        )
+      );
+
+      if (!namelist) {
+        return handleErrorResponse(res, 404, 'Namelist not found.');
+      }
+
+      return res.status(200).json(namelist.students);
+    } catch (error) {
+      console.error((error as Error).message);
+      return handleErrorResponse(res, 500, 'Internal Server Error');
+    }
+  }
+);
 
 // Update student details in a namelist
-// router.put('/student/:userId', async (req: Request, res: Response) => {
-//   try {
-//     const { userId } = req.params;
-//     const { namelistId, studentId, studentDetail } = req.body;
+router.put('/student/:userId', async (req: Request, res: Response) => {
+  try {
+    const { userId } = req.params;
+    const { namelistId, bundleId, studentId, studentDetail } = req.body;
 
-//     if (!userId || !namelistId || !studentDetail || !studentId) {
-//       return handleErrorResponse(res, 400, 'All required fields must be provided.');
-//     }
+    if (
+      !mongoose.Types.ObjectId.isValid(userId) ||
+      !mongoose.Types.ObjectId.isValid(namelistId) ||
+      !mongoose.Types.ObjectId.isValid(bundleId) ||
+      !mongoose.Types.ObjectId.isValid(studentId) ||
+      !studentDetail
+    ) {
+      return handleErrorResponse(
+        res,
+        400,
+        'All required fields must be provided.'
+      );
+    }
 
-//     const namelist = await Namelist.findById(namelistId);
+    const user = await User.findById(userId);
 
-//     if (!namelist) {
-//       return handleErrorResponse(res, 404, 'Namelist not found.');
-//     }
+    if (!user) {
+      return handleErrorResponse(res, 404, 'User not found.');
+    }
 
-//     const student = namelist.students.id(studentId);
-//     if (!student) {
-//       return handleErrorResponse(res, 404, 'Student not found in the namelist.');
-//     }
+    const bundle = user.bundles.find((bundle) =>
+      (bundle as unknown as { _id: mongoose.Types.ObjectId })._id.equals(
+        bundleId
+      )
+    );
 
-//     student.rollno = studentDetail.rollno;
-//     student.name = studentDetail.name;
+    if (!bundle) {
+      return handleErrorResponse(res, 404, 'Bundle not found.');
+    }
 
-//     await namelist.save();
+    const namelist = bundle.namelists.find((namelist) =>
+      (namelist as unknown as { _id: mongoose.Types.ObjectId })._id.equals(
+        namelistId
+      )
+    );
 
-//     return res.status(200).json({ message: 'Student details updated successfully.' });
-//   } catch (error) {
-//     console.error((error as Error).message);
-//     return handleErrorResponse(res, 500, 'Internal Server Error');
-//   }
-// });
+    if (!namelist) {
+      return handleErrorResponse(res, 404, 'Namelist not found.');
+    }
+
+    const student = namelist.students.find((student: any) =>
+      (student._id as mongoose.Types.ObjectId).equals(studentId)
+    );
+
+    if (!student) {
+      return handleErrorResponse(
+        res,
+        404,
+        'Student not found in the namelist.'
+      );
+    }
+
+    student.rollno = studentDetail.rollno;
+    student.name = studentDetail.name;
+
+    await user.save();
+
+    return res
+      .status(200)
+      .json({ message: 'Student details updated successfully.' });
+  } catch (error) {
+    console.error((error as Error).message);
+    return handleErrorResponse(res, 500, 'Internal Server Error');
+  }
+});
 
 // Delete a student from a namelist
-// router.delete('/student/:userId', async (req: Request, res: Response) => {
-//   try {
-//     const { userId } = req.params;
-//     const { namelistId, studentId } = req.body;
+router.delete('/student/:userId', async (req: Request, res: Response) => {
+  try {
+    const { userId } = req.params;
+    const { namelistId, bundleId, studentId } = req.body;
 
-//     if (!userId || !namelistId || !studentId) {
-//       return handleErrorResponse(res, 400, 'All required fields must be provided.');
-//     }
+    if (
+      !mongoose.Types.ObjectId.isValid(userId) ||
+      !mongoose.Types.ObjectId.isValid(namelistId) ||
+      !mongoose.Types.ObjectId.isValid(bundleId) ||
+      !mongoose.Types.ObjectId.isValid(studentId)
+    ) {
+      return handleErrorResponse(
+        res,
+        400,
+        'All required fields must be provided.'
+      );
+    }
 
-//     const namelist = await Namelist.findById(namelistId);
+    const user = await User.findById(userId);
 
-//     if (!namelist) {
-//       return handleErrorResponse(res, 404, 'Namelist not found.');
-//     }
+    if (!user) {
+      return handleErrorResponse(res, 404, 'User not found.');
+    }
 
-//     const studentIndex = namelist.students.findIndex(student => student._id.toString() === studentId);
+    const bundle = user.bundles.find((bundle) =>
+      (bundle as unknown as { _id: mongoose.Types.ObjectId })._id.equals(
+        bundleId
+      )
+    );
 
-//     if (studentIndex === -1) {
-//       return handleErrorResponse(res, 404, 'Student not found in the namelist.');
-//     }
+    if (!bundle) {
+      return handleErrorResponse(res, 404, 'Bundle not found.');
+    }
 
-//     namelist.students.splice(studentIndex, 1);
+    const namelist = bundle.namelists.find((namelist) =>
+      (namelist as unknown as { _id: mongoose.Types.ObjectId })._id.equals(
+        namelistId
+      )
+    );
 
-//     await namelist.save();
+    if (!namelist) {
+      return handleErrorResponse(res, 404, 'Namelist not found.');
+    }
 
-//     return res.status(200).json({ message: 'Student deleted successfully.' });
-//   } catch (error) {
-//     console.error((error as Error).message);
-//     return handleErrorResponse(res, 500, 'Internal Server Error');
-//   }
-// });
+    const studentIndex = namelist.students.findIndex((student: any) =>
+      (student._id as mongoose.Types.ObjectId).equals(studentId)
+    );
+
+    if (studentIndex === -1) {
+      return handleErrorResponse(
+        res,
+        404,
+        'Student not found in the namelist.'
+      );
+    }
+
+    namelist.students.splice(studentIndex, 1);
+
+    await user.save();
+
+    return res.status(200).json({ message: 'Student deleted successfully.' });
+  } catch (error) {
+    console.error((error as Error).message);
+    return handleErrorResponse(res, 500, 'Internal Server Error');
+  }
+});
 
 export default router;
