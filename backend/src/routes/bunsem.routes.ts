@@ -13,7 +13,7 @@ const handleErrorResponse = (
   return res.status(status).json({ message });
 };
 
-// Route to get all bundles and semesters for a user
+// Route to get all bundles for a user
 router.get('/:userId', async (req: Request, res: Response) => {
   try {
     const { userId } = req.params;
@@ -69,6 +69,38 @@ router.post('/bun/:userId', async (req: Request, res: Response) => {
     await user.save();
 
     return res.status(201).json(user);
+  } catch (error) {
+    console.error((error as Error).message);
+    return handleErrorResponse(res, 500, 'Internal Server Error');
+  }
+});
+
+// Route to get all sems of a bundle for a user
+router.get('/:bundleId/:userId', async (req: Request, res: Response) => {
+  try {
+    const { userId, bundleId } = req.params;
+    if (
+      !mongoose.Types.ObjectId.isValid(userId) ||
+      !mongoose.Types.ObjectId.isValid(bundleId)
+    ) {
+      return handleErrorResponse(res, 400, 'Invalid user ID.');
+    }
+
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return handleErrorResponse(res, 404, 'User not found.');
+    }
+    const bundle = user.bundles.find((bundle) =>
+      (bundle as unknown as { _id: mongoose.Types.ObjectId })._id.equals(
+        bundleId
+      )
+    );
+    if (!bundle) {
+      return handleErrorResponse(res, 404, 'Bundle not found.');
+    }
+
+    return res.status(200).json(bundle.semlists);
   } catch (error) {
     console.error((error as Error).message);
     return handleErrorResponse(res, 500, 'Internal Server Error');

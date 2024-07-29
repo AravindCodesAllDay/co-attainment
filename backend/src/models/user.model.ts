@@ -195,7 +195,7 @@ const namelistSchema = new Schema<INamelist>(
 );
 
 const Namelist: Model<INamelist> = mongoose.model('Namelist', namelistSchema);
-export { Namelist };
+export { Namelist, INamelist };
 
 interface ISem extends Document {
   title: string;
