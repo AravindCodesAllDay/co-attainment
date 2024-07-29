@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import close from "../../assets/close.svg";
 
 const AddbundleModal = ({ show, onClose, onAddItem }) => {
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
   const [bundleName, setBundleName] = useState("");
 
   if (!show) return null;
@@ -12,12 +13,34 @@ const AddbundleModal = ({ show, onClose, onAddItem }) => {
     }
   };
 
-  const handleSubmit = (e) => {
+  const postbun = async (e) => {
     e.preventDefault();
-    if (bundleName.trim()) {
-      onAddItem(bundleName);
-      setBundleName("");
-      onClose();
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_API}/bunsem/bun/${user.userId}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            title: bundleName,
+          }),
+        }
+      );
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+
+      const result = await response.json();
+      console.log("Bundle Created:", result);
+      if (bundleName.trim()) {
+        onAddItem(bundleName);
+        setBundleName("");
+        onClose();
+      }
+    } catch (error) {
+      console.error("Error logging in:", error);
     }
   };
 
@@ -34,7 +57,7 @@ const AddbundleModal = ({ show, onClose, onAddItem }) => {
           src={close}
         />
         <h2 className="text-xl mb-4 font-bold">Add Bundle</h2>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={postbun}>
           <label className="block mb-2">
             Bundle Name:
             <input
