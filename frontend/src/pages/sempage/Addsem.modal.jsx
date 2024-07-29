@@ -1,12 +1,15 @@
 import React, { useState } from "react";
 import close from "../../assets/close.svg";
 
-function Addsemmodal({ isOpen, onClose, handleAddSem }) {
+function AddSemModal({ isOpen, onClose, handleAddSem, bundleId }) {
   const user = JSON.parse(localStorage.getItem("user") || "{}");
   const [sem, setSem] = useState("");
+  const [error, setError] = useState("");
 
-  const postsem = async (e) => {
+  const postSem = async (e) => {
     e.preventDefault();
+    setError(""); // Reset error before submission
+
     try {
       const response = await fetch(
         `${import.meta.env.VITE_API}/bunsem/sem/${user.userId}`,
@@ -17,29 +20,25 @@ function Addsemmodal({ isOpen, onClose, handleAddSem }) {
           },
           body: JSON.stringify({
             title: sem,
+            bundleId,
           }),
         }
       );
+
       if (!response.ok) {
         throw new Error("Network response was not ok");
       }
 
       const result = await response.json();
-      console.log("Sem created", result);
-      handleAddSem(sem);
+      console.log("Semester created", result);
+      handleAddSem(result);
       setSem("");
       onClose();
     } catch (error) {
-      console.log("Error POsting the sem");
+      console.error("Error posting the semester:", error);
+      setError("Failed to create semester. Please try again.");
     }
   };
-
-  // const handleSubmit = (e) => {
-  //   e.preventDefault();
-  //   handleAddSem(sem);
-  //   setSem(""); // Reset the input field
-  //   onClose();
-  // };
 
   if (!isOpen) return null;
 
@@ -53,12 +52,14 @@ function Addsemmodal({ isOpen, onClose, handleAddSem }) {
         onClick={(e) => e.stopPropagation()}
       >
         <img
-          className="absolute top-2 right-2  p-2 rounded cursor-pointer"
+          className="absolute top-2 right-2 p-2 rounded cursor-pointer"
           onClick={onClose}
           src={close}
+          alt="Close"
         />
         <h2 className="text-2xl mb-4">Add Semester</h2>
-        <form onSubmit={postsem}>
+        {error && <p className="text-red-500 mb-4">{error}</p>}
+        <form onSubmit={postSem}>
           <div className="mb-4">
             <label
               className="block text-gray-700 text-sm font-bold mb-2"
@@ -73,12 +74,16 @@ function Addsemmodal({ isOpen, onClose, handleAddSem }) {
               onChange={(e) => setSem(e.target.value)}
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
               placeholder="Enter semester name"
+              required
             />
           </div>
           <div className="flex justify-end">
             <button
               type="submit"
-              className="bg-blue-500 text-white p-2 rounded mr-2"
+              className={`bg-blue-500 text-white p-2 rounded mr-2 ${
+                !sem && "opacity-50 cursor-not-allowed"
+              }`}
+              disabled={!sem}
             >
               Submit
             </button>
@@ -89,4 +94,4 @@ function Addsemmodal({ isOpen, onClose, handleAddSem }) {
   );
 }
 
-export default Addsemmodal;
+export default AddSemModal;

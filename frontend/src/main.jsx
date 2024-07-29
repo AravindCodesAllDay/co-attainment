@@ -27,7 +27,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         <Route path="/dashboard" element={<Dasboard />} />
         <Route path="/namelists" element={<ViewNamelists />} />
         <Route path="/namelists/:namelistid" element={<ViewNamelist />} />
-        <Route path="/sem" element={<ViewSems />} />
+        <Route path="/sem/:bundleid" element={<ViewSems />} />
         <Route path="/courses" element={<ViewCourses />} />
         <Route path="/courses/:courseid" element={<ViewCourse />} />
         <Route path="/ptlists" element={<ViewPtLists />} />
