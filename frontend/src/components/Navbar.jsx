@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, useParams } from "react-router-dom";
 import logo from "../assets/nothinglogo.jpg";
 import profile from "../assets/profile.svg";
 
 const Navbar = () => {
+  const { bundleId } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
   const user = JSON.parse(localStorage.getItem("user"));
@@ -54,11 +55,11 @@ const Navbar = () => {
           </div>
         );
       case "/namelists":
-      case "/sem":
+      case `/sem/${bundleId}`:
         return (
           <div className="flex flex-row gap-6 justify-center items-center font-bold text-white cursor-pointer">
             <h2 onClick={() => navigate(`/namelists`)}>Namelist</h2>
-            <h2 onClick={() => navigate("/sem")}> Sems</h2>
+            <h2 onClick={() => navigate(`/sem/${bundleId}`)}> Sems</h2>
           </div>
         );
       case "/courses":
