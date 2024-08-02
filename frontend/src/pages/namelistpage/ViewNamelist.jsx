@@ -9,6 +9,7 @@ import EditNamelistModal from "./EditNamelist.Modal";
 const ViewNamelist = () => {
   const user = JSON.parse(localStorage.getItem("user"));
   const { namelistid } = useParams();
+  const { bundleId } = useParams();
 
   const [studentName, setStudentName] = useState("");
   const [rollNo, setRollNo] = useState("");
@@ -53,7 +54,7 @@ const ViewNamelist = () => {
     e.preventDefault();
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API}/student/addstudent/${user.userId}`,
+        `${import.meta.env.VITE_API}/namelist/student/${user.userId}`,
         {
           method: "PUT",
           headers: {
@@ -61,8 +62,11 @@ const ViewNamelist = () => {
           },
           body: JSON.stringify({
             namelistId: namelistid,
-            rollno: rollNo,
-            name: studentName,
+            bundleId: bundleId,
+            studentDetail: {
+              name: studentName,
+              rollNo: rollNo,
+            },
           }),
         }
       );
@@ -87,7 +91,7 @@ const ViewNamelist = () => {
     setIsLoading(true);
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API}/student/students/${namelistid}/${
+        `${import.meta.env.VITE_API}/namelist/${bundleId}/${namelistid}/${
           user.userId
         }`
       );

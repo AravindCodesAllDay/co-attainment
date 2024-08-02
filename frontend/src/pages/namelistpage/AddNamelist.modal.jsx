@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { useParams } from "react-router-dom";
 
-const AddNamelistModal = ({ showModal, toggleModal, bundleId }) => {
+const AddNamelistModal = ({ showModal, toggleModal }) => {
   const user = JSON.parse(localStorage.getItem("user"));
-  const bundle = bundleId;
+  const { bundleId } = useParams();
   const [title, setTitle] = useState("");
   const [error, setError] = useState("");
 
@@ -24,7 +24,7 @@ const AddNamelistModal = ({ showModal, toggleModal, bundleId }) => {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ title: title, bundleId: bundle }),
+          body: JSON.stringify({ title: title, bundleId: bundleId }),
         }
       );
 

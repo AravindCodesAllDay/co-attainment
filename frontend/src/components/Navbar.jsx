@@ -54,11 +54,11 @@ const Navbar = () => {
             <h1>CSBS Admin Profile</h1>
           </div>
         );
-      case "/namelists":
+      case `/namelists/${bundleId}`:
       case `/sem/${bundleId}`:
         return (
           <div className="flex flex-row gap-6 justify-center items-center font-bold text-white cursor-pointer">
-            <h2 onClick={() => navigate(`/namelists`)}>Namelist</h2>
+            <h2 onClick={() => navigate(`/namelists/${bundleId}`)}>Namelist</h2>
             <h2 onClick={() => navigate(`/sem/${bundleId}`)}> Sems</h2>
           </div>
         );
@@ -73,7 +73,7 @@ const Navbar = () => {
       default:
         return (
           <div className="flex flex-row gap-6 justify-center items-center font-bold text-white cursor-pointer">
-            <h2 onClick={() => navigate(`/namelists`)}>Namelist</h2>
+            <h2 onClick={() => navigate(`/namelists/${bundleId}`)}>Namelist</h2>
             <h2 onClick={() => navigate("/courses")}>Course</h2>
             <h2 onClick={() => navigate("/ptlists")}>PtLists</h2>
             <h2 onClick={() => navigate("/saa")}>Saa</h2>
