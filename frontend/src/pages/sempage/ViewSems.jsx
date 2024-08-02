@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import Navbar from "../../components/Navbar";
 import { useNavigate, useParams } from "react-router-dom";
 import Addsemmodal from "./Addsem.modal";
+import AddNamelistModal from "../namelistpage/AddNamelist.modal";
 
 function ViewSems() {
   const navigate = useNavigate();
@@ -65,6 +66,11 @@ function ViewSems() {
         isOpen={isModalOpen}
         onClose={closeModal}
         handleAddSem={handleAddSem}
+      />
+      <AddNamelistModal
+        showModal={isModalOpen}
+        toggleModal={closeModal}
+        bundleId={bundleId}
       />
     </>
   );

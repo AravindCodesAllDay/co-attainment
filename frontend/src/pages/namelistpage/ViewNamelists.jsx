@@ -1,27 +1,28 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import Navbar from "../../components/Navbar";
 import AddNamelistModal from "./AddNamelist.modal";
 
-const ViewNamelists = () => {
+const ViewNamelists = (bundleId) => {
+  // const { bundleId } = useParams();
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem("user"));
 
   const [showModal, setShowModal] = useState(false);
-  const [titles, setTitles] = useState([]);
+  const [namelists, setNamelists] = useState([]);
 
   useEffect(() => {
-    const fetchTitles = async () => {
+    const fetchNamelists = async () => {
       if (user && user.userId) {
         try {
           const response = await fetch(
-            `${import.meta.env.VITE_API}/student/namelists/${user.userId}`
+            `${import.meta.env.VITE_API}/namelist/${bundleId}/${user.userId}`
           );
           if (!response.ok) {
             throw new Error("Network response was not ok");
           }
           const data = await response.json();
-          setTitles(data);
+          setNamelists(data);
         } catch (error) {
           console.log("error while fetching:", error);
         }
@@ -30,8 +31,8 @@ const ViewNamelists = () => {
       }
     };
 
-    fetchTitles();
-  }, [user]);
+    fetchNamelists();
+  }, []);
 
   const toggleModal = () => {
     setShowModal(!showModal);
@@ -49,9 +50,9 @@ const ViewNamelists = () => {
         </button>
       </div>
       <AddNamelistModal showModal={showModal} toggleModal={toggleModal} />
-      {titles.length ? (
+      {namelists.length ? (
         <div className="grid grid-cols-4 gap-4 items-center mt-4 p-6">
-          {titles.map((title) => (
+          {namelists.map((title, index) => (
             <div
               key={title._id}
               className="border p-2 m-2 w-3/4 rounded bg-gray-100 cursor-pointer hover:bg-sky-500 font-bold hover:text-white"
