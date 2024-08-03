@@ -160,7 +160,7 @@ router.delete('/:userId', async (req: Request, res: Response) => {
 
 // Get students in a namelist
 router.get(
-  '/student/:namelistId/:userId',
+  '/student/:bundleId/:namelistId/:userId',
   async (req: Request, res: Response) => {
     try {
       const { userId, bundleId, namelistId } = req.params;

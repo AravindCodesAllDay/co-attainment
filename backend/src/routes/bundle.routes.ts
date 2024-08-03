@@ -1,7 +1,7 @@
 import express, { Request, Response } from 'express';
 import mongoose from 'mongoose';
 
-import { User, IBundle } from '../models/user.model';
+import { User, IBundle, Bundle } from '../models/user.model';
 
 const router = express.Router();
 
@@ -40,7 +40,7 @@ router.get('/:userId', async (req: Request, res: Response) => {
 });
 
 // Add a new bundle
-router.post('/bun/:userId', async (req: Request, res: Response) => {
+router.post('/:userId', async (req: Request, res: Response) => {
   try {
     const { userId } = req.params;
     const { title } = req.body;
@@ -63,7 +63,7 @@ router.post('/bun/:userId', async (req: Request, res: Response) => {
       return handleErrorResponse(res, 404, 'User not found.');
     }
 
-    const newBundle = new (mongoose.model<IBundle>('Bundle'))({
+    const newBundle = new Bundle({
       title,
       namelists: [],
       semlists: [],
@@ -81,10 +81,10 @@ router.post('/bun/:userId', async (req: Request, res: Response) => {
 });
 
 // Route to delete a bundle
-router.delete('/bun/:userId/:bundleId', async (req: Request, res: Response) => {
+router.delete('/:userId', async (req: Request, res: Response) => {
   try {
-    const { userId, bundleId } = req.params;
-
+    const { userId } = req.params;
+    const { bundleId } = req.body;
     if (
       !mongoose.Types.ObjectId.isValid(userId) ||
       !mongoose.Types.ObjectId.isValid(bundleId)
@@ -98,7 +98,15 @@ router.delete('/bun/:userId/:bundleId', async (req: Request, res: Response) => {
       return handleErrorResponse(res, 404, 'User not found.');
     }
 
-    user.bundles = user.bundles.filter((bundle) => bundle._id !== bundleId);
+    const bundleIndex = user.bundles.findIndex((list) =>
+      (list as any)._id.equals(bundleId)
+    );
+
+    if (bundleIndex === -1) {
+      return handleErrorResponse(res, 404, 'PT list not found');
+    }
+
+    user.bundles.splice(bundleIndex, 1);
 
     await user.save();
 

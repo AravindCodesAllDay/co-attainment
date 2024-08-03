@@ -194,8 +194,8 @@ const semSchema = new Schema<ISem>({
   ptlists: [ptListSchema],
   seelists: [seeSchema],
 });
-
-export { ISem };
+const Sem: Model<ISem> = mongoose.model<ISem>('Semester', semSchema);
+export { ISem, Sem };
 
 // bundle
 interface IBundle extends Document {
@@ -209,8 +209,8 @@ const bundleSchema = new Schema<IBundle>({
   namelists: [namelistSchema],
   semlists: [semSchema],
 });
-
-export { IBundle };
+const Bundle: Model<IBundle> = mongoose.model<IBundle>('Bundle', bundleSchema);
+export { IBundle, Bundle };
 
 //user
 interface IUser extends Document {
