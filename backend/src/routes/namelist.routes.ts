@@ -1,6 +1,6 @@
 import express, { Request, Response } from 'express';
 import mongoose from 'mongoose';
-import { User, Namelist } from '../models/user.model';
+import { User, INamelist } from '../models/user.model';
 
 const router = express.Router();
 
@@ -12,6 +12,46 @@ const handleErrorResponse = (
 ): Response => {
   return res.status(status).json({ message });
 };
+
+// Get all namelists of a specific bundle
+router.get('/:bundleId/:userId', async (req: Request, res: Response) => {
+  try {
+    const { userId, bundleId } = req.params;
+
+    if (
+      !mongoose.Types.ObjectId.isValid(userId) ||
+      !mongoose.Types.ObjectId.isValid(bundleId)
+    ) {
+      return handleErrorResponse(res, 400, 'Invalid user ID or bundle ID.');
+    }
+
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return handleErrorResponse(res, 404, 'User not found.');
+    }
+
+    const bundle = user.bundles.find((bundle) =>
+      (bundle as unknown as { _id: mongoose.Types.ObjectId })._id.equals(
+        bundleId
+      )
+    );
+
+    if (!bundle) {
+      return handleErrorResponse(res, 404, 'Bundle not found.');
+    }
+
+    const namelists = bundle.namelists.map((namelist) => ({
+      namelistId: namelist._id,
+      title: namelist.title,
+    }));
+
+    return res.status(200).json(namelists);
+  } catch (error) {
+    console.error((error as Error).message);
+    return handleErrorResponse(res, 500, 'Internal Server Error');
+  }
+});
 
 // Create a new namelist in a specific bundle
 router.post('/:userId', async (req: Request, res: Response) => {
@@ -47,48 +87,16 @@ router.post('/:userId', async (req: Request, res: Response) => {
       return handleErrorResponse(res, 404, 'Bundle not found.');
     }
 
-    const newNamelist = new Namelist({ title, students: [] });
+    const newNamelist = new (mongoose.model<INamelist>('NameList'))({
+      title,
+      students: [],
+    });
 
     bundle.namelists.push(newNamelist);
 
     await user.save();
 
     return res.status(201).json(newNamelist);
-  } catch (error) {
-    console.error((error as Error).message);
-    return handleErrorResponse(res, 500, 'Internal Server Error');
-  }
-});
-
-// Get all namelists of a specific bundle
-router.get('/:bundleId/:userId', async (req: Request, res: Response) => {
-  try {
-    const { userId, bundleId } = req.params;
-
-    if (
-      !mongoose.Types.ObjectId.isValid(userId) ||
-      !mongoose.Types.ObjectId.isValid(bundleId)
-    ) {
-      return handleErrorResponse(res, 400, 'Invalid user ID or bundle ID.');
-    }
-
-    const user = await User.findById(userId);
-
-    if (!user) {
-      return handleErrorResponse(res, 404, 'User not found.');
-    }
-
-    const bundle = user.bundles.find((bundle) =>
-      (bundle as unknown as { _id: mongoose.Types.ObjectId })._id.equals(
-        bundleId
-      )
-    );
-
-    if (!bundle) {
-      return handleErrorResponse(res, 404, 'Bundle not found.');
-    }
-
-    return res.status(200).json(bundle.namelists);
   } catch (error) {
     console.error((error as Error).message);
     return handleErrorResponse(res, 500, 'Internal Server Error');
@@ -150,6 +158,59 @@ router.delete('/:userId', async (req: Request, res: Response) => {
   }
 });
 
+// Get students in a namelist
+router.get(
+  '/student/:namelistId/:userId',
+  async (req: Request, res: Response) => {
+    try {
+      const { userId, bundleId, namelistId } = req.params;
+
+      if (
+        !mongoose.Types.ObjectId.isValid(userId) ||
+        !mongoose.Types.ObjectId.isValid(namelistId) ||
+        !mongoose.Types.ObjectId.isValid(bundleId)
+      ) {
+        return handleErrorResponse(
+          res,
+          400,
+          'Invalid user ID, bundle ID, or namelist ID.'
+        );
+      }
+
+      const user = await User.findById(userId);
+
+      if (!user) {
+        return handleErrorResponse(res, 404, 'User not found.');
+      }
+
+      const bundle = user.bundles.find((bundle) =>
+        (bundle as unknown as { _id: mongoose.Types.ObjectId })._id.equals(
+          bundleId
+        )
+      );
+
+      if (!bundle) {
+        return handleErrorResponse(res, 404, 'Bundle not found.');
+      }
+
+      const namelist = bundle.namelists.find((namelist) =>
+        (namelist as unknown as { _id: mongoose.Types.ObjectId })._id.equals(
+          namelistId
+        )
+      );
+
+      if (!namelist) {
+        return handleErrorResponse(res, 404, 'Namelist not found.');
+      }
+
+      return res.status(200).json(namelist);
+    } catch (error) {
+      console.error((error as Error).message);
+      return handleErrorResponse(res, 500, 'Internal Server Error');
+    }
+  }
+);
+
 // Add a student to a namelist
 router.post('/student/:userId', async (req: Request, res: Response) => {
   try {
@@ -204,59 +265,6 @@ router.post('/student/:userId', async (req: Request, res: Response) => {
     return handleErrorResponse(res, 500, 'Internal Server Error');
   }
 });
-
-// Get students in a namelist
-router.get(
-  '/student/:namelistId/:userId',
-  async (req: Request, res: Response) => {
-    try {
-      const { userId, bundleId, namelistId } = req.params;
-
-      if (
-        !mongoose.Types.ObjectId.isValid(userId) ||
-        !mongoose.Types.ObjectId.isValid(namelistId) ||
-        !mongoose.Types.ObjectId.isValid(bundleId)
-      ) {
-        return handleErrorResponse(
-          res,
-          400,
-          'Invalid user ID, bundle ID, or namelist ID.'
-        );
-      }
-
-      const user = await User.findById(userId);
-
-      if (!user) {
-        return handleErrorResponse(res, 404, 'User not found.');
-      }
-
-      const bundle = user.bundles.find((bundle) =>
-        (bundle as unknown as { _id: mongoose.Types.ObjectId })._id.equals(
-          bundleId
-        )
-      );
-
-      if (!bundle) {
-        return handleErrorResponse(res, 404, 'Bundle not found.');
-      }
-
-      const namelist = bundle.namelists.find((namelist) =>
-        (namelist as unknown as { _id: mongoose.Types.ObjectId })._id.equals(
-          namelistId
-        )
-      );
-
-      if (!namelist) {
-        return handleErrorResponse(res, 404, 'Namelist not found.');
-      }
-
-      return res.status(200).json(namelist.students);
-    } catch (error) {
-      console.error((error as Error).message);
-      return handleErrorResponse(res, 500, 'Internal Server Error');
-    }
-  }
-);
 
 // Update student details in a namelist
 router.put('/student/:userId', async (req: Request, res: Response) => {
@@ -317,6 +325,7 @@ router.put('/student/:userId', async (req: Request, res: Response) => {
     }
 
     student.rollno = studentDetail.rollno;
+    student.registration_no = studentDetail.registration_no;
     student.name = studentDetail.name;
 
     await user.save();

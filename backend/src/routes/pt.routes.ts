@@ -13,6 +13,108 @@ const handleErrorResponse = (
   return res.status(status).json({ message });
 };
 
+//get pt from a semester
+router.get('/:bundleId/:semId/:userId', async (req: Request, res: Response) => {
+  try {
+    const { userId, bundleId, semId } = req.params;
+    if (
+      !mongoose.Types.ObjectId.isValid(userId) ||
+      !mongoose.Types.ObjectId.isValid(bundleId) ||
+      !mongoose.Types.ObjectId.isValid(semId)
+    ) {
+      return handleErrorResponse(res, 400, 'Invalid user ID or bundle ID.');
+    }
+
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return handleErrorResponse(res, 404, 'User not found.');
+    }
+
+    const bundle = user.bundles.find((bundle) =>
+      (bundle as unknown as { _id: mongoose.Types.ObjectId })._id.equals(
+        bundleId
+      )
+    );
+
+    if (!bundle) {
+      return handleErrorResponse(res, 404, 'Bundle not found.');
+    }
+    const semester = bundle.semlists.find((sem) =>
+      (sem as unknown as { _id: mongoose.Types.ObjectId })._id.equals(semId)
+    );
+
+    if (!semester) {
+      return handleErrorResponse(res, 404, 'Semester not found.');
+    }
+    const pts = semester.ptlists.map((pt) => ({
+      ptId: pt._id,
+      title: pt.title,
+    }));
+
+    return res.status(200).json(pts);
+  } catch (error) {
+    console.error((error as Error).message);
+    return handleErrorResponse(res, 500, 'Internal Server Error');
+  }
+});
+
+//get pt details
+router.get(
+  '/:bundleId/:semId/:coId/:userId',
+  async (req: Request, res: Response) => {
+    try {
+      const { userId, bundleId, semId, seeId: ptId } = req.params;
+
+      if (
+        !mongoose.Types.ObjectId.isValid(userId) ||
+        !mongoose.Types.ObjectId.isValid(bundleId) ||
+        !mongoose.Types.ObjectId.isValid(semId) ||
+        !mongoose.Types.ObjectId.isValid(ptId)
+      ) {
+        return handleErrorResponse(res, 400, 'Invalid user ID or bundle ID.');
+      }
+
+      const user = await User.findById(userId);
+
+      if (!user) {
+        return handleErrorResponse(res, 404, 'User not found.');
+      }
+
+      const bundle = user.bundles.find((bundle) =>
+        (bundle as unknown as { _id: mongoose.Types.ObjectId })._id.equals(
+          bundleId
+        )
+      );
+
+      if (!bundle) {
+        return handleErrorResponse(res, 404, 'Bundle not found.');
+      }
+
+      const semester = bundle.semlists.find((sem) =>
+        (sem as unknown as { _id: mongoose.Types.ObjectId })._id.equals(semId)
+      );
+
+      if (!semester) {
+        return handleErrorResponse(res, 404, 'Semester not found.');
+      }
+
+      const pt = semester.ptlists.find((pt) =>
+        (pt as unknown as { _id: mongoose.Types.ObjectId })._id.equals(ptId)
+      );
+
+      if (!pt) {
+        return handleErrorResponse(res, 404, 'pt not found.');
+      }
+
+      return res.status(200).json(pt);
+    } catch (error) {
+      console.error((error as Error).message);
+      return handleErrorResponse(res, 500, 'Internal Server Error');
+    }
+  }
+);
+
 // POST route to create a new PT list
 router.post('/pt/create/:userId', async (req: Request, res: Response) => {
   try {

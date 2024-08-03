@@ -1,7 +1,7 @@
 import express, { Request, Response } from 'express';
 import mongoose from 'mongoose';
 
-import { User, Bundle, Semester } from '../models/user.model';
+import { User, ISem } from '../models/user.model';
 
 const router = express.Router();
 
@@ -13,69 +13,7 @@ const handleErrorResponse = (
   return res.status(status).json({ message });
 };
 
-// Route to get all bundles for a user
-router.get('/:userId', async (req: Request, res: Response) => {
-  try {
-    const { userId } = req.params;
-    if (!mongoose.Types.ObjectId.isValid(userId)) {
-      return handleErrorResponse(res, 400, 'Invalid user ID.');
-    }
-
-    const user = await User.findById(userId);
-
-    if (!user) {
-      return handleErrorResponse(res, 404, 'User not found.');
-    }
-
-    return res.status(200).json(user.bundles);
-  } catch (error) {
-    console.error((error as Error).message);
-    return handleErrorResponse(res, 500, 'Internal Server Error');
-  }
-});
-
-// Add a new bundle
-router.post('/bun/:userId', async (req: Request, res: Response) => {
-  try {
-    const { userId } = req.params;
-    const { title } = req.body;
-
-    if (!title || !userId) {
-      return handleErrorResponse(
-        res,
-        400,
-        'All required fields must be provided.'
-      );
-    }
-
-    if (!mongoose.Types.ObjectId.isValid(userId)) {
-      return handleErrorResponse(res, 400, 'Invalid user ID.');
-    }
-
-    const user = await User.findById(userId);
-
-    if (!user) {
-      return handleErrorResponse(res, 404, 'User not found.');
-    }
-
-    const newBundle = new Bundle({
-      title,
-      namelists: [],
-      semlists: [],
-    });
-
-    user.bundles.push(newBundle);
-
-    await user.save();
-
-    return res.status(201).json(user);
-  } catch (error) {
-    console.error((error as Error).message);
-    return handleErrorResponse(res, 500, 'Internal Server Error');
-  }
-});
-
-// Route to get all sems of a bundle for a user
+// Route to get all sems titles and IDs from a bundle
 router.get('/:bundleId/:userId', async (req: Request, res: Response) => {
   try {
     const { userId, bundleId } = req.params;
@@ -83,7 +21,7 @@ router.get('/:bundleId/:userId', async (req: Request, res: Response) => {
       !mongoose.Types.ObjectId.isValid(userId) ||
       !mongoose.Types.ObjectId.isValid(bundleId)
     ) {
-      return handleErrorResponse(res, 400, 'Invalid user ID.');
+      return handleErrorResponse(res, 400, 'Invalid user ID or bundle ID.');
     }
 
     const user = await User.findById(userId);
@@ -91,16 +29,25 @@ router.get('/:bundleId/:userId', async (req: Request, res: Response) => {
     if (!user) {
       return handleErrorResponse(res, 404, 'User not found.');
     }
+
     const bundle = user.bundles.find((bundle) =>
       (bundle as unknown as { _id: mongoose.Types.ObjectId })._id.equals(
         bundleId
       )
     );
+
     if (!bundle) {
       return handleErrorResponse(res, 404, 'Bundle not found.');
     }
 
-    return res.status(200).json(bundle.semlists);
+    const sems = (bundle as unknown as { semlists: ISem[] }).semlists.map(
+      (sem) => ({
+        semesterId: sem._id,
+        title: sem.title,
+      })
+    );
+
+    return res.status(200).json(sems);
   } catch (error) {
     console.error((error as Error).message);
     return handleErrorResponse(res, 500, 'Internal Server Error');
@@ -136,7 +83,7 @@ router.post('/sem/:userId', async (req: Request, res: Response) => {
       return handleErrorResponse(res, 404, 'Bundle not found.');
     }
 
-    const newSem = new Semester({
+    const newSem = new (mongoose.model<ISem>('Semester'))({
       title,
       courselists: [],
       ptlists: [],
@@ -154,5 +101,55 @@ router.post('/sem/:userId', async (req: Request, res: Response) => {
     return handleErrorResponse(res, 500, 'Internal Server Error');
   }
 });
+
+// Route to delete a semester
+router.delete(
+  '/sem/:userId/:bundleId/:semesterId',
+  async (req: Request, res: Response) => {
+    try {
+      const { userId, bundleId, semesterId } = req.params;
+
+      if (
+        !mongoose.Types.ObjectId.isValid(userId) ||
+        !mongoose.Types.ObjectId.isValid(bundleId) ||
+        !mongoose.Types.ObjectId.isValid(semesterId)
+      ) {
+        return handleErrorResponse(
+          res,
+          400,
+          'Invalid user ID, bundle ID, or semester ID.'
+        );
+      }
+
+      const user = await User.findById(userId);
+      if (!user) {
+        return handleErrorResponse(res, 404, 'User not found');
+      }
+
+      const bundle = user.bundles.find((bundle) =>
+        (bundle as any)._id.equals(bundleId)
+      );
+
+      if (!bundle) {
+        return handleErrorResponse(res, 404, 'Bundle not found.');
+      }
+
+      const updatedSemlists = (bundle as any).semlists.filter(
+        (sem: ISem) => sem._id !== semesterId
+      );
+
+      (bundle as any).semlists = updatedSemlists;
+
+      await user.save();
+
+      return res
+        .status(200)
+        .json({ message: 'Semester deleted successfully.' });
+    } catch (error) {
+      console.error((error as Error).message);
+      return handleErrorResponse(res, 500, 'Internal Server Error');
+    }
+  }
+);
 
 export default router;

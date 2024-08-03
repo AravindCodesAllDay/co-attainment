@@ -13,6 +13,107 @@ const handleErrorResponse = (
   return res.status(status).json({ message });
 };
 
+//get courses from a semester
+router.get('/:bundleId/:semId/:userId', async (req: Request, res: Response) => {
+  try {
+    const { userId, bundleId, semId } = req.params;
+    if (
+      !mongoose.Types.ObjectId.isValid(userId) ||
+      !mongoose.Types.ObjectId.isValid(bundleId) ||
+      !mongoose.Types.ObjectId.isValid(semId)
+    ) {
+      return handleErrorResponse(res, 400, 'Invalid user ID or bundle ID.');
+    }
+
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return handleErrorResponse(res, 404, 'User not found.');
+    }
+
+    const bundle = user.bundles.find((bundle) =>
+      (bundle as unknown as { _id: mongoose.Types.ObjectId })._id.equals(
+        bundleId
+      )
+    );
+
+    if (!bundle) {
+      return handleErrorResponse(res, 404, 'Bundle not found.');
+    }
+    const semester = bundle.semlists.find((sem) =>
+      (sem as unknown as { _id: mongoose.Types.ObjectId })._id.equals(semId)
+    );
+
+    if (!semester) {
+      return handleErrorResponse(res, 404, 'Semester not found.');
+    }
+    const courses = semester.courselists.map((course) => ({
+      courseId: course._id,
+      title: course.title,
+    }));
+    return res.status(200).json(courses);
+  } catch (error) {
+    console.error((error as Error).message);
+    return handleErrorResponse(res, 500, 'Internal Server Error');
+  }
+});
+
+//get course details
+router.get(
+  '/:bundleId/:semId/:coId/:userId',
+  async (req: Request, res: Response) => {
+    try {
+      const { userId, bundleId, semId, coId } = req.params;
+
+      if (
+        !mongoose.Types.ObjectId.isValid(userId) ||
+        !mongoose.Types.ObjectId.isValid(bundleId) ||
+        !mongoose.Types.ObjectId.isValid(semId) ||
+        !mongoose.Types.ObjectId.isValid(coId)
+      ) {
+        return handleErrorResponse(res, 400, 'Invalid user ID or bundle ID.');
+      }
+
+      const user = await User.findById(userId);
+
+      if (!user) {
+        return handleErrorResponse(res, 404, 'User not found.');
+      }
+
+      const bundle = user.bundles.find((bundle) =>
+        (bundle as unknown as { _id: mongoose.Types.ObjectId })._id.equals(
+          bundleId
+        )
+      );
+
+      if (!bundle) {
+        return handleErrorResponse(res, 404, 'Bundle not found.');
+      }
+
+      const semester = bundle.semlists.find((sem) =>
+        (sem as unknown as { _id: mongoose.Types.ObjectId })._id.equals(semId)
+      );
+
+      if (!semester) {
+        return handleErrorResponse(res, 404, 'Semester not found.');
+      }
+
+      const course = semester.courselists.find((co) =>
+        (co as unknown as { _id: mongoose.Types.ObjectId })._id.equals(coId)
+      );
+
+      if (!course) {
+        return handleErrorResponse(res, 404, 'Course not found.');
+      }
+
+      return res.status(200).json(course);
+    } catch (error) {
+      console.error((error as Error).message);
+      return handleErrorResponse(res, 500, 'Internal Server Error');
+    }
+  }
+);
+
 router.post('/:userId', async (req: Request, res: Response) => {
   try {
     const { userId } = req.params;

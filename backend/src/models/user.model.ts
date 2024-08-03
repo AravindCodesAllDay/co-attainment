@@ -1,7 +1,5 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
 
-// Define Schemas First
-
 //See
 interface ISeeStudent extends Document {
   rollno: string;
@@ -153,8 +151,6 @@ const ptListSchema = new Schema<IPtList>(
 );
 
 export { IPtList, IPtPart, IPtQuestion, IPtStudent };
-
-// Define Other Schemas
 
 //namelist
 interface INameStudent extends Document {
