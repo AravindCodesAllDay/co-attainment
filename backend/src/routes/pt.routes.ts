@@ -1,270 +1,212 @@
 import express, { Request, Response } from 'express';
 import mongoose from 'mongoose';
-import { User, Namelist, PtList } from '../models/user.model';
+
+import { User, IPtList } from '../models/user.model';
 
 const router = express.Router();
 
-// Helper function to calculate average mark
-const calculateAverageMark = (students: { totalMark: number }[]): number => {
-  const totalMarks = students.reduce(
-    (sum, student) => sum + student.totalMark,
-    0
-  );
-  return students.length ? totalMarks / students.length : 0;
+const handleErrorResponse = (
+  res: Response,
+  status: number,
+  message: string
+) => {
+  return res.status(status).json({ message });
 };
 
-// Middleware to verify user ownership of PtList
-const verifyUserOwnership = async (
-  userId: string,
-  ptListId: string
-): Promise<void> => {
-  const user = await User.findById(userId);
-  if (!user) {
-    throw new Error('User not found');
-  }
-
-  if (!user.ptlists.includes(ptListId)) {
-    throw new Error('User does not have access to this PT list');
-  }
-};
-
-// GET route to retrieve all PtList titles and IDs for a user
-router.get('/:userId', async (req: Request, res: Response) => {
+// POST route to create a new PT list
+router.post('/pt/create/:userId', async (req: Request, res: Response) => {
   try {
     const { userId } = req.params;
+    const { title, structure, bundleId, semId, namelistId } = req.body;
 
-    if (!mongoose.Types.ObjectId.isValid(userId)) {
-      return res.status(400).send('Invalid user ID');
+    if (
+      !title ||
+      !Array.isArray(structure) ||
+      !mongoose.Types.ObjectId.isValid(userId) ||
+      !mongoose.Types.ObjectId.isValid(bundleId) ||
+      !mongoose.Types.ObjectId.isValid(semId) ||
+      !mongoose.Types.ObjectId.isValid(namelistId)
+    ) {
+      return handleErrorResponse(res, 400, 'Invalid input data');
     }
 
-    const user = await User.findById(userId).populate('ptlists', 'title _id');
-
+    const user = await User.findById(userId);
     if (!user) {
-      return res.status(404).send('User not found');
+      return handleErrorResponse(res, 404, 'User not found');
     }
 
-    res.status(200).json(user.ptlists);
-  } catch (err) {
-    console.error(err);
-    res.status(500).send((err as Error).message);
+    const bundle = user.bundles.find((bundle) =>
+      (bundle as any)._id.equals(bundleId)
+    );
+
+    if (!bundle) {
+      return handleErrorResponse(res, 404, 'Bundle not found.');
+    }
+
+    const sem = bundle.semlists.find((sem) => (sem as any)._id.equals(semId));
+
+    if (!sem) {
+      return handleErrorResponse(res, 404, 'Semester not found.');
+    }
+
+    const namelist = bundle.namelists.find((namelist) =>
+      (namelist as any)._id.equals(namelistId)
+    );
+
+    if (!namelist) {
+      return handleErrorResponse(res, 404, 'Namelist not found.');
+    }
+
+    const populatedStudents = namelist.students.map((student) => ({
+      rollno: student.rollno,
+      name: student.name,
+      totalMark: 0,
+      typemark: new Map(),
+      parts: [],
+    }));
+
+    const newPTList = new (mongoose.model<IPtList>('PtList'))({
+      title,
+      structure,
+      students: populatedStudents,
+    });
+
+    sem.ptlists.push(newPTList);
+
+    await user.save();
+
+    return res.status(201).json({
+      message: 'PT list created successfully',
+      ptList: newPTList,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: 'Error creating PT list',
+      error: (error as Error).message,
+    });
   }
 });
 
-// GET route to retrieve student details for a specific PtList
-router.get('/ptlist/:ptListId/:userId', async (req: Request, res: Response) => {
+// PUT route to update student scores in a PT list
+router.put('/pt/score/:userId', async (req: Request, res: Response) => {
   try {
-    const { userId, ptListId } = req.params;
+    const { userId } = req.params;
+    const { ptId, rollno: stdId, scores, bundleId, semId } = req.body;
+
+    if (
+      !mongoose.Types.ObjectId.isValid(ptId) ||
+      !mongoose.Types.ObjectId.isValid(userId) ||
+      !mongoose.Types.ObjectId.isValid(bundleId) ||
+      !mongoose.Types.ObjectId.isValid(semId) ||
+      !scores ||
+      typeof scores !== 'object'
+    ) {
+      return handleErrorResponse(res, 400, 'Invalid input data');
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return handleErrorResponse(res, 404, 'User not found');
+    }
+
+    const bundle = user.bundles.find((bundle) =>
+      (bundle as any)._id.equals(bundleId)
+    );
+
+    if (!bundle) {
+      return handleErrorResponse(res, 404, 'Bundle not found.');
+    }
+
+    const sem = bundle.semlists.find((sem) => (sem as any)._id.equals(semId));
+
+    if (!sem) {
+      return handleErrorResponse(res, 404, 'Semester not found.');
+    }
+
+    const ptList = sem.ptlists.find((pt) => (pt as any)._id.equals(ptId));
+
+    if (!ptList) {
+      return handleErrorResponse(res, 404, 'PT list not found.');
+    }
+
+    const student = ptList.students.find((student) => student.rollno === stdId);
+
+    if (!student) {
+      return handleErrorResponse(res, 404, 'Student not found');
+    }
+
+    for (const part in scores) {
+      if (student.typemark.has(part)) {
+        student.typemark.set(part, scores[part]);
+      }
+    }
+
+    await ptList.save();
+
+    return res.status(200).json({
+      message: 'Student scores updated successfully',
+      ptList,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: 'Error updating student scores',
+      error: (error as Error).message,
+    });
+  }
+});
+
+// DELETE route to delete a PT list
+router.delete('/pt/delete/:userId', async (req: Request, res: Response) => {
+  try {
+    const { userId } = req.params;
+    const { ptId, bundleId, semId } = req.body;
 
     if (
       !mongoose.Types.ObjectId.isValid(userId) ||
-      !mongoose.Types.ObjectId.isValid(ptListId)
+      !mongoose.Types.ObjectId.isValid(ptId) ||
+      !mongoose.Types.ObjectId.isValid(bundleId) ||
+      !mongoose.Types.ObjectId.isValid(semId)
     ) {
-      return res.status(400).send('Invalid user ID or PtList ID');
+      return handleErrorResponse(res, 400, 'Invalid input data');
     }
 
-    await verifyUserOwnership(userId, ptListId);
-
-    const ptList = await PtList.findById(ptListId);
-
-    if (!ptList) {
-      return res.status(404).send('PtList not found');
+    const user = await User.findById(userId);
+    if (!user) {
+      return handleErrorResponse(res, 404, 'User not found');
     }
 
-    res.status(200).json(ptList);
-  } catch (err) {
-    console.error(err);
-    res.status(500).send((err as Error).message);
-  }
-});
-
-// Route to create a table of students from the NameList with user-defined parts
-router.post('/create/:userId', async (req: Request, res: Response) => {
-  try {
-    const { userId } = req.params;
-    const { nameListId, title, parts, maxMark } = req.body;
-
-    if (!nameListId || !title || !parts || !maxMark || !userId) {
-      return res.status(400).send('Missing required fields');
-    }
-
-    const nameList = await Namelist.findById(nameListId);
-    if (!nameList) {
-      return res.status(404).send('NameList not found');
-    }
-
-    // Initialize mark and typemark for each question
-    const initializedParts = parts.map(
-      (part: {
-        title: string;
-        questions: { option: string; mark: number }[];
-      }) => ({
-        ...part,
-        questions: part.questions.map((question: { option: string }) => ({
-          ...question,
-          mark: 0,
-        })),
-      })
+    const bundle = user.bundles.find((bundle) =>
+      (bundle as any)._id.equals(bundleId)
     );
 
-    const students = nameList.students.map(
-      (student: { rollno: string; name: string }) => {
-        const typemark = new Map<string, number>();
-        parts.forEach((part: { questions: { option: string }[] }) => {
-          part.questions.forEach((question: { option: string }) => {
-            typemark.set(question.option, 0);
-          });
-        });
+    if (!bundle) {
+      return handleErrorResponse(res, 404, 'Bundle not found.');
+    }
 
-        return {
-          rollno: student.rollno,
-          name: student.name,
-          totalMark: 0,
-          typemark: typemark,
-          parts: initializedParts,
-        };
-      }
+    const sem = bundle.semlists.find((sem) => (sem as any)._id.equals(semId));
+
+    if (!sem) {
+      return handleErrorResponse(res, 404, 'Semester not found.');
+    }
+
+    const ptListIndex = sem.ptlists.findIndex((list) =>
+      (list as any)._id.equals(ptId)
     );
 
-    const ptList = new PtList({
-      title,
-      students,
-      maxMark,
-      structure: parts,
+    if (ptListIndex === -1) {
+      return handleErrorResponse(res, 404, 'PT list not found');
+    }
+
+    sem.ptlists.splice(ptListIndex, 1);
+
+    await user.save();
+
+    return res.status(200).json({ message: 'PT list deleted successfully' });
+  } catch (error) {
+    return res.status(500).json({
+      message: 'Error deleting PT list',
+      error: (error as Error).message,
     });
-
-    const user = await User.findById(userId);
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-
-    await ptList.save();
-    user.ptlists.push(ptList._id);
-
-    await user.save();
-
-    res.status(201).send(ptList);
-  } catch (err) {
-    console.error(err);
-    res.status(500).send((err as Error).message);
-  }
-});
-
-// Route to enter marks for multiple questions in multiple parts
-router.put('/score/:userId', async (req: Request, res: Response) => {
-  try {
-    const { ptListId, studentId, parts } = req.body;
-    const { userId } = req.params;
-
-    if (!ptListId || !userId || !studentId || !Array.isArray(parts)) {
-      return res.status(400).json({ message: 'Invalid input data' });
-    }
-
-    await verifyUserOwnership(userId, ptListId);
-
-    const ptList = await PtList.findById(ptListId);
-    if (!ptList) {
-      return res.status(404).send('PtList not found');
-    }
-
-    const student = ptList.students.id(studentId);
-    if (!student) {
-      return res.status(404).send('Student not found');
-    }
-
-    let totalMarkAdjustment = 0;
-    let typemarkAdjustment: { [key: string]: number } = {};
-
-    parts.forEach(
-      ({
-        title,
-        questions,
-      }: {
-        title: string;
-        questions: { number: number; mark: number }[];
-      }) => {
-        let part = student.parts.find(
-          (p: { title: string }) => p.title === title
-        );
-        if (!part) {
-          throw new Error(`Part title ${title} not found`);
-        }
-
-        questions.forEach(
-          ({ number, mark }: { number: number; mark: number }) => {
-            let question = part.questions.find(
-              (q: { number: number }) => q.number === number
-            );
-            if (!question) {
-              throw new Error(`Question number ${number} not found`);
-            }
-
-            const previousMark = question.mark;
-            question.mark = mark;
-
-            totalMarkAdjustment += mark - previousMark;
-            const questionType = question.type;
-            if (!typemarkAdjustment[questionType]) {
-              typemarkAdjustment[questionType] = 0;
-            }
-            typemarkAdjustment[questionType] += mark - previousMark;
-          }
-        );
-      }
-    );
-
-    // Update total mark and type mark
-    student.totalMark += totalMarkAdjustment;
-    for (const [type, adjustment] of Object.entries(typemarkAdjustment)) {
-      student.typemark.set(
-        type,
-        (student.typemark.get(type) || 0) + adjustment
-      );
-    }
-
-    // Recalculate the average mark for the ptList
-    ptList.averagemark = calculateAverageMark(ptList.students);
-
-    await ptList.save();
-    res.status(200).send(ptList);
-  } catch (err) {
-    console.error(err);
-    res.status(500).send((err as Error).message);
-  }
-});
-
-// Route to delete a PtList
-router.delete('/delete/:userId', async (req: Request, res: Response) => {
-  try {
-    const { userId } = req.params;
-    const { ptListId } = req.body;
-
-    if (!ptListId || !userId) {
-      return res.status(400).json({ message: 'Invalid input data' });
-    }
-
-    await verifyUserOwnership(userId, ptListId);
-
-    const ptList = await PtList.findByIdAndDelete(ptListId);
-
-    if (!ptList) {
-      return res.status(404).send('PtList not found');
-    }
-
-    const user = await User.findById(userId);
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-
-    user.ptlists = user.ptlists.filter(
-      (listId) => listId.toString() !== ptListId
-    );
-
-    await user.save();
-
-    res.status(200).send({ message: 'PtList deleted successfully' });
-  } catch (err) {
-    console.error(err);
-    res.status(500).send((err as Error).message);
   }
 });
 

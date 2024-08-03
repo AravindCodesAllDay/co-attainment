@@ -1,6 +1,6 @@
 import express, { Request, Response } from 'express';
-import mongoose, { Types } from 'mongoose';
-import { User, Namelist, COlist } from '../models/user.model';
+import mongoose from 'mongoose';
+import { User, ICoStudent, ICoList } from '../models/user.model';
 
 const router = express.Router();
 
@@ -30,7 +30,6 @@ router.post('/:userId', async (req: Request, res: Response) => {
     }
 
     const user = await User.findById(userId);
-
     if (!user) {
       return handleErrorResponse(res, 404, 'User not found');
     }
@@ -72,41 +71,43 @@ router.post('/:userId', async (req: Request, res: Response) => {
       return {
         rollno: student.rollno,
         name: student.name,
+        averageScore: 0,
         scores,
-      };
+      } as ICoStudent;
     });
 
-    const newList = new COlist({
+    // Create a new ICoList document
+    const newCoList = new (mongoose.model<ICoList>('CoList'))({
       title,
+      average: 0,
       rows,
       students,
     });
 
-    sem.courselists.push(newList);
+    sem.courselists.push(newCoList);
 
     await user.save();
 
-    return res.status(201).json(newList);
+    return res.status(201).json(sem);
   } catch (error) {
     console.error((error as Error).message);
     return handleErrorResponse(res, 500, 'Internal Server Error');
   }
 });
 
-// Update Student Score
+// Update Student Scores
 router.put('/score/:userId', async (req: Request, res: Response) => {
   try {
     const { userId } = req.params;
-    const { assignment, score, coId, rollno, bundleId, semId } = req.body;
+    const { scores, coId, stdId, bundleId, semId } = req.body;
 
     if (
-      !userId ||
-      !assignment ||
-      score === undefined ||
-      !coId ||
-      !bundleId ||
-      !semId ||
-      !rollno
+      !scores ||
+      !mongoose.Types.ObjectId.isValid(userId) ||
+      !mongoose.Types.ObjectId.isValid(coId) ||
+      !mongoose.Types.ObjectId.isValid(bundleId) ||
+      !mongoose.Types.ObjectId.isValid(semId) ||
+      !mongoose.Types.ObjectId.isValid(stdId)
     ) {
       return handleErrorResponse(res, 400, 'Invalid input data');
     }
@@ -117,9 +118,7 @@ router.put('/score/:userId', async (req: Request, res: Response) => {
     }
 
     const bundle = user.bundles.find((bundle) =>
-      (bundle as unknown as { _id: mongoose.Types.ObjectId })._id.equals(
-        bundleId
-      )
+      (bundle._id as mongoose.Types.ObjectId).equals(bundleId)
     );
 
     if (!bundle) {
@@ -127,7 +126,7 @@ router.put('/score/:userId', async (req: Request, res: Response) => {
     }
 
     const sem = bundle.semlists.find((sem) =>
-      (sem as unknown as { _id: mongoose.Types.ObjectId })._id.equals(semId)
+      (sem._id as mongoose.Types.ObjectId).equals(semId)
     );
 
     if (!sem) {
@@ -135,21 +134,34 @@ router.put('/score/:userId', async (req: Request, res: Response) => {
     }
 
     const coList = sem.courselists.find((list) =>
-      (list as unknown as { _id: mongoose.Types.ObjectId })._id.equals(coId)
+      (list._id as mongoose.Types.ObjectId).equals(coId)
     );
 
     if (!coList) {
       return handleErrorResponse(res, 404, 'COlist not found');
     }
 
-    const student = coList.students.find(
-      (student) => student.rollno === rollno
+    const student = coList.students.find((student) =>
+      (student._id as mongoose.Types.ObjectId).equals(stdId)
     );
     if (!student) {
       return handleErrorResponse(res, 404, 'Student not found');
     }
 
-    student.scores.set(assignment, score);
+    // Check and update only if the assignment already exists
+    const existingAssignments = Array.from(student.scores.keys());
+    const assignmentsToUpdate = Object.keys(scores);
+    for (const assignment of assignmentsToUpdate) {
+      if (!existingAssignments.includes(assignment)) {
+        return handleErrorResponse(
+          res,
+          400,
+          `Assignment ${assignment} not found for the student`
+        );
+      }
+      student.scores.set(assignment, scores[assignment]);
+    }
+
     await user.save();
     return res.status(200).json(coList);
   } catch (error) {
@@ -159,7 +171,7 @@ router.put('/score/:userId', async (req: Request, res: Response) => {
 });
 
 // Delete COlist by ID
-router.delete('/delete/:userId', async (req: Request, res: Response) => {
+router.delete('/:userId', async (req: Request, res: Response) => {
   try {
     const { userId } = req.params;
     const { coId, bundleId, semId } = req.body;
