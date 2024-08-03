@@ -66,17 +66,17 @@ const Navbar = () => {
       case "/ptlists":
         return (
           <div className="flex flex-row gap-6 justify-center items-center font-bold text-white cursor-pointer">
-            <h2 onClick={() => navigate("/courses")}>Course</h2>
-            <h2 onClick={() => navigate("/ptlists")}>PtLists</h2>
+            <h2 onClick={() => navigate(`/courses`)}>Course</h2>
+            <h2 onClick={() => navigate(`/ptlists`)}>PtLists</h2>
           </div>
         );
       default:
         return (
           <div className="flex flex-row gap-6 justify-center items-center font-bold text-white cursor-pointer">
             <h2 onClick={() => navigate(`/namelists/${bundleId}`)}>Namelist</h2>
-            <h2 onClick={() => navigate("/courses")}>Course</h2>
-            <h2 onClick={() => navigate("/ptlists")}>PtLists</h2>
-            <h2 onClick={() => navigate("/saa")}>Saa</h2>
+            <h2 onClick={() => navigate(`/courses`)}>Course</h2>
+            <h2 onClick={() => navigate(`/ptlists`)}>PtLists</h2>
+            <h2 onClick={() => navigate(`/saa`)}>Saa</h2>
           </div>
         );
     }

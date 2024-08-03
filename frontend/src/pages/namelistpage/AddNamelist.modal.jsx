@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useParams } from "react-router-dom";
+import close1 from "../../assets/close.svg";
 
 const AddNamelistModal = ({ showModal, toggleModal }) => {
   const user = JSON.parse(localStorage.getItem("user"));
@@ -55,12 +56,11 @@ const AddNamelistModal = ({ showModal, toggleModal }) => {
         className="bg-white p-6 z-20 rounded-md relative"
         onClick={handleClickInsideModal}
       >
-        <button
-          className="absolute top-2 right-2 bg-red-600 text-white p-1 rounded-full"
+        <img
+          src={close1}
+          className="absolute top-2 right-2  text-white p-1 rounded-full cursor-pointer"
           onClick={toggleModal}
-        >
-          X
-        </button>
+        />
         <h2 className="text-xl font-bold mb-4">Add Title</h2>
         {error && <p className="text-red-500 mb-4">{error}</p>}
         <form onSubmit={handleSubmit}>
