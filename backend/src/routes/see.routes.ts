@@ -1,8 +1,7 @@
 import express, { Request, Response } from 'express';
 import mongoose from 'mongoose';
-import { Namelist } from '../models/namelist.model';
-import { SEE } from '../models/see.model';
-import { User } from '../models/user.model';
+
+import { User, ISee, ISeeStudent } from '../models/user.model';
 
 const router = express.Router();
 
@@ -14,179 +13,254 @@ const handleErrorResponse = (
   return res.status(status).json({ message });
 };
 
-const verifyUserOwnership = async (
-  userId: string,
-  listId: string,
-  listType: string
-) => {
-  if (
-    !mongoose.Types.ObjectId.isValid(userId) ||
-    !mongoose.Types.ObjectId.isValid(listId)
-  ) {
-    throw new Error('Invalid user ID or list ID.');
-  }
-
-  const user = await User.findById(userId);
-  if (!user) {
-    throw new Error('User not found.');
-  }
-
-  if (!user[listType].includes(listId)) {
-    throw new Error('List not associated with the user.');
-  }
-};
-
-// GET route to retrieve all SAA list titles and IDs for a user
-router.get('/:userId', async (req: Request, res: Response) => {
+//get see from a semester
+router.get('/:bundleId/:semId/:userId', async (req: Request, res: Response) => {
   try {
-    const { userId } = req.params;
-
-    if (!mongoose.Types.ObjectId.isValid(userId)) {
-      return handleErrorResponse(res, 400, 'Invalid user ID');
-    }
-
-    const user = await User.findById(userId).populate('saalists', 'title _id');
-
-    if (!user) {
-      return handleErrorResponse(res, 404, 'User not found');
-    }
-
-    const saalists = user.saalists;
-    return res.status(200).json(saalists);
-  } catch (error) {
-    return res.status(500).json({
-      message: 'Error retrieving SAA lists',
-      error: (error as Error).message,
-    });
-  }
-});
-
-// GET route to retrieve student details for a specific SAA list
-router.get('/saalist/:saaId/:userId', async (req: Request, res: Response) => {
-  try {
-    const { userId, saaId } = req.params;
-
+    const { userId, bundleId, semId } = req.params;
     if (
       !mongoose.Types.ObjectId.isValid(userId) ||
-      !mongoose.Types.ObjectId.isValid(saaId)
+      !mongoose.Types.ObjectId.isValid(bundleId) ||
+      !mongoose.Types.ObjectId.isValid(semId)
     ) {
-      return handleErrorResponse(res, 400, 'Invalid user ID or SAA list ID');
+      return handleErrorResponse(res, 400, 'Invalid user ID or bundle ID.');
     }
 
-    await verifyUserOwnership(userId, saaId, 'saalists');
+    const user = await User.findById(userId);
 
-    const saaList = await SEE.findById(saaId);
-
-    if (!saaList) {
-      return handleErrorResponse(res, 404, 'SAA list not found');
+    if (!user) {
+      return handleErrorResponse(res, 404, 'User not found.');
     }
 
-    return res.status(200).json(saaList);
+    const bundle = user.bundles.find((bundle) =>
+      (bundle as unknown as { _id: mongoose.Types.ObjectId })._id.equals(
+        bundleId
+      )
+    );
+
+    if (!bundle) {
+      return handleErrorResponse(res, 404, 'Bundle not found.');
+    }
+    const semester = bundle.semlists.find((sem) =>
+      (sem as unknown as { _id: mongoose.Types.ObjectId })._id.equals(semId)
+    );
+
+    if (!semester) {
+      return handleErrorResponse(res, 404, 'Semester not found.');
+    }
+    const sees = semester.seelists.map((see) => ({
+      seeId: see._id,
+      title: see.title,
+    }));
+
+    return res.status(200).json(sees);
   } catch (error) {
-    return res.status(500).json({
-      message: 'Error retrieving student details',
-      error: (error as Error).message,
-    });
+    console.error((error as Error).message);
+    return handleErrorResponse(res, 500, 'Internal Server Error');
   }
 });
 
-// POST route to create a new SAA list
-router.post('/create/:userId', async (req: Request, res: Response) => {
+//get see details
+router.get(
+  '/:bundleId/:semId/:coId/:userId',
+  async (req: Request, res: Response) => {
+    try {
+      const { userId, bundleId, semId, seeId } = req.params;
+
+      if (
+        !mongoose.Types.ObjectId.isValid(userId) ||
+        !mongoose.Types.ObjectId.isValid(bundleId) ||
+        !mongoose.Types.ObjectId.isValid(semId) ||
+        !mongoose.Types.ObjectId.isValid(seeId)
+      ) {
+        return handleErrorResponse(res, 400, 'Invalid user ID or bundle ID.');
+      }
+
+      const user = await User.findById(userId);
+
+      if (!user) {
+        return handleErrorResponse(res, 404, 'User not found.');
+      }
+
+      const bundle = user.bundles.find((bundle) =>
+        (bundle as unknown as { _id: mongoose.Types.ObjectId })._id.equals(
+          bundleId
+        )
+      );
+
+      if (!bundle) {
+        return handleErrorResponse(res, 404, 'Bundle not found.');
+      }
+
+      const semester = bundle.semlists.find((sem) =>
+        (sem as unknown as { _id: mongoose.Types.ObjectId })._id.equals(semId)
+      );
+
+      if (!semester) {
+        return handleErrorResponse(res, 404, 'Semester not found.');
+      }
+
+      const see = semester.seelists.find((see) =>
+        (see as unknown as { _id: mongoose.Types.ObjectId })._id.equals(seeId)
+      );
+
+      if (!see) {
+        return handleErrorResponse(res, 404, 'see not found.');
+      }
+
+      return res.status(200).json(see);
+    } catch (error) {
+      console.error((error as Error).message);
+      return handleErrorResponse(res, 500, 'Internal Server Error');
+    }
+  }
+);
+
+// POST route to create a new SEE list
+router.post('/:userId', async (req: Request, res: Response) => {
   try {
     const { userId } = req.params;
-    const { title, courses, namelistId } = req.body;
+    const { title, courses, bundleId, semId, namelistId } = req.body;
 
     if (
       !title ||
-      !courses ||
       !Array.isArray(courses) ||
-      !namelistId ||
-      !userId
+      !mongoose.Types.ObjectId.isValid(userId) ||
+      !mongoose.Types.ObjectId.isValid(bundleId) ||
+      !mongoose.Types.ObjectId.isValid(semId) ||
+      !mongoose.Types.ObjectId.isValid(namelistId)
     ) {
       return handleErrorResponse(res, 400, 'Invalid input data');
     }
-
-    await verifyUserOwnership(userId, namelistId, 'namelists');
-
-    const nameList = await Namelist.findById(namelistId);
-    if (!nameList) {
-      return handleErrorResponse(res, 404, 'NameList not found');
-    }
-
-    const populatedStudents = nameList.students.map((student) => {
-      const scores: { [key: string]: number } = {};
-      courses.forEach((course) => {
-        scores[course] = 0;
-      });
-      return {
-        rollno: student.rollno,
-        name: student.name,
-        scores,
-      };
-    });
-
-    const newSAAList = new SEE({
-      title,
-      courses,
-      students: populatedStudents,
-    });
 
     const user = await User.findById(userId);
     if (!user) {
       return handleErrorResponse(res, 404, 'User not found');
     }
 
-    const savedSAAList = await newSAAList.save();
-    user.saalists.push(savedSAAList._id);
+    const bundle = user.bundles.find((bundle) =>
+      (bundle as any)._id.equals(bundleId)
+    );
+
+    if (!bundle) {
+      return handleErrorResponse(res, 404, 'Bundle not found.');
+    }
+
+    const sem = bundle.semlists.find((sem) => (sem as any)._id.equals(semId));
+
+    if (!sem) {
+      return handleErrorResponse(res, 404, 'Semester not found.');
+    }
+
+    const namelist = bundle.namelists.find((namelist) =>
+      (namelist as any)._id.equals(namelistId)
+    );
+
+    if (!namelist) {
+      return handleErrorResponse(res, 404, 'Namelist not found.');
+    }
+
+    const students: ISeeStudent[] = namelist.students.map((student) => {
+      const scores = new Map<string, number>();
+      courses.forEach((course) => {
+        scores.set(course, 0);
+      });
+
+      return {
+        rollno: student.rollno,
+        name: student.name,
+        scores,
+      } as ISeeStudent;
+    });
+
+    const newSEEList = new (mongoose.model<ISee>('SeeList'))({
+      title,
+      courses,
+      students,
+    });
+
+    sem.seelists.push(newSEEList);
+
     await user.save();
 
     return res.status(201).json({
-      message: 'SAA list created successfully',
-      saaList: savedSAAList,
+      message: 'SEE list created successfully',
+      seeList: newSEEList,
     });
   } catch (error) {
     return res.status(500).json({
-      message: 'Error creating SAA list',
+      message: 'Error creating SEE list',
       error: (error as Error).message,
     });
   }
 });
 
-// PUT route to update student scores
+// PUT route to update student scores in a SEE list
 router.put('/score/:userId', async (req: Request, res: Response) => {
   try {
     const { userId } = req.params;
-    const { saaId, rollno, scores } = req.body;
+    const { seeId, stdId, scores, semId, bundleId } = req.body;
 
-    if (!saaId || !userId || !rollno || !scores || typeof scores !== 'object') {
+    if (
+      !mongoose.Types.ObjectId.isValid(userId) ||
+      !mongoose.Types.ObjectId.isValid(bundleId) ||
+      !mongoose.Types.ObjectId.isValid(semId) ||
+      !mongoose.Types.ObjectId.isValid(seeId) ||
+      !mongoose.Types.ObjectId.isValid(stdId) ||
+      !scores ||
+      typeof scores !== 'object'
+    ) {
       return handleErrorResponse(res, 400, 'Invalid input data');
     }
 
-    await verifyUserOwnership(userId, saaId, 'saalists');
-
-    const saaList = await SEE.findById(saaId);
-    if (!saaList) {
-      return handleErrorResponse(res, 404, 'SAA list not found');
+    const user = await User.findById(userId);
+    if (!user) {
+      return handleErrorResponse(res, 404, 'User not found');
     }
 
-    const student = saaList.students.find(
-      (student) => student.rollno === rollno
+    const bundle = user.bundles.find((bundle) =>
+      (bundle as any)._id.equals(bundleId)
     );
+
+    if (!bundle) {
+      return handleErrorResponse(res, 404, 'Bundle not found.');
+    }
+
+    const sem = bundle.semlists.find((sem) => (sem as any)._id.equals(semId));
+
+    if (!sem) {
+      return handleErrorResponse(res, 404, 'Semester not found.');
+    }
+
+    const see = sem.seelists.find((see) => (see as any)._id.equals(seeId));
+
+    if (!see) {
+      return handleErrorResponse(res, 404, 'SEE list not found.');
+    }
+
+    const student = see.students.find((student) =>
+      (student._id as mongoose.Types.ObjectId).equals(stdId)
+    );
+
     if (!student) {
       return handleErrorResponse(res, 404, 'Student not found');
     }
 
-    for (let course in scores) {
-      if (student.scores.has(course)) {
-        student.scores.set(course, scores[course]);
+    const existingAssignments = Array.from(student.scores.keys());
+    const assignmentsToUpdate = Object.keys(scores);
+    for (const assignment of assignmentsToUpdate) {
+      if (!existingAssignments.includes(assignment)) {
+        return handleErrorResponse(
+          res,
+          400,
+          `Assignment ${assignment} not found for the student`
+        );
       }
+      student.scores.set(assignment, scores[assignment]);
     }
 
-    const updatedSAAList = await saaList.save();
-    return res.status(200).json({
-      message: 'Student scores updated successfully',
-      saaList: updatedSAAList,
-    });
+    await user.save();
+
+    return res.status(200).json(see);
   } catch (error) {
     return res.status(500).json({
       message: 'Error updating student scores',
@@ -195,39 +269,56 @@ router.put('/score/:userId', async (req: Request, res: Response) => {
   }
 });
 
-// DELETE route to delete an SAA list
-router.delete('/delete/:userId', async (req: Request, res: Response) => {
+// DELETE route to delete a SEE list
+router.delete('/:userId', async (req: Request, res: Response) => {
   try {
     const { userId } = req.params;
-    const { saaId } = req.body;
+    const { seeId, bundleId, semId } = req.body;
 
-    if (!saaId || !userId) {
+    if (
+      !mongoose.Types.ObjectId.isValid(userId) ||
+      !mongoose.Types.ObjectId.isValid(seeId) ||
+      !mongoose.Types.ObjectId.isValid(bundleId) ||
+      !mongoose.Types.ObjectId.isValid(semId)
+    ) {
       return handleErrorResponse(res, 400, 'Invalid input data');
     }
-
-    await verifyUserOwnership(userId, saaId, 'saalists');
-
-    const saaList = await SEE.findById(saaId);
-    if (!saaList) {
-      return handleErrorResponse(res, 404, 'SAA list not found');
-    }
-
-    await saaList.remove();
 
     const user = await User.findById(userId);
     if (!user) {
       return handleErrorResponse(res, 404, 'User not found');
     }
 
-    user.saalists = user.saalists.filter(
-      (listId) => listId.toString() !== saaId
+    const bundle = user.bundles.find((bundle) =>
+      (bundle as any)._id.equals(bundleId)
     );
+
+    if (!bundle) {
+      return handleErrorResponse(res, 404, 'Bundle not found.');
+    }
+
+    const sem = bundle.semlists.find((sem) => (sem as any)._id.equals(semId));
+
+    if (!sem) {
+      return handleErrorResponse(res, 404, 'Semester not found.');
+    }
+
+    const seeListIndex = sem.seelists.findIndex((list) =>
+      (list as any)._id.equals(seeId)
+    );
+
+    if (seeListIndex === -1) {
+      return handleErrorResponse(res, 404, 'SEE list not found');
+    }
+
+    sem.seelists.splice(seeListIndex, 1);
+
     await user.save();
 
-    return res.status(200).json({ message: 'SAA list deleted successfully' });
+    return res.status(200).json({ message: 'SEE list deleted successfully' });
   } catch (error) {
     return res.status(500).json({
-      message: 'Error deleting SAA list',
+      message: 'Error deleting SEE list',
       error: (error as Error).message,
     });
   }

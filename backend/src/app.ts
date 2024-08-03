@@ -4,12 +4,13 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 
 // Import routes
-// import PtRoutes from "./routes/pt.routes";
-// import SeeRoutes from "./routes/see.routes";
+import PtRoutes from './routes/pt.routes';
+import SeeRoutes from './routes/see.routes';
 import CourseRoutes from './routes/course.routes';
 import NamelistRoutes from './routes/namelist.routes';
 import CoTypeRoutes from './routes/cotype.routes';
-import BunSemRoutes from './routes/bunsem.routes';
+import SemesterRoutes from './routes/semester.routes';
+import BundleRoutes from './routes/bundle.routes';
 import UserRoutes from './routes/user.routes';
 
 // Initialize express app
@@ -21,12 +22,13 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Routes
-// app.use("/pt", PtRoutes);
-// app.use("/see", SeeRoutes);
+app.use('/pt', PtRoutes);
+app.use('/see', SeeRoutes);
 app.use('/course', CourseRoutes);
 app.use('/namelist', NamelistRoutes);
 app.use('/cotype', CoTypeRoutes);
-app.use('/bunsem', BunSemRoutes);
+app.use('/bundle', BundleRoutes);
+app.use('/semester', SemesterRoutes);
 app.use('/user', UserRoutes);
 
 // Load environment variables

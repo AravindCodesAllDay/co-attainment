@@ -1,7 +1,36 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
 
-// Define Schemas First
+//See
+interface ISeeStudent extends Document {
+  rollno: string;
+  name: string;
+  scores: Map<string, number>;
+}
 
+const seeStudentSchema = new Schema<ISeeStudent>({
+  rollno: { type: String, required: true },
+  name: { type: String, required: true },
+  scores: { type: Map, of: Number, default: {} },
+});
+
+interface ISee extends Document {
+  title: string;
+  courses: string[];
+  students: ISeeStudent[];
+}
+
+const seeSchema = new Schema<ISee>(
+  {
+    title: { type: String, required: true },
+    courses: { type: [String] },
+    students: { type: [seeStudentSchema] },
+  },
+  { timestamps: true }
+);
+
+export { ISee, ISeeStudent };
+
+//course
 interface ICoStudent extends Document {
   rollno: string;
   name: string;
@@ -59,9 +88,9 @@ coListSchema.pre('save', function (next) {
   next();
 });
 
-const COlist: Model<ICoList> = mongoose.model('COlist', coListSchema);
-export { COlist };
+export { ICoList, ICoStudent };
 
+//pt
 interface IPtQuestion extends Document {
   number: number;
   option: string;
@@ -121,48 +150,9 @@ const ptListSchema = new Schema<IPtList>(
   { timestamps: true }
 );
 
-const PtList: Model<IPtList> = mongoose.model<IPtList>('PtList', ptListSchema);
-export { PtList };
+export { IPtList, IPtPart, IPtQuestion, IPtStudent };
 
-interface ISeeStudent extends Document {
-  rollno: string;
-  name: string;
-  scores: Map<string, number>;
-}
-
-const seeStudentSchema = new Schema<ISeeStudent>({
-  rollno: { type: String, required: true },
-  name: { type: String, required: true },
-  scores: { type: Map, of: Number, default: {} },
-});
-
-interface ISee extends Document {
-  title: string;
-  courses: string[];
-  students: ISeeStudent[];
-}
-
-const seeSchema = new Schema<ISee>(
-  {
-    title: { type: String, required: true },
-    courses: { type: [String] },
-    students: { type: [seeStudentSchema] },
-  },
-  { timestamps: true }
-);
-
-const SEE: Model<ISee> = mongoose.model<ISee>('SEE', seeSchema);
-export { SEE };
-
-// Define Other Schemas
-
-interface ISem extends Document {
-  title: string;
-  courselists: ICoList[];
-  ptlists: IPtList[];
-  seelists: ISee[];
-}
-
+//namelist
 interface INameStudent extends Document {
   registration_no: number;
   rollno: string;
@@ -188,8 +178,15 @@ const namelistSchema = new Schema<INamelist>(
   { timestamps: true }
 );
 
-const Namelist: Model<INamelist> = mongoose.model('Namelist', namelistSchema);
-export { Namelist, INamelist };
+export { INamelist, INameStudent };
+
+//sem
+interface ISem extends Document {
+  title: string;
+  courselists: ICoList[];
+  ptlists: IPtList[];
+  seelists: ISee[];
+}
 
 const semSchema = new Schema<ISem>({
   title: { type: String, required: true },
@@ -198,27 +195,24 @@ const semSchema = new Schema<ISem>({
   seelists: [seeSchema],
 });
 
-const Semester: Model<ISem> = mongoose.model<ISem>('Semester', semSchema);
-export { Semester, ISem };
+export { ISem };
 
-// Define the IBundle interface
+// bundle
 interface IBundle extends Document {
   title: string;
   namelists: INamelist[];
   semlists: ISem[];
 }
 
-// Define the bundle schema
 const bundleSchema = new Schema<IBundle>({
   title: { type: String, required: true },
   namelists: [namelistSchema],
   semlists: [semSchema],
 });
 
-const Bundle: Model<IBundle> = mongoose.model<IBundle>('Bundle', bundleSchema);
-export { Bundle, IBundle };
+export { IBundle };
 
-// Define the IUser interface and user schema
+//user
 interface IUser extends Document {
   email: string;
   bundles: IBundle[];
@@ -235,4 +229,4 @@ const userSchema = new Schema<IUser>(
 );
 
 const User: Model<IUser> = mongoose.model<IUser>('User', userSchema);
-export { User };
+export { User, IUser };
