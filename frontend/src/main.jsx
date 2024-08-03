@@ -36,8 +36,8 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         <Route path="/ptlists" element={<ViewPtLists />} />
         <Route path="/ptlists/:ptlistid" element={<ViewPtList />} />
         <Route path="/coattainment" element={<SelectCoatt />} />
-        <Route path="/saa" element={<ViewSaas />} />
-        <Route path="/saa/:saaid" element={<ViewSaa />} />
+        <Route path="/see" element={<ViewSaas />} />
+        <Route path="/see/:seeid" element={<ViewSaa />} />
       </Routes>
     </HashRouter>
   </React.StrictMode>

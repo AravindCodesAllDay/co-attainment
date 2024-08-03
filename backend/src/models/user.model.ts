@@ -178,7 +178,11 @@ const namelistSchema = new Schema<INamelist>(
   { timestamps: true }
 );
 
-export { INamelist, INameStudent };
+const Namelist: Model<INamelist> = mongoose.model<INamelist>(
+  'Namelist',
+  namelistSchema
+);
+export { INamelist, Namelist };
 
 //sem
 interface ISem extends Document {

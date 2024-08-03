@@ -1,6 +1,6 @@
 import express, { Request, Response } from 'express';
 import mongoose from 'mongoose';
-import { User, INamelist } from '../models/user.model';
+import { User, INamelist, Namelist } from '../models/user.model';
 
 const router = express.Router();
 
@@ -87,7 +87,7 @@ router.post('/:userId', async (req: Request, res: Response) => {
       return handleErrorResponse(res, 404, 'Bundle not found.');
     }
 
-    const newNamelist = new (mongoose.model<INamelist>('NameList'))({
+    const newNamelist = new Namelist({
       title,
       students: [],
     });

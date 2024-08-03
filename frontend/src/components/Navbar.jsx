@@ -76,7 +76,7 @@ const Navbar = () => {
             <h2 onClick={() => navigate(`/namelists/${bundleId}`)}>Namelist</h2>
             <h2 onClick={() => navigate(`/courses`)}>Course</h2>
             <h2 onClick={() => navigate(`/ptlists`)}>PtLists</h2>
-            <h2 onClick={() => navigate(`/saa`)}>Saa</h2>
+            <h2 onClick={() => navigate(`/see`)}>See</h2>
           </div>
         );
     }
