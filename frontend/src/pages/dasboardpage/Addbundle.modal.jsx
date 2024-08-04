@@ -17,7 +17,7 @@ const AddbundleModal = ({ show, onClose, onAddItem }) => {
     e.preventDefault();
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API}/bunsem/bun/${user.userId}`,
+        `${import.meta.env.VITE_API}/bundle/${user.userId}`,
         {
           method: "POST",
           headers: {

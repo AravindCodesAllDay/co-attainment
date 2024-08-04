@@ -26,13 +26,14 @@ function Dashboard() {
   const fetchbundle = async () => {
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API}/bunsem/${user.userId}`
+        `${import.meta.env.VITE_API}/bundle/${user.userId}`
       );
       if (!response.ok) {
         throw new Error("Network response was not ok");
       }
       const data = await response.json();
       setItems(data);
+      console.log(data);
     } catch (error) {
       console.error("Error fetching namelist", error);
       setError("Failed to fetch student data");
@@ -63,7 +64,7 @@ function Dashboard() {
           <div
             key={index}
             className="p-4 bg-gray-200 rounded-md shadow-md hover:shadow-2xl cursor-pointer"
-            onClick={() => handleBundleClick(item._id)} // Updated to navigate to AddSem page
+            onClick={() => handleBundleClick(item.bundleId)} // Updated to navigate to AddSem page
           >
             {item.title}
           </div>

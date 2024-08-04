@@ -33,7 +33,7 @@ const ViewNamelists = () => {
     };
 
     fetchNamelists();
-  }, []);
+  }, [namelists]);
 
   const toggleModal = () => {
     setShowModal(!showModal);
@@ -57,7 +57,9 @@ const ViewNamelists = () => {
             <div
               key={title._id}
               className="p-4 bg-gray-200 rounded-md shadow-md hover:shadow-2xl cursor-pointer"
-              onClick={() => navigate(`/namelists/${title._id}/${bundleId}`)}
+              onClick={() =>
+                navigate(`/namelists/${title.namelistId}/${bundleId}`)
+              }
             >
               {title.title}
             </div>

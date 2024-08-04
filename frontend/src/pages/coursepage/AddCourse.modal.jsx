@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from "react";
 import close from "../../assets/close.svg";
+import { useParams } from "react-router-dom";
 
 const AddCourseModal = ({ isModalOpen, toggleModal }) => {
   if (!isModalOpen) return null;
 
   const user = JSON.parse(localStorage.getItem("user"));
+  const { bundleId } = useParams();
+  const { semesterId } = useParams();
   const [title, setTitle] = useState("");
   const [namelistId, setNamelistId] = useState("");
   const [titles, setTitles] = useState([]);
@@ -23,7 +26,9 @@ const AddCourseModal = ({ isModalOpen, toggleModal }) => {
   const fetchTitles = async () => {
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API}/student/namelists/${user.userId}`
+        `${import.meta.env.VITE_API}/course/${bundleId}/${semesterId}/${
+          user.userId
+        }`
       );
       if (!response.ok) {
         throw new Error("Network response was not ok");
@@ -40,7 +45,7 @@ const AddCourseModal = ({ isModalOpen, toggleModal }) => {
 
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API}/course/create/${user.userId}`,
+        `${import.meta.env.VITE_API}/course/${user.userId}`,
         {
           method: "POST",
           headers: {
@@ -49,6 +54,8 @@ const AddCourseModal = ({ isModalOpen, toggleModal }) => {
           body: JSON.stringify({
             title,
             namelistId,
+            bundleId,
+            semId,
             rows,
           }),
         }
@@ -70,6 +77,7 @@ const AddCourseModal = ({ isModalOpen, toggleModal }) => {
     <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
       <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg">
         <div className="flex justify-end">
+          <h1 className="mr-auto text-xl text-blue-700 font-bold">Co-List</h1>
           <button
             onClick={toggleModal}
             className=" text-sm p-2 w-fit text-white border-2 border-none rounded-md mb-4 items-end"

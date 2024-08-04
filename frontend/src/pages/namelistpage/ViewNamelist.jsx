@@ -8,11 +8,12 @@ import EditNamelistModal from "./EditNamelist.Modal";
 
 const ViewNamelist = () => {
   const user = JSON.parse(localStorage.getItem("user"));
-  const { namelistid } = useParams();
+  const { namelistId } = useParams();
   const { bundleId } = useParams();
 
   const [studentName, setStudentName] = useState("");
   const [rollNo, setRollNo] = useState("");
+  const [regno, setRegNo] = useState("");
   const [namelist, setNamelist] = useState({ title: "", students: [] });
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -32,14 +33,14 @@ const ViewNamelist = () => {
   const handledelete = async (student) => {
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API}/student/student/${user.userId}`,
+        `${import.meta.env.VITE_API}/namelist/student/${user.userId}`,
         {
           method: "DELETE",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            namelistId: namelistid,
+            namelistId: namelistId,
             studentId: student._id,
           }),
         }
@@ -56,16 +57,17 @@ const ViewNamelist = () => {
       const response = await fetch(
         `${import.meta.env.VITE_API}/namelist/student/${user.userId}`,
         {
-          method: "PUT",
+          method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            namelistId: namelistid,
+            namelistId: namelistId,
             bundleId: bundleId,
             studentDetail: {
               name: studentName,
-              rollNo: rollNo,
+              rollno: rollNo,
+              registration_no: regno,
             },
           }),
         }
@@ -73,6 +75,7 @@ const ViewNamelist = () => {
       if (response.ok) {
         setStudentName("");
         setRollNo("");
+        setRegNo("");
         fetchStudent(); // Refresh the student list
         setIsModalOpen(false); // Close modal on success
         setError(""); // Clear any previous error
@@ -91,9 +94,9 @@ const ViewNamelist = () => {
     setIsLoading(true);
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API}/namelist/${bundleId}/${namelistid}/${
-          user.userId
-        }`
+        `${
+          import.meta.env.VITE_API
+        }/namelist/student/${bundleId}/${namelistId}/${user.userId}`
       );
       if (!response.ok) {
         throw new Error("Network response was not ok");
@@ -110,7 +113,7 @@ const ViewNamelist = () => {
 
   useEffect(() => {
     fetchStudent();
-  }, [namelistid]);
+  }, [namelistId]);
 
   return (
     <>
@@ -130,6 +133,7 @@ const ViewNamelist = () => {
         setStudentName={setStudentName}
         rollNo={rollNo}
         setRollNo={setRollNo}
+        setRegNo={setRegNo}
         handleSubmit={handleSubmit}
         error={error}
         title={namelist.title}
@@ -140,7 +144,7 @@ const ViewNamelist = () => {
         onRequestClose={() => setIsEditModalOpen(false)}
         studentData={editStudentData}
         setStudentData={setEditStudentData}
-        namelistId={namelistid}
+        namelistId={namelistId}
         fetchStudent={fetchStudent}
       />
 
@@ -162,6 +166,7 @@ const ViewNamelist = () => {
               <tr>
                 <th className="w-auto py-2">Student Name</th>
                 <th className="w-auto py-2">Roll No</th>
+                <th className="w-auto py-2">Registeration No</th>
                 <th className="w-40 py-2  text-left text-white font-medium">
                   Actions
                 </th>
@@ -172,6 +177,9 @@ const ViewNamelist = () => {
                 <tr key={index} className="bg-gray-100">
                   <td className="border px-4 py-2">{student.name}</td>
                   <td className="border px-4 py-2">{student.rollno}</td>
+                  <td className="border px-4 py-2">
+                    {student.registration_no}
+                  </td>
                   <td className="py-2 px-4 flex flex-row gap-4 items-center">
                     <img
                       className="cursor-pointer"

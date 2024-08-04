@@ -9,6 +9,8 @@ const AddStudentModal = ({
   setStudentName,
   rollNo,
   setRollNo,
+  regno,
+  setRegNo,
   handleSubmit,
   error,
   title,
@@ -53,6 +55,18 @@ const AddStudentModal = ({
               onChange={(e) => setRollNo(e.target.value)}
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
               placeholder="Enter roll number"
+            />
+          </div>
+          <div className="mb-4 w-full">
+            <label className="block text-gray-700 text-sm font-bold mb-2">
+              Registeration No
+            </label>
+            <input
+              type="text"
+              value={regno}
+              onChange={(e) => setRegNo(e.target.value)}
+              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              placeholder="Enter RegNo number"
             />
           </div>
           <button
