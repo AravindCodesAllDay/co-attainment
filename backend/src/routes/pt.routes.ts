@@ -1,7 +1,7 @@
 import express, { Request, Response } from 'express';
 import mongoose from 'mongoose';
 
-import { User, IPtList } from '../models/user.model';
+import { User, IPtList, PtList } from '../models/user.model';
 
 const router = express.Router();
 
@@ -167,7 +167,7 @@ router.post('/pt/create/:userId', async (req: Request, res: Response) => {
       parts: [],
     }));
 
-    const newPTList = new (mongoose.model<IPtList>('PtList'))({
+    const newPTList = new PtList({
       title,
       structure,
       students: populatedStudents,

@@ -27,8 +27,8 @@ const seeSchema = new Schema<ISee>(
   },
   { timestamps: true }
 );
-
-export { ISee, ISeeStudent };
+const See: Model<ISee> = mongoose.model<ISee>('See', seeSchema);
+export { ISee, ISeeStudent, See };
 
 //course
 interface ICoStudent extends Document {
@@ -87,8 +87,8 @@ coListSchema.pre('save', function (next) {
   }
   next();
 });
-
-export { ICoList, ICoStudent };
+const CoList: Model<ICoList> = mongoose.model<ICoList>('CoList', coListSchema);
+export { ICoList, ICoStudent, CoList };
 
 //pt
 interface IPtQuestion extends Document {
@@ -149,8 +149,8 @@ const ptListSchema = new Schema<IPtList>(
   },
   { timestamps: true }
 );
-
-export { IPtList, IPtPart, IPtQuestion, IPtStudent };
+const PtList: Model<IPtList> = mongoose.model<IPtList>('PtList', ptListSchema);
+export { IPtList, IPtPart, IPtQuestion, IPtStudent, PtList };
 
 //namelist
 interface INameStudent extends Document {
