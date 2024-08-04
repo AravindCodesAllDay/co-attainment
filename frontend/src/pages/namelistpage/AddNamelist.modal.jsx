@@ -61,7 +61,7 @@ const AddNamelistModal = ({ showModal, toggleModal }) => {
           className="absolute top-2 right-2  text-white p-1 rounded-full cursor-pointer"
           onClick={toggleModal}
         />
-        <h2 className="text-xl font-bold mb-4">Add Title</h2>
+        <h2 className="text-xl font-bold mb-4">Add Namelist</h2>
         {error && <p className="text-red-500 mb-4">{error}</p>}
         <form onSubmit={handleSubmit}>
           <input

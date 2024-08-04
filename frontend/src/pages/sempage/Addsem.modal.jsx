@@ -14,7 +14,7 @@ function AddSemModal({ isOpen, onClose, handleAddSem }) {
 
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API}/bunsem/sem/${user.userId}`,
+        `${import.meta.env.VITE_API}/semester/${user.userId}`,
         {
           method: "POST",
           headers: {

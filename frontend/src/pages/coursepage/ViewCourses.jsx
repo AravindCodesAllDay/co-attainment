@@ -32,7 +32,7 @@ const ViewCourses = () => {
 
   useEffect(() => {
     fetchCourses();
-  }, [user.userId]);
+  }, []);
 
   const toggleModal = () => {
     setIsModalOpen(!isModalOpen);

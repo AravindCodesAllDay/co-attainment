@@ -8,9 +8,11 @@ import AddNamelistModal from "../namelistpage/AddNamelist.modal";
 function ViewSems() {
   const navigate = useNavigate();
   const { bundleId } = useParams();
+  const { namelistId } = useParams();
   const user = JSON.parse(localStorage.getItem("user") || "{}");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [sems, setSems] = useState([]);
+  const [namelist, setNamelists] = useState([]);
 
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
@@ -22,7 +24,7 @@ function ViewSems() {
   const fetchsems = async () => {
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API}/bunsem/${bundleId}/${user.userId}`
+        `${import.meta.env.VITE_API}/semester/${bundleId}/${user.userId}`
       );
       if (!response.ok) {
         throw new Error("Network response was not ok");
@@ -31,14 +33,45 @@ function ViewSems() {
       setSems(data);
       // console.log(data);
     } catch (error) {
-      console.error("Error fetching namelist", error);
-      setError("Failed to fetch student data");
+      console.error("Error fetching Semester", error);
     }
   };
 
   useEffect(() => {
     fetchsems();
   }, []);
+
+  useEffect(() => {
+    const fetchNamelists = async () => {
+      if (user && user.userId) {
+        try {
+          const response = await fetch(
+            `${import.meta.env.VITE_API}/namelist/${bundleId}/${user.userId}`
+          );
+          if (!response.ok) {
+            throw new Error("Network response was not ok");
+          }
+          const data = await response.json();
+          setNamelists(data);
+          console.log(data);
+        } catch (error) {
+          console.log("error while fetching:", error);
+        }
+      } else {
+        console.log("User not found in localStorage");
+      }
+    };
+
+    fetchNamelists();
+  }, []);
+
+  const handleclick = (bundleId, semesterId) => {
+    {
+      namelist.map((name, index) =>
+        navigate(`/courses/${bundleId}/${semesterId}/${name.namelistId}`)
+      );
+    }
+  };
 
   return (
     <>
@@ -56,7 +89,7 @@ function ViewSems() {
           <div
             key={index}
             className="p-4 bg-gray-200 rounded-md shadow-md hover:shadow-2xl cursor-pointer"
-            onClick={() => navigate("/courses")}
+            onClick={() => handleclick(bundleId, sem.semesterId)}
           >
             {sem.title}
           </div>
