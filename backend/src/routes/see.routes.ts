@@ -1,7 +1,7 @@
 import express, { Request, Response } from 'express';
 import mongoose from 'mongoose';
 
-import { User, ISee, ISeeStudent } from '../models/user.model';
+import { User, ISee, ISeeStudent, See } from '../models/user.model';
 
 const router = express.Router();
 
@@ -172,7 +172,7 @@ router.post('/:userId', async (req: Request, res: Response) => {
       } as ISeeStudent;
     });
 
-    const newSEEList = new (mongoose.model<ISee>('SeeList'))({
+    const newSEEList = new See({
       title,
       courses,
       students,

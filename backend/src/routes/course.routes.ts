@@ -1,6 +1,6 @@
 import express, { Request, Response } from 'express';
 import mongoose from 'mongoose';
-import { User, ICoStudent, ICoList } from '../models/user.model';
+import { User, ICoStudent, ICoList, CoList } from '../models/user.model';
 
 const router = express.Router();
 
@@ -178,7 +178,7 @@ router.post('/:userId', async (req: Request, res: Response) => {
     });
 
     // Create a new ICoList document
-    const newCoList = new (mongoose.model<ICoList>('CoList'))({
+    const newCoList = new CoList({
       title,
       average: 0,
       rows,
