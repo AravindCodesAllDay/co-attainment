@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import Navbar from "../../components/Navbar";
 import AddCourseModal from "./AddCourse.modal";
 
 const ViewCourses = () => {
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem("user"));
-
+  const { semesterId } = useParams();
+  const { bundleId } = useParams();
   const [courses, setCourses] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -15,7 +16,9 @@ const ViewCourses = () => {
   const fetchCourses = async () => {
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API}/course/${user.userId}`
+        `${import.meta.env.VITE_API}/course/${bundleId}/${semesterId}/${
+          user.userId
+        }`
       );
       if (!response.ok) {
         throw new Error("Network response was not ok");
@@ -50,7 +53,7 @@ const ViewCourses = () => {
         </button>
       </div>
       <AddCourseModal isModalOpen={isModalOpen} toggleModal={toggleModal} />
-      <div className="grid grid-cols-4 gap-4 items-center mt-4 p-6">
+      <div className="grid grid-cols-4 gap-4 p-4">
         {loading ? (
           <div className="flex justify-center mt-4 text-2xl ">Loading...</div>
         ) : error ? (
@@ -59,7 +62,7 @@ const ViewCourses = () => {
           courses.map((course) => (
             <div
               key={course._id}
-              className="border p-2 m-2 w-3/4 rounded bg-gray-100 cursor-pointer hover:bg-sky-500 font-bold hover:text-white"
+              className="p-4 bg-gray-200 rounded-md shadow-md hover:shadow-2xl cursor-pointer"
               onClick={() => navigate(`/courses/${course._id}`)}
             >
               {course.title}

@@ -32,7 +32,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         />
         <Route path="/sem/:bundleId" element={<ViewSems />} />
         <Route
-          path="/courses/:bundleId/:semesterId/:namelistId"
+          path="/courses/:bundleId/:semesterId/:namelistId/:userId"
           element={<ViewCourses />}
         />
         <Route path="/courses/:courseid" element={<ViewCourse />} />

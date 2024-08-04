@@ -23,7 +23,7 @@ const ViewNamelists = () => {
           }
           const data = await response.json();
           setNamelists(data);
-          console.log(data);
+          // console.log(data);
         } catch (error) {
           console.log("error while fetching:", error);
         }

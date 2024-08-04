@@ -8,8 +8,9 @@ const AddCourseModal = ({ isModalOpen, toggleModal }) => {
   const user = JSON.parse(localStorage.getItem("user"));
   const { bundleId } = useParams();
   const { semesterId } = useParams();
+  const { namelistId } = useParams();
   const [title, setTitle] = useState("");
-  const [namelistId, setNamelistId] = useState("");
+  const [namelist, setNamelist] = useState("");
   const [titles, setTitles] = useState([]);
   const [rows, setRows] = useState([""]);
 
@@ -40,6 +41,11 @@ const AddCourseModal = ({ isModalOpen, toggleModal }) => {
       setError("Failed to fetch titles.");
     }
   };
+
+  useEffect(() => {
+    fetchTitles();
+  }, [user.userId]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -52,10 +58,10 @@ const AddCourseModal = ({ isModalOpen, toggleModal }) => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            title,
-            namelistId,
-            bundleId,
-            semId,
+            title: title,
+            namelistId: namelistId,
+            bundleId: bundleId,
+            semId: semesterId,
             rows,
           }),
         }
@@ -70,9 +76,30 @@ const AddCourseModal = ({ isModalOpen, toggleModal }) => {
       console.error("An error occurred:", error);
     }
   };
+
   useEffect(() => {
-    fetchTitles();
-  }, [user.userId]);
+    const fetchNamelists = async () => {
+      if (user && user.userId) {
+        try {
+          const response = await fetch(
+            `${import.meta.env.VITE_API}/namelist/${bundleId}/${user.userId}`
+          );
+          if (!response.ok) {
+            throw new Error("Network response was not ok");
+          }
+          const data = await response.json();
+          setNamelist(data);
+          // console.log(data);
+        } catch (error) {
+          console.log("error while fetching:", error);
+        }
+      } else {
+        console.log("User not found in localStorage");
+      }
+    };
+
+    fetchNamelists();
+  }, []);
   return (
     <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
       <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg">
@@ -103,8 +130,8 @@ const AddCourseModal = ({ isModalOpen, toggleModal }) => {
             </label>
             <select
               name="namelist"
-              value={namelistId}
-              onChange={(e) => setNamelistId(e.target.value)}
+              value={namelist}
+              onChange={(e) => setNamelist(e.target.value)}
               className="border border-gray-300 p-2 mb-2 rounded-lg"
             >
               <option value="" disabled>

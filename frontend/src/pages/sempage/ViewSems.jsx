@@ -1,14 +1,12 @@
-import React, { useState } from "react";
-import { useEffect } from "react";
-import Navbar from "../../components/Navbar";
+import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import Navbar from "../../components/Navbar";
 import Addsemmodal from "./Addsem.modal";
 import AddNamelistModal from "../namelistpage/AddNamelist.modal";
 
 function ViewSems() {
   const navigate = useNavigate();
   const { bundleId } = useParams();
-  const { namelistId } = useParams();
   const user = JSON.parse(localStorage.getItem("user") || "{}");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [sems, setSems] = useState([]);
@@ -21,7 +19,7 @@ function ViewSems() {
     setSems([...sems, newSem]);
   };
 
-  const fetchsems = async () => {
+  const fetchSems = async () => {
     try {
       const response = await fetch(
         `${import.meta.env.VITE_API}/semester/${bundleId}/${user.userId}`
@@ -31,14 +29,13 @@ function ViewSems() {
       }
       const data = await response.json();
       setSems(data);
-      // console.log(data);
     } catch (error) {
       console.error("Error fetching Semester", error);
     }
   };
 
   useEffect(() => {
-    fetchsems();
+    fetchSems();
   }, []);
 
   useEffect(() => {
@@ -53,9 +50,9 @@ function ViewSems() {
           }
           const data = await response.json();
           setNamelists(data);
-          console.log(data);
+          // console.log(data);
         } catch (error) {
-          console.log("error while fetching:", error);
+          console.log("Error while fetching:", error);
         }
       } else {
         console.log("User not found in localStorage");
@@ -65,11 +62,15 @@ function ViewSems() {
     fetchNamelists();
   }, []);
 
-  const handleclick = (bundleId, semesterId) => {
-    {
-      namelist.map((name, index) =>
-        navigate(`/courses/${bundleId}/${semesterId}/${name.namelistId}`)
+  const handleClick = (bundleId, semesterId) => {
+    if (namelist.length > 0) {
+      // Assuming you need to navigate with the first namelistId for demonstration
+      const selectedNamelistId = namelist[0].namelistId;
+      navigate(
+        `/courses/${bundleId}/${semesterId}/${selectedNamelistId}/${user.userId}`
       );
+    } else {
+      console.log("No namelist available");
     }
   };
 
@@ -89,7 +90,7 @@ function ViewSems() {
           <div
             key={index}
             className="p-4 bg-gray-200 rounded-md shadow-md hover:shadow-2xl cursor-pointer"
-            onClick={() => handleclick(bundleId, sem.semesterId)}
+            onClick={() => handleClick(bundleId, sem.semesterId)}
           >
             {sem.title}
           </div>
