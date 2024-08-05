@@ -13,7 +13,7 @@ import ViewPtLists from "./pages/ptpage/ViewPtLists";
 import SelectCoatt from "./pages/co-attainment/SelectCoatt";
 import ViewSaas from "./pages/saapage/ViewSaas";
 import ViewSaa from "./pages/saapage/ViewSaa";
-import Dasboard from "./pages/dasboardpage/Dashboard";
+import Dashboard from "./pages/dasboardpage/Dashboard";
 import ViewSems from "./pages/sempage/ViewSems";
 
 // Set the app element for react-modal
@@ -24,23 +24,39 @@ ReactDOM.createRoot(document.getElementById("root")).render(
     <HashRouter>
       <Routes>
         <Route path="/" element={<Login />} />
-        <Route path="/dashboard" element={<Dasboard />} />
+
+        <Route path="/dashboard" element={<Dashboard />} />
+
         <Route path="/namelists/:bundleId" element={<ViewNamelists />} />
         <Route
           path="/namelists/:namelistId/:bundleId"
           element={<ViewNamelist />}
         />
+
         <Route path="/sem/:bundleId" element={<ViewSems />} />
+
         <Route
-          path="/courses/:bundleId/:semesterId/:namelistId/:userId"
+          path="/courses/:bundleId/:semesterId/"
           element={<ViewCourses />}
         />
-        <Route path="/courses/:courseid" element={<ViewCourse />} />
-        <Route path="/ptlists" element={<ViewPtLists />} />
-        <Route path="/ptlists/:ptlistid" element={<ViewPtList />} />
+        <Route
+          path="/courses/:bundleId/:semesterId/:courseId/"
+          element={<ViewCourse />}
+        />
+
+        <Route
+          path="/ptlists/:bundleId/:semesterId"
+          element={<ViewPtLists />}
+        />
+        <Route
+          path="/ptlists/:bundleId/:semesterId/:ptlistid"
+          element={<ViewPtList />}
+        />
+
         <Route path="/coattainment" element={<SelectCoatt />} />
-        <Route path="/see" element={<ViewSaas />} />
-        <Route path="/see/:seeid" element={<ViewSaa />} />
+
+        <Route path="/see/:bundleId/:semesterId" element={<ViewSaas />} />
+        <Route path="/see/:bundleId/:semesterId/:seeid" element={<ViewSaa />} />
       </Routes>
     </HashRouter>
   </React.StrictMode>

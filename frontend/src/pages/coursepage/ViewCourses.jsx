@@ -25,6 +25,7 @@ const ViewCourses = () => {
       }
       const data = await response.json();
       setCourses(data);
+      console.log(data);
     } catch (error) {
       console.error("Failed to fetch courses:", error);
       setError("Failed to fetch courses.");
@@ -63,7 +64,11 @@ const ViewCourses = () => {
             <div
               key={course._id}
               className="p-4 bg-gray-200 rounded-md shadow-md hover:shadow-2xl cursor-pointer"
-              onClick={() => navigate(`/courses/${course._id}`)}
+              onClick={() =>
+                navigate(
+                  `/courses/${bundleId}/${semesterId}/${course.courseId}`
+                )
+              }
             >
               {course.title}
             </div>

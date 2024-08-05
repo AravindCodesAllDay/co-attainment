@@ -89,7 +89,7 @@ const AddCourseModal = ({ isModalOpen, toggleModal }) => {
           }
           const data = await response.json();
           setNamelist(data);
-          // console.log(data);
+          console.log(data);
         } catch (error) {
           console.log("error while fetching:", error);
         }

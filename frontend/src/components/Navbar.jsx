@@ -106,14 +106,22 @@ const Navbar = () => {
               Namelist
             </h2>
             <h2
-              onClick={() => navigate(`/courses`)}
-              className={isCurrentPage(`/courses`) ? "text-black" : ""}
+              onClick={() => navigate(`/courses/:bundleId/:semesterId`)}
+              className={
+                isCurrentPage(`/courses/:bundleId/:semesterId`)
+                  ? "text-black"
+                  : ""
+              }
             >
               Course
             </h2>
             <h2
-              onClick={() => navigate(`/ptlists`)}
-              className={isCurrentPage(`/ptlists`) ? "text-black" : ""}
+              onClick={() => navigate(`/ptlists/:bundleId/:semesterId`)}
+              className={
+                isCurrentPage(`/ptlists/:bundleId/:semesterId`)
+                  ? "text-black"
+                  : ""
+              }
             >
               PtLists
             </h2>

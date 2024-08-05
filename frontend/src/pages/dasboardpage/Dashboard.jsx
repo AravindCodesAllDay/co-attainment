@@ -44,9 +44,9 @@ function Dashboard() {
     fetchbundle();
   }, []);
 
-  const handleBundleClick = (bundleId) => {
-    navigate(`/sem/${bundleId}`);
-  };
+  // const handleBundleClick = (bundleId) => {
+  //   navigate(`/sem/${bundleId}`);
+  // };
 
   return (
     <>
@@ -64,7 +64,7 @@ function Dashboard() {
           <div
             key={index}
             className="p-4 bg-gray-200 rounded-md shadow-md hover:shadow-2xl cursor-pointer"
-            onClick={() => handleBundleClick(item.bundleId)} // Updated to navigate to AddSem page
+            onClick={() => navigate(`/sem/${item.bundleId}`)} // Updated to navigate to AddSem page
           >
             {item.title}
           </div>
