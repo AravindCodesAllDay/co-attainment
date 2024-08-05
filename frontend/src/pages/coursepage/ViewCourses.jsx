@@ -25,7 +25,7 @@ const ViewCourses = () => {
       }
       const data = await response.json();
       setCourses(data);
-      console.log(data);
+      // console.log(data);
     } catch (error) {
       console.error("Failed to fetch courses:", error);
       setError("Failed to fetch courses.");
@@ -54,7 +54,7 @@ const ViewCourses = () => {
         </button>
       </div>
       <AddCourseModal isModalOpen={isModalOpen} toggleModal={toggleModal} />
-      <div className="grid grid-cols-4 gap-4 p-4">
+      <div className="grid grid-cols-4 gap-4 p-4 ">
         {loading ? (
           <div className="flex justify-center mt-4 text-2xl ">Loading...</div>
         ) : error ? (
