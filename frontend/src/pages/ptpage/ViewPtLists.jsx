@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
 import Navbar from "../../components/Navbar";
 import AddPtModal from "./AddPt.modal";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 export default function ViewPtLists() {
   const user = JSON.parse(localStorage.getItem("user"));
   const navigate = useNavigate();
+
+  const { bundleId, semesterId } = useParams();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [pts, setPts] = useState([]);
@@ -14,7 +16,9 @@ export default function ViewPtLists() {
   const fetchPts = async () => {
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API}/pt/${user.userId}`
+        `${import.meta.env.VITE_API}/pt/${bundleId}/${semesterId}/${
+          user.userId
+        }`
       );
       if (!response.ok) {
         throw new Error("Network response was not ok");
