@@ -1,11 +1,18 @@
 import React, { useState, useEffect } from "react";
 import close from "../../assets/close.svg";
+import { useParams } from "react-router-dom";
 
 const AddSaamodal = ({ handleClose }) => {
   const [courses, setCourses] = useState([{ id: 1, value: "" }]);
+
+  const { bundleId } = useParams();
+  const { semesterId } = useParams();
   const user = JSON.parse(localStorage.getItem("user"));
   const [namelistId, setNamelistId] = useState("");
+  const [title, setTitle] = useState([]);
   const [titles, setTitles] = useState([]);
+  const [see, setsee] = useState([]);
+  const [seefetch, setseefetch] = useState([]);
 
   const handleAddCourse = () => {
     setCourses([...courses, { id: courses.length + 1, value: "" }]);
@@ -18,22 +25,54 @@ const AddSaamodal = ({ handleClose }) => {
     setCourses(updatedCourses);
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    try {
-    } catch (error) {}
-  };
-
-  const fetchTitles = async () => {
+    console.log({
+      title,
+      namelistId,
+      bundleId,
+      semesterId: semesterId,
+      courses: courses.value,
+    });
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API}/student/namelists/${user.userId}`
+        `${import.meta.env.VITE_API}/see/${user.userId}`,
+        {
+          method: "POST",
+          headers: {
+            "content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            title,
+            namelistId,
+            bundleId,
+            semesterId: semesterId,
+            courses: courses.value,
+          }),
+        }
       );
       if (!response.ok) {
         throw new Error("Network response was not ok");
       }
       const data = await response.json();
-      setTitles(data);
+      setsee(data);
+    } catch (error) {
+      console.log("failed to post the data in the see");
+    }
+  };
+
+  const fetchTitles = async () => {
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_API}/see/${bundleId}/${semesterId}/${
+          user.userId
+        }`
+      );
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+      const data = await response.json();
+      setseefetch(data);
     } catch (error) {
       console.error("Failed to fetch titles:", error);
       setError("Failed to fetch titles.");
@@ -42,6 +81,29 @@ const AddSaamodal = ({ handleClose }) => {
   useEffect(() => {
     fetchTitles();
   }, [user.userId]);
+
+  useEffect(() => {
+    const fetchNamelists = async () => {
+      if (user.userId && bundleId) {
+        try {
+          const response = await fetch(
+            `${import.meta.env.VITE_API}/namelist/${bundleId}/${user.userId}`
+          );
+          if (!response.ok) {
+            throw new Error("Network response was not ok");
+          }
+          const data = await response.json();
+          setTitles(data);
+        } catch (error) {
+          console.log("Error while fetching:", error);
+        }
+      } else {
+        console.log("User not found in localStorage or bundleId missing");
+      }
+    };
+
+    fetchNamelists();
+  }, [user.userId, bundleId]);
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
@@ -59,6 +121,8 @@ const AddSaamodal = ({ handleClose }) => {
             </label>
             <input
               type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
             />
           </div>
@@ -75,8 +139,8 @@ const AddSaamodal = ({ handleClose }) => {
               <option value="" disabled>
                 Select namelist
               </option>
-              {titles.map((title, index) => (
-                <option key={index} value={title._id}>
+              {titles.map((title) => (
+                <option key={title.namelistId} value={title.namelistId}>
                   {title.title}
                 </option>
               ))}
@@ -95,9 +159,9 @@ const AddSaamodal = ({ handleClose }) => {
               >
                 <option value="">Select Course</option>
                 {/* Add course options here */}
-                <option value="course1">underStand</option>
-                <option value="course2">Analyse</option>
-                <option value="course3">Apply</option>
+                <option value="Understand">underStand</option>
+                <option value="Analyse">Analyse</option>
+                <option value="Apply">Apply</option>
               </select>
             ))}
           </div>

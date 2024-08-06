@@ -338,7 +338,9 @@ const Navbar = () => {
           <div className="absolute right-0 mt-1 w-48 bg-white rounded-md shadow-lg p-2">
             <div
               className="block px-4 py-2 text-gray-800 hover:bg-gray-200 cursor-pointer border-b-2"
-              onClick={() => navigate("/coattainment")}
+              onClick={() =>
+                navigate(`/coattainment/${bundleId}/${semesterId}`)
+              }
             >
               Create Co
             </div>
