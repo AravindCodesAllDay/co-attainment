@@ -149,6 +149,14 @@ const ptListSchema = new Schema<IPtList>(
   },
   { timestamps: true }
 );
+
+ptListSchema.pre('save', function (next) {
+  const structure = this.get('structure') as IPtPart[];
+  const maxMark = structure.reduce((sum, part) => sum + part.maxMark, 0);
+  this.set('maxMark', maxMark);
+  next();
+});
+
 const PtList: Model<IPtList> = mongoose.model<IPtList>('PtList', ptListSchema);
 export { IPtList, IPtPart, IPtQuestion, IPtStudent, PtList };
 

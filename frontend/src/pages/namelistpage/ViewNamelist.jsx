@@ -13,7 +13,7 @@ const ViewNamelist = () => {
 
   const [studentName, setStudentName] = useState("");
   const [rollNo, setRollNo] = useState("");
-  const [regno, setRegNo] = useState("");
+  const [registration_no, setregistration_no] = useState("");
   const [namelist, setNamelist] = useState({ title: "", students: [] });
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -133,7 +133,8 @@ const ViewNamelist = () => {
         setStudentName={setStudentName}
         rollNo={rollNo}
         setRollNo={setRollNo}
-        setRegNo={setRegNo}
+        registration_no={registration_no}
+        setregistration_no={setregistration_no}
         handleSubmit={handleSubmit}
         error={error}
         title={namelist.title}

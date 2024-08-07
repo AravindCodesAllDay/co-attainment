@@ -10,7 +10,7 @@ function ViewSems() {
   const user = JSON.parse(localStorage.getItem("user") || "{}");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [sems, setSems] = useState([]);
-  const [namelist, setNamelists] = useState([]);
+  // const [namelist, setNamelists] = useState([]);
 
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
@@ -38,42 +38,6 @@ function ViewSems() {
     fetchSems();
   }, []);
 
-  useEffect(() => {
-    const fetchNamelists = async () => {
-      if (user && user.userId) {
-        try {
-          const response = await fetch(
-            `${import.meta.env.VITE_API}/namelist/${bundleId}/${user.userId}`
-          );
-          if (!response.ok) {
-            throw new Error("Network response was not ok");
-          }
-          const data = await response.json();
-          setNamelists(data);
-          // console.log(data);
-        } catch (error) {
-          console.log("Error while fetching:", error);
-        }
-      } else {
-        console.log("User not found in localStorage");
-      }
-    };
-
-    fetchNamelists();
-  }, []);
-
-  const handleClick = (bundleId, semesterId) => {
-    if (namelist.length > 0) {
-      // Assuming you need to navigate with the first namelistId for demonstration
-      const selectedNamelistId = namelist[0].namelistId;
-      navigate(
-        `/courses/${bundleId}/${semesterId}/${selectedNamelistId}/${user.userId}`
-      );
-    } else {
-      console.log("No namelist available");
-    }
-  };
-
   return (
     <>
       <Navbar />
@@ -90,7 +54,7 @@ function ViewSems() {
           <div
             key={index}
             className="p-4 bg-gray-200 rounded-md shadow-md hover:shadow-2xl cursor-pointer"
-            onClick={() => handleClick(bundleId, sem.semesterId)}
+            onClick={() => navigate(`/courses/${bundleId}/${sem.semesterId}`)}
           >
             {sem.title}
           </div>

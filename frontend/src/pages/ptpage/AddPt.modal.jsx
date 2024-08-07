@@ -1,13 +1,17 @@
 import React, { useState, useEffect } from "react";
 import close from "../../assets/close.svg";
+import { useParams } from "react-router-dom";
 
 export default function Modal({ isOpen, onClose }) {
   const user = JSON.parse(localStorage.getItem("user") || "{}");
 
+  const { bundleId } = useParams();
+  const { semesterId } = useParams();
   const [titles, setTitles] = useState([]);
   const [namelist_id, setNamelistId] = useState("");
   const [mainTitle, setMainTitle] = useState("");
   const [mainMark, setMainMark] = useState("");
+  const [ptlist, setptlist] = useState("");
   const [rows, setRows] = useState([
     {
       title: "Part 1",
@@ -90,13 +94,15 @@ export default function Modal({ isOpen, onClose }) {
     const fetchTitles = async () => {
       try {
         const response = await fetch(
-          `${import.meta.env.VITE_API}/student/namelists/${user.userId}`
+          `${import.meta.env.VITE_API}/pt/${bundleId}/${semesterId}/${
+            user.userId
+          }`
         );
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
         const data = await response.json();
-        setTitles(data);
+        setptlist(data);
       } catch (error) {
         console.error("Error occurred while fetching:", error);
       }
@@ -109,6 +115,15 @@ export default function Modal({ isOpen, onClose }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    console.log({
+      title,
+      namelist_id, // Ensure this is correctly set
+      bundleId,
+      semId: semesterId,
+      rows,
+    });
+
     try {
       const response = await fetch(
         `${import.meta.env.VITE_API}/pt/create/${user.userId}`,
@@ -118,7 +133,7 @@ export default function Modal({ isOpen, onClose }) {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            nameListId: namelist_id,
+            namelist_id,
             title: mainTitle,
             parts: rows,
             maxMark: mainMark,
@@ -137,6 +152,30 @@ export default function Modal({ isOpen, onClose }) {
       console.error("Error creating PtList:", error);
     }
   };
+
+  //fetch namelist
+  useEffect(() => {
+    const fetchNamelists = async () => {
+      if (user.userId && bundleId) {
+        try {
+          const response = await fetch(
+            `${import.meta.env.VITE_API}/namelist/${bundleId}/${user.userId}`
+          );
+          if (!response.ok) {
+            throw new Error("Network response was not ok");
+          }
+          const data = await response.json();
+          setTitles(data);
+        } catch (error) {
+          console.log("Error while fetching:", error);
+        }
+      } else {
+        console.log("User not found in localStorage or bundleId missing");
+      }
+    };
+
+    fetchNamelists();
+  }, [user.userId, bundleId]);
 
   if (!isOpen) return null;
 
@@ -185,8 +224,8 @@ export default function Modal({ isOpen, onClose }) {
               <option value="" disabled>
                 Select namelist
               </option>
-              {titles.map((title, index) => (
-                <option key={index} value={title._id}>
+              {titles.map((title) => (
+                <option key={title.namelisId} value={title.nameListId}>
                   {title.title}
                 </option>
               ))}

@@ -6,14 +6,18 @@ import del from "../../assets/delete.svg";
 
 export default function ViewCourse() {
   const user = JSON.parse(localStorage.getItem("user"));
-  const { courseid } = useParams();
+  const { bundleId } = useParams();
+  const { courseId } = useParams();
+  const { semesterId } = useParams();
 
   const [courselist, setCourselist] = useState(null);
 
   const fetchCourse = async () => {
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API}/course/colist/${courseid}/${user.userId}`
+        `${
+          import.meta.env.VITE_API
+        }/course/${bundleId}/${semesterId}/${courseId}/${user.userId}`
       );
       const data = await response.json();
       setCourselist(data);
