@@ -1,7 +1,7 @@
 import express, { Request, Response } from 'express';
 import mongoose from 'mongoose';
 
-import { User, IBundle, Bundle } from '../models/user.model';
+import { User, Bundle } from '../models/user.model';
 
 const router = express.Router();
 
