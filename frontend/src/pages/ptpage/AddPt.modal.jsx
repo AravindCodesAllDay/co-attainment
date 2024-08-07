@@ -8,7 +8,7 @@ export default function Modal({ isOpen, onClose }) {
   const { bundleId } = useParams();
   const { semesterId } = useParams();
   const [titles, setTitles] = useState([]);
-  const [namelist_id, setNamelistId] = useState("");
+  const [namelistId, setNamelistId] = useState("");
   const [mainTitle, setMainTitle] = useState("");
   const [mainMark, setMainMark] = useState("");
   const [ptlist, setptlist] = useState("");
@@ -117,26 +117,28 @@ export default function Modal({ isOpen, onClose }) {
     e.preventDefault();
 
     console.log({
-      title,
-      namelist_id, // Ensure this is correctly set
+      title: mainTitle,
+      maxMark: mainMark,
+      structure: rows,
       bundleId,
       semId: semesterId,
-      rows,
+      namelistId,
     });
-
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API}/pt/create/${user.userId}`,
+        `${import.meta.env.VITE_API}/pt/${user.userId}`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            namelist_id,
             title: mainTitle,
-            parts: rows,
             maxMark: mainMark,
+            structure: rows,
+            bundleId,
+            semId: semesterId,
+            namelistId,
           }),
         }
       );
@@ -153,7 +155,6 @@ export default function Modal({ isOpen, onClose }) {
     }
   };
 
-  //fetch namelist
   useEffect(() => {
     const fetchNamelists = async () => {
       if (user.userId && bundleId) {
@@ -217,7 +218,7 @@ export default function Modal({ isOpen, onClose }) {
             </label>
             <select
               name="namelist"
-              value={namelist_id || ""}
+              value={namelistId}
               onChange={(e) => setNamelistId(e.target.value)}
               className="border border-gray-300 p-2 mb-2 rounded-lg w-full"
             >
@@ -225,7 +226,7 @@ export default function Modal({ isOpen, onClose }) {
                 Select namelist
               </option>
               {titles.map((title) => (
-                <option key={title.namelisId} value={title.nameListId}>
+                <option key={title.namelistId} value={title.namelistId}>
                   {title.title}
                 </option>
               ))}
@@ -250,13 +251,11 @@ export default function Modal({ isOpen, onClose }) {
                     handleRowChange(rowIndex, "maxMark", e.target.value)
                   }
                 />
-                <button
-                  type="button"
+                <img
                   className="text-red-900"
                   onClick={() => handleDeleteRow(rowIndex)}
-                >
-                  X
-                </button>
+                  src={close}
+                />
               </div>
               <button
                 type="button"
@@ -290,15 +289,13 @@ export default function Modal({ isOpen, onClose }) {
                     <option value="apply">Apply</option>
                     <option value="analyse">Analyse</option>
                   </select>
-                  <button
-                    type="button"
+                  <img
                     className="text-red-900"
                     onClick={() =>
                       handleDeleteQuestion(rowIndex, questionIndex)
                     }
-                  >
-                    X
-                  </button>
+                    src={close}
+                  />
                 </div>
               ))}
             </div>

@@ -5,7 +5,8 @@ import Editptmark from "./EditPtMarks.modal";
 import edit from "../../assets/edit.svg";
 
 export default function ViewPtList() {
-  const { ptlistid } = useParams();
+  const { ptlistid, bundleId, semesterId } = useParams();
+
   const [ptlist, setPtlist] = useState(null);
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -17,7 +18,9 @@ export default function ViewPtList() {
     setLoading(true);
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API}/pt/ptlist/${ptlistid}/${user.userId}`
+        `${import.meta.env.VITE_API}/pt/${bundleId}/${semesterId}/${ptlistid}/${
+          user.userId
+        }`
       );
       if (!response.ok) {
         throw new Error("Network response was not ok");

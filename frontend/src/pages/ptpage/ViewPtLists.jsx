@@ -25,6 +25,7 @@ export default function ViewPtLists() {
       }
       const data = await response.json();
       setPts(data);
+      // console.log(data);
     } catch (error) {
       console.error("Failed to fetch courses:", error);
     } finally {
@@ -49,7 +50,7 @@ export default function ViewPtLists() {
       </div>
       <AddPtModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
 
-      <div className="grid grid-cols-4 gap-4 items-center mt-4 p-6">
+      <div className="grid grid-cols-4 gap-4 p-4">
         {isLoading ? (
           <div className="flex justify-center items-center mt-4 text-2xl">
             Loading...
@@ -58,8 +59,10 @@ export default function ViewPtLists() {
           pts.map((pt) => (
             <div
               key={pt._id}
-              className="border p-2 m-2 w-3/4 rounded bg-gray-100 cursor-pointer hover:bg-sky-500 font-bold hover:text-white"
-              onClick={() => navigate(`/ptlists/${pt._id}`)}
+              className="p-4 bg-gray-200 rounded-md shadow-md hover:shadow-2xl cursor-pointer"
+              onClick={() =>
+                navigate(`/ptlists/${bundleId}/${semesterId}/${pt.ptId}`)
+              }
             >
               {pt.title}
             </div>
