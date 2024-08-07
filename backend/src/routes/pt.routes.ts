@@ -1,7 +1,7 @@
 import express, { Request, Response } from 'express';
 import mongoose from 'mongoose';
 
-import { User, IPtList, PtList } from '../models/user.model';
+import { User, PtList } from '../models/user.model';
 
 const router = express.Router();
 
@@ -61,10 +61,10 @@ router.get('/:bundleId/:semId/:userId', async (req: Request, res: Response) => {
 
 //get pt details
 router.get(
-  '/:bundleId/:semId/:coId/:userId',
+  '/:bundleId/:semId/:ptId/:userId',
   async (req: Request, res: Response) => {
     try {
-      const { userId, bundleId, semId, seeId: ptId } = req.params;
+      const { userId, bundleId, semId, ptId } = req.params;
 
       if (
         !mongoose.Types.ObjectId.isValid(userId) ||
@@ -115,14 +115,14 @@ router.get(
   }
 );
 
-// POST route to create a new PT list
-router.post('/pt/create/:userId', async (req: Request, res: Response) => {
+router.post('/:userId', async (req: Request, res: Response) => {
   try {
     const { userId } = req.params;
-    const { title, structure, bundleId, semId, namelistId } = req.body;
+    const { title, maxMark, structure, bundleId, semId, namelistId } = req.body;
 
     if (
       !title ||
+      typeof maxMark !== 'number' ||
       !Array.isArray(structure) ||
       !mongoose.Types.ObjectId.isValid(userId) ||
       !mongoose.Types.ObjectId.isValid(bundleId) ||
@@ -169,6 +169,7 @@ router.post('/pt/create/:userId', async (req: Request, res: Response) => {
 
     const newPTList = new PtList({
       title,
+      maxMark,
       structure,
       students: populatedStudents,
     });
@@ -190,10 +191,10 @@ router.post('/pt/create/:userId', async (req: Request, res: Response) => {
 });
 
 // PUT route to update student scores in a PT list
-router.put('/pt/score/:userId', async (req: Request, res: Response) => {
+router.put('/score/:userId', async (req: Request, res: Response) => {
   try {
     const { userId } = req.params;
-    const { ptId, rollno: stdId, scores, bundleId, semId } = req.body;
+    const { ptId, stdId, scores, bundleId, semId } = req.body;
 
     if (
       !mongoose.Types.ObjectId.isValid(ptId) ||
@@ -258,7 +259,7 @@ router.put('/pt/score/:userId', async (req: Request, res: Response) => {
 });
 
 // DELETE route to delete a PT list
-router.delete('/pt/delete/:userId', async (req: Request, res: Response) => {
+router.delete('/:userId', async (req: Request, res: Response) => {
   try {
     const { userId } = req.params;
     const { ptId, bundleId, semId } = req.body;
