@@ -116,14 +116,6 @@ export default function Modal({ isOpen, onClose }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    console.log({
-      title: mainTitle,
-      maxMark: mainMark,
-      structure: rows,
-      bundleId,
-      semId: semesterId,
-      namelistId,
-    });
     try {
       const response = await fetch(
         `${import.meta.env.VITE_API}/pt/${user.userId}`,
@@ -134,8 +126,11 @@ export default function Modal({ isOpen, onClose }) {
           },
           body: JSON.stringify({
             title: mainTitle,
-            maxMark: mainMark,
-            structure: rows,
+            maxMark: Number(mainMark), // Convert mainMark to a number
+            structure: rows.map((row) => ({
+              ...row,
+              maxMark: Number(row.maxMark), // Convert each row's maxMark to a number
+            })),
             bundleId,
             semId: semesterId,
             namelistId,
@@ -144,6 +139,8 @@ export default function Modal({ isOpen, onClose }) {
       );
 
       if (!response.ok) {
+        const errorText = await response.text();
+        console.error("Error response text:", errorText);
         throw new Error("Network response was not ok");
       }
 
@@ -206,7 +203,7 @@ export default function Modal({ isOpen, onClose }) {
               Total Mark
             </label>
             <input
-              type="number"
+              type="Number"
               value={mainMark}
               onChange={(e) => setMainMark(e.target.value)}
               className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
@@ -243,7 +240,7 @@ export default function Modal({ isOpen, onClose }) {
                   disabled
                 />
                 <input
-                  type="number"
+                  type="Number"
                   placeholder="Max Mark"
                   className="mt-1 block p-2 border border-gray-300 rounded-md w-1/2"
                   value={row.maxMark}

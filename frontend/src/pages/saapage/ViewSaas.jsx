@@ -1,11 +1,13 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Navbar from "../../components/Navbar";
 import AddSaamodal from "./AddSaa.modal"; // Adjust the import path as needed
+import { useParams } from "react-router-dom";
 
 function ViewSaas() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const user = JSON.parse(localStorage.getItem("user"));
-  const [saas, setsaas] = useState([]);
+  const { bundleId, semesterId } = useParams();
+  const [see, setsees] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
   const handleOpenModal = () => {
@@ -16,26 +18,28 @@ function ViewSaas() {
     setIsModalOpen(false);
   };
 
-  // const fetchsaas = async () => {
-  //   try {
-  //     const response = await fetch(
-  //       `${import.meta.env.VITE_API}/pt/${user.userId}`
-  //     );
-  //     if (!response.ok) {
-  //       throw new Error("Network response was not ok");
-  //     }
-  //     const data = await response.json();
-  //     setPts(data);
-  //   } catch (error) {
-  //     console.error("Failed to fetch courses:", error);
-  //   } finally {
-  //     setIsLoading(false);
-  //   }
-  // };
+  const fetchsees = async () => {
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_API}/pt/${bundleId}/${semesterId}/${
+          user.userId
+        }`
+      );
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+      const data = await response.json();
+      setsees(data);
+    } catch (error) {
+      console.error("Failed to fetch courses:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-  // useEffect(() => {
-  //   fetchsaas();
-  // }, [user.userId]);
+  useEffect(() => {
+    fetchsees();
+  }, [user.userId]);
 
   return (
     <>
@@ -48,26 +52,25 @@ function ViewSaas() {
           Add Saa
         </button>
       </div>
-      <div>Hello</div>
       {isModalOpen && <AddSaamodal handleClose={handleCloseModal} />}
 
-      {/* <div className="grid grid-cols-4 gap-4 items-center mt-4 p-6">
+      <div className="grid grid-cols-4 gap-4 p-4">
         {isLoading ? (
           <div className="flex justify-center items-center mt-4 text-2xl">
             Loading...
           </div>
         ) : (
-          pts.map((pt) => (
+          see.map((pt) => (
             <div
               key={pt._id}
-              className="border p-2 m-2 w-3/4 rounded bg-gray-100 cursor-pointer hover:bg-sky-500 font-bold hover:text-white"
+              className="p-4 bg-gray-200 rounded-md shadow-md hover:shadow-2xl cursor-pointer"
               onClick={() => navigate(`/saa/${saa._id}`)}
             >
               {pt.title}
             </div>
           ))
         )}
-      </div> */}
+      </div>
     </>
   );
 }

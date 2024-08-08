@@ -114,50 +114,42 @@ router.get(
     }
   }
 );
-
 router.post('/:userId', async (req: Request, res: Response) => {
   try {
     const { userId } = req.params;
     const { title, maxMark, structure, bundleId, semId, namelistId } = req.body;
 
-    if (
-      !title ||
-      typeof maxMark !== 'number' ||
-      !Array.isArray(structure) ||
-      !mongoose.Types.ObjectId.isValid(userId) ||
-      !mongoose.Types.ObjectId.isValid(bundleId) ||
-      !mongoose.Types.ObjectId.isValid(semId) ||
-      !mongoose.Types.ObjectId.isValid(namelistId)
-    ) {
-      return handleErrorResponse(res, 400, 'Invalid input data');
-    }
+    console.log('Request body:', req.body);
+
+    if (!title) return handleErrorResponse(res, 400, 'Title is required');
+    if (typeof maxMark !== 'number')
+      return handleErrorResponse(res, 400, 'MaxMark must be a number');
+    if (!Array.isArray(structure))
+      return handleErrorResponse(res, 400, 'Structure must be an array');
+    if (!mongoose.Types.ObjectId.isValid(userId))
+      return handleErrorResponse(res, 400, 'Invalid userId');
+    if (!mongoose.Types.ObjectId.isValid(bundleId))
+      return handleErrorResponse(res, 400, 'Invalid bundleId');
+    if (!mongoose.Types.ObjectId.isValid(semId))
+      return handleErrorResponse(res, 400, 'Invalid semId');
+    if (!mongoose.Types.ObjectId.isValid(namelistId))
+      return handleErrorResponse(res, 400, 'Invalid namelistId');
 
     const user = await User.findById(userId);
-    if (!user) {
-      return handleErrorResponse(res, 404, 'User not found');
-    }
+    if (!user) return handleErrorResponse(res, 404, 'User not found');
 
     const bundle = user.bundles.find((bundle) =>
       (bundle as any)._id.equals(bundleId)
     );
-
-    if (!bundle) {
-      return handleErrorResponse(res, 404, 'Bundle not found.');
-    }
+    if (!bundle) return handleErrorResponse(res, 404, 'Bundle not found');
 
     const sem = bundle.semlists.find((sem) => (sem as any)._id.equals(semId));
-
-    if (!sem) {
-      return handleErrorResponse(res, 404, 'Semester not found.');
-    }
+    if (!sem) return handleErrorResponse(res, 404, 'Semester not found');
 
     const namelist = bundle.namelists.find((namelist) =>
       (namelist as any)._id.equals(namelistId)
     );
-
-    if (!namelist) {
-      return handleErrorResponse(res, 404, 'Namelist not found.');
-    }
+    if (!namelist) return handleErrorResponse(res, 404, 'Namelist not found');
 
     const populatedStudents = namelist.students.map((student) => ({
       rollno: student.rollno,
@@ -183,6 +175,7 @@ router.post('/:userId', async (req: Request, res: Response) => {
       ptList: newPTList,
     });
   } catch (error) {
+    console.error('Error creating PT list:', error);
     return res.status(500).json({
       message: 'Error creating PT list',
       error: (error as Error).message,

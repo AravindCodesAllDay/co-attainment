@@ -22,7 +22,7 @@ const EditNamelistModal = ({
     e.preventDefault();
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API}/student/students/${user.userId}`,
+        `${import.meta.env.VITE_API}/namelist/student/${user.userId}`,
         {
           method: "PUT",
           headers: {
@@ -100,7 +100,7 @@ const EditNamelistModal = ({
             </label>
             <input
               type="text"
-              name="rollno"
+              name="reg_no"
               value={studentData.registration_no}
               onChange={handleInputChange}
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"

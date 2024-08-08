@@ -4,12 +4,10 @@ import { useParams } from "react-router-dom";
 
 const AddSaamodal = ({ handleClose }) => {
   const [courses, setCourses] = useState([{ id: 1, value: "" }]);
-
-  const { bundleId } = useParams();
-  const { semesterId } = useParams();
+  const { bundleId, semesterId } = useParams();
   const user = JSON.parse(localStorage.getItem("user"));
   const [namelistId, setNamelistId] = useState("");
-  const [title, setTitle] = useState([]);
+  const [title, setTitle] = useState("");
   const [titles, setTitles] = useState([]);
   const [see, setsee] = useState([]);
   const [seefetch, setseefetch] = useState([]);
@@ -27,12 +25,13 @@ const AddSaamodal = ({ handleClose }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const formattedCourses = courses.map((course) => course.value);
     console.log({
       title,
       namelistId,
       bundleId,
-      semesterId: semesterId,
-      courses: courses.value,
+      semId: semesterId,
+      courses: formattedCourses,
     });
     try {
       const response = await fetch(
@@ -40,14 +39,14 @@ const AddSaamodal = ({ handleClose }) => {
         {
           method: "POST",
           headers: {
-            "content-Type": "application/json",
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({
             title,
             namelistId,
             bundleId,
-            semesterId: semesterId,
-            courses: courses.value,
+            semId: semesterId,
+            courses: formattedCourses,
           }),
         }
       );
@@ -57,7 +56,7 @@ const AddSaamodal = ({ handleClose }) => {
       const data = await response.json();
       setsee(data);
     } catch (error) {
-      console.log("failed to post the data in the see");
+      console.log("Failed to post the data in the see");
     }
   };
 
@@ -75,9 +74,9 @@ const AddSaamodal = ({ handleClose }) => {
       setseefetch(data);
     } catch (error) {
       console.error("Failed to fetch titles:", error);
-      setError("Failed to fetch titles.");
     }
   };
+
   useEffect(() => {
     fetchTitles();
   }, [user.userId]);
@@ -114,7 +113,7 @@ const AddSaamodal = ({ handleClose }) => {
           onClick={handleClose}
         />
         <h2 className="text-2xl font-bold mb-4">Add Saa Details</h2>
-        <form onClick={handleSubmit}>
+        <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <label className="block text-gray-700 text-sm font-bold mb-2">
               Title
@@ -127,7 +126,7 @@ const AddSaamodal = ({ handleClose }) => {
             />
           </div>
           <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2 ">
+            <label className="block text-gray-700 text-sm font-bold mb-2">
               Name List
             </label>
             <select
@@ -159,7 +158,7 @@ const AddSaamodal = ({ handleClose }) => {
               >
                 <option value="">Select Course</option>
                 {/* Add course options here */}
-                <option value="Understand">underStand</option>
+                <option value="Understand">Understand</option>
                 <option value="Analyse">Analyse</option>
                 <option value="Apply">Apply</option>
               </select>
@@ -170,7 +169,7 @@ const AddSaamodal = ({ handleClose }) => {
             type="button"
             onClick={handleAddCourse}
           >
-            Create Courses
+            Add Course
           </button>
           <div className="flex justify-end space-x-2 mt-4">
             <button
