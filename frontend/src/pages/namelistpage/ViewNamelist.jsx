@@ -103,6 +103,7 @@ const ViewNamelist = () => {
       }
       const data = await response.json();
       setNamelist(data);
+      // console.log(data);
       setIsLoading(false);
     } catch (error) {
       console.error("Error fetching namelist", error);

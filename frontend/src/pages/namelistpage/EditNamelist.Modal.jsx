@@ -11,7 +11,7 @@ const EditNamelistModal = ({
   fetchStudent,
 }) => {
   const user = JSON.parse(localStorage.getItem("user"));
-  const { namelistid } = useParams();
+  const { namelistid, bundleId } = useParams();
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -29,12 +29,13 @@ const EditNamelistModal = ({
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            studentId: studentData._id,
+            bundleId: bundleId,
+            studentId: _id,
             namelistId: namelistid,
             studentDetail: {
               name: studentData.name,
               rollno: studentData.rollno,
-              registeration_no: studentData.registeration_no,
+              registration_no: studentData.registration_no,
             },
           }),
         }
@@ -100,7 +101,7 @@ const EditNamelistModal = ({
             </label>
             <input
               type="text"
-              name="reg_no"
+              name="registration_no"
               value={studentData.registration_no}
               onChange={handleInputChange}
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"

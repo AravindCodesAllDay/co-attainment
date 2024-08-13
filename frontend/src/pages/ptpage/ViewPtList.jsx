@@ -112,7 +112,7 @@ export default function ViewPtList() {
                         key={qIndex}
                         className="border border-gray-300 px-4 py-2"
                       >
-                        {question.mark}
+                        {question.maxMark}
                       </td>
                     ))
                   )}
