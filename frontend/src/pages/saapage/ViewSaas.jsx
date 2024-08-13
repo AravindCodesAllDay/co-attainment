@@ -21,7 +21,7 @@ function ViewSaas() {
   const fetchsees = async () => {
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API}/pt/${bundleId}/${semesterId}/${
+        `${import.meta.env.VITE_API}/see/${bundleId}/${semesterId}/${
           user.userId
         }`
       );
