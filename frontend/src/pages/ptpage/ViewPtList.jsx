@@ -107,12 +107,12 @@ export default function ViewPtList() {
                     {student.rollno}
                   </td>
                   {student.parts.map((part, pIndex) =>
-                    part.questions.map((question, qIndex) => (
+                    part.map((question, qIndex) => (
                       <td
                         key={qIndex}
                         className="border border-gray-300 px-4 py-2"
                       >
-                        {question.maxMark}
+                        {question.structure.maxMark}
                       </td>
                     ))
                   )}

@@ -8,10 +8,11 @@ const EditNamelistModal = ({
   onRequestClose,
   studentData,
   setStudentData,
+  studentId,
   fetchStudent,
 }) => {
   const user = JSON.parse(localStorage.getItem("user"));
-  const { namelistid, bundleId } = useParams();
+  const { namelistId, bundleId } = useParams();
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -30,8 +31,8 @@ const EditNamelistModal = ({
           },
           body: JSON.stringify({
             bundleId: bundleId,
-            studentId: _id,
-            namelistId: namelistid,
+            studentId: studentId,
+            namelistId: namelistId,
             studentDetail: {
               name: studentData.name,
               rollno: studentData.rollno,

@@ -146,6 +146,7 @@ const ViewNamelist = () => {
         onRequestClose={() => setIsEditModalOpen(false)}
         studentData={editStudentData}
         setStudentData={setEditStudentData}
+        studentId={editStudentData._id}
         namelistId={namelistId}
         fetchStudent={fetchStudent}
       />
