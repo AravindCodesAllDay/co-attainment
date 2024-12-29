@@ -3,14 +3,15 @@ import Navbar from "../../components/Navbar";
 import { useParams } from "react-router-dom";
 import edit from "../../assets/edit.svg";
 import del from "../../assets/delete.svg";
+import EditCoMarksModal from "../coursepage/EditCoMarks.Modal";
 
 export default function ViewCourse() {
   const user = JSON.parse(localStorage.getItem("user"));
-  const { bundleId } = useParams();
-  const { courseId } = useParams();
-  const { semesterId } = useParams();
+  const { bundleId, courseId, semesterId } = useParams();
 
   const [courselist, setCourselist] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+  const [currentRow, setCurrentRow] = useState(null);
 
   const fetchCourse = async () => {
     try {
@@ -22,7 +23,54 @@ export default function ViewCourse() {
       const data = await response.json();
       setCourselist(data);
     } catch (error) {
-      console.log("error while fetching:", error);
+      console.log("Error while fetching:", error);
+    }
+  };
+
+  const handleEditClick = (student) => {
+    setCurrentRow(student);
+    setShowModal(true);
+  };
+
+  const handleModalClose = () => {
+    setShowModal(false);
+    setCurrentRow(null);
+  };
+
+  const handleModalSubmit = async (updatedData) => {
+    try {
+      // Prepare the payload
+      const payload = {
+        scores: updatedData.scores,
+        coId: courseId,
+        bundleId: bundleId,
+        semId: semesterId,
+        stdId: currentRow._id,
+      };
+
+      // Send the update request to the backend
+      const response = await fetch(
+        `${import.meta.env.VITE_API}/score/${user.userId}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to update scores");
+      }
+
+      const updatedCourselist = await response.json();
+
+      // Update the local state
+      setCourselist(updatedCourselist);
+      handleModalClose();
+    } catch (error) {
+      console.error("Error while updating scores:", error);
     }
   };
 
@@ -67,8 +115,13 @@ export default function ViewCourse() {
                     ))}
                     <td className="py-2 px-4">{student.averageScore}</td>
                     <td className="py-2 px-4 flex flex-row gap-4 items-center">
-                      <img className="cursor-pointer" src={edit} />
-                      <img className="cursor-pointer" src={del} />
+                      <img
+                        className="cursor-pointer"
+                        src={edit}
+                        alt="Edit"
+                        onClick={() => handleEditClick(student)}
+                      />
+                      <img className="cursor-pointer" src={del} alt="Delete" />
                     </td>
                   </tr>
                 ))}
@@ -79,6 +132,14 @@ export default function ViewCourse() {
           )}
         </div>
       </div>
+      {showModal && (
+        <EditCoMarksModal
+          student={currentRow}
+          rows={courselist.rows}
+          onClose={handleModalClose}
+          onSubmit={handleModalSubmit}
+        />
+      )}
     </>
   );
 }
