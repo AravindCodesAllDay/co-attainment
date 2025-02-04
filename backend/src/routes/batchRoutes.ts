@@ -1,14 +1,14 @@
 import express from 'express';
 import {
-  getBundles,
-  addBundle,
-  deleteBundle,
+  getBatches,
+  addBatch,
+  deleteBatch,
 } from '../controllers/batchController';
 
 const router = express.Router();
 
-router.get('/:userId', getBundles);
-router.post('/:userId', addBundle);
-router.delete('/:userId', deleteBundle);
+router.get('/:userId', getBatches);
+router.post('/:userId', addBatch);
+router.delete('/:userId', deleteBatch);
 
 export default router;
