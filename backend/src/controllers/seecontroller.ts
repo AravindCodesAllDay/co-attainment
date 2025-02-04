@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import mongoose from 'mongoose';
 import { User } from '../models/user/userModel';
 import { See } from '../models/see/seeModel';
-import { ISeeStudent } from '../models/see/seeStudentModel';
+import { ISeeStudent, SeeStudentModel } from '../models/see/seeStudentModel';
 
 const handleErrorResponse = (
   res: Response,
@@ -15,11 +15,11 @@ const handleErrorResponse = (
 // Get SEE lists from a semester
 export const getSeeFromSemester = async (req: Request, res: Response) => {
   try {
-    const { userId, bundleId, semId } = req.params;
+    const { userId, batchId, semId } = req.params;
 
     if (
       !mongoose.Types.ObjectId.isValid(userId) ||
-      !mongoose.Types.ObjectId.isValid(bundleId) ||
+      !mongoose.Types.ObjectId.isValid(batchId) ||
       !mongoose.Types.ObjectId.isValid(semId)
     ) {
       return handleErrorResponse(res, 400, 'Invalid IDs provided.');
@@ -28,11 +28,11 @@ export const getSeeFromSemester = async (req: Request, res: Response) => {
     const user = await User.findById(userId);
     if (!user) return handleErrorResponse(res, 404, 'User not found.');
 
-    const bundle = user.bundles.find((b) => (b as any)._id.equals(bundleId));
+    const batch = user.batches.find((b) => (b as any)._id.equals(batchId));
 
-    if (!bundle) return handleErrorResponse(res, 404, 'Bundle not found.');
+    if (!batch) return handleErrorResponse(res, 404, 'Batch not found.');
 
-    const semester = bundle.semlists.find((s) => (s as any)._id.equals(semId));
+    const semester = batch.semlists.find((s) => (s as any)._id.equals(semId));
 
     if (!semester) return handleErrorResponse(res, 404, 'Semester not found.');
 
@@ -50,11 +50,11 @@ export const getSeeFromSemester = async (req: Request, res: Response) => {
 // Get SEE details
 export const getSeeDetails = async (req: Request, res: Response) => {
   try {
-    const { userId, bundleId, semId, seeId } = req.params;
+    const { userId, batchId, semId, seeId } = req.params;
 
     if (
       !mongoose.Types.ObjectId.isValid(userId) ||
-      !mongoose.Types.ObjectId.isValid(bundleId) ||
+      !mongoose.Types.ObjectId.isValid(batchId) ||
       !mongoose.Types.ObjectId.isValid(semId) ||
       !mongoose.Types.ObjectId.isValid(seeId)
     ) {
@@ -64,11 +64,11 @@ export const getSeeDetails = async (req: Request, res: Response) => {
     const user = await User.findById(userId);
     if (!user) return handleErrorResponse(res, 404, 'User not found.');
 
-    const bundle = user.bundles.find((b) => (b as any)._id.equals(bundleId));
+    const batch = user.batches.find((b) => (b as any)._id.equals(batchId));
 
-    if (!bundle) return handleErrorResponse(res, 404, 'Bundle not found.');
+    if (!batch) return handleErrorResponse(res, 404, 'Batch not found.');
 
-    const semester = bundle.semlists.find((s) => (s as any)._id.equals(semId));
+    const semester = batch.semlists.find((s) => (s as any)._id.equals(semId));
 
     if (!semester) return handleErrorResponse(res, 404, 'Semester not found.');
 
@@ -86,13 +86,13 @@ export const getSeeDetails = async (req: Request, res: Response) => {
 export const createSeeList = async (req: Request, res: Response) => {
   try {
     const { userId } = req.params;
-    const { title, courses, bundleId, semId, namelistId } = req.body;
+    const { title, courses, batchId, semId, namelistId } = req.body;
 
     if (
       !title ||
       !Array.isArray(courses) ||
       !mongoose.Types.ObjectId.isValid(userId) ||
-      !mongoose.Types.ObjectId.isValid(bundleId) ||
+      !mongoose.Types.ObjectId.isValid(batchId) ||
       !mongoose.Types.ObjectId.isValid(semId) ||
       !mongoose.Types.ObjectId.isValid(namelistId)
     ) {
@@ -102,23 +102,30 @@ export const createSeeList = async (req: Request, res: Response) => {
     const user = await User.findById(userId);
     if (!user) return handleErrorResponse(res, 404, 'User not found.');
 
-    const bundle = user.bundles.find((b) => (b as any)._id.equals(bundleId));
-    if (!bundle) return handleErrorResponse(res, 404, 'Bundle not found.');
+    const batch = user.batches.find((b) => (b as any)._id.equals(batchId));
+    if (!batch) return handleErrorResponse(res, 404, 'Batch not found.');
 
-    const sem = bundle.semlists.find((s) => (s as any)._id.equals(semId));
+    const sem = batch.semlists.find((s) => (s as any)._id.equals(semId));
     if (!sem) return handleErrorResponse(res, 404, 'Semester not found.');
 
-    const namelist = bundle.namelists.find((n) =>
+    const namelist = batch.namelists.find((n) =>
       (n as any)._id.equals(namelistId)
     );
 
     if (!namelist) return handleErrorResponse(res, 404, 'Namelist not found.');
 
-    const students: ISeeStudent[] = namelist.students.map((student) => ({
-      rollno: student.rollno,
-      name: student.name,
-      scores: Object.fromEntries(courses.map((course) => [course, 0])),
-    }));
+    const students: ISeeStudent[] = await Promise.all(
+      namelist.students.map(async (student) => {
+        const newStudent = new SeeStudentModel({
+          _id: new mongoose.Types.ObjectId(), // Provide _id for each student
+          rollno: student.rollno,
+          name: student.name,
+          scores: new Map(courses.map((course) => [course, 0])), // Use Map for scores
+        });
+
+        return newStudent;
+      })
+    );
 
     const newSEEList = new See({ title, courses, students });
     sem.seelists.push(newSEEList);
@@ -137,27 +144,32 @@ export const createSeeList = async (req: Request, res: Response) => {
 export const updateSeeScores = async (req: Request, res: Response) => {
   try {
     const { userId } = req.params;
-    const { seeId, stdId, scores, semId, bundleId } = req.body;
+    const { seeId, stdId, scores, semId, batchId } = req.body;
 
+    // Validate input data
     if (
       !mongoose.Types.ObjectId.isValid(userId) ||
-      !mongoose.Types.ObjectId.isValid(bundleId) ||
+      !mongoose.Types.ObjectId.isValid(batchId) ||
       !mongoose.Types.ObjectId.isValid(semId) ||
       !mongoose.Types.ObjectId.isValid(seeId) ||
       !mongoose.Types.ObjectId.isValid(stdId) ||
-      typeof scores !== 'object'
+      typeof scores !== 'object' || // Ensure scores is an object
+      scores === null
     ) {
       return handleErrorResponse(res, 400, 'Invalid input data');
     }
 
+    // Find user and related documents
     const user = await User.findById(userId);
     if (!user) return handleErrorResponse(res, 404, 'User not found.');
 
-    const sem = user.bundles
-      .find((b) => (b as any)._id.equals(bundleId))
+    const sem = user.batches
+      .find((b) => (b as any)._id.equals(batchId))
       ?.semlists.find((s) => (s as any)._id.equals(semId));
 
-    const see = sem?.seelists.find((s) => (s as any)._id.equals(seeId));
+    if (!sem) return handleErrorResponse(res, 404, 'Semester not found.');
+
+    const see = sem.seelists.find((s) => (s as any)._id.equals(seeId));
 
     if (!see) return handleErrorResponse(res, 404, 'SEE list not found.');
 
@@ -167,7 +179,13 @@ export const updateSeeScores = async (req: Request, res: Response) => {
 
     if (!student) return handleErrorResponse(res, 404, 'Student not found.');
 
+    // Update scores for each assignment
     for (const [assignment, score] of Object.entries(scores)) {
+      // Ensure that the score is a number
+      if (typeof score !== 'number') {
+        return handleErrorResponse(res, 400, `Invalid score for ${assignment}`);
+      }
+
       if (!student.scores.has(assignment)) {
         return handleErrorResponse(
           res,
@@ -175,12 +193,17 @@ export const updateSeeScores = async (req: Request, res: Response) => {
           `Assignment ${assignment} not found.`
         );
       }
+
       student.scores.set(assignment, score);
     }
 
+    // Save the updated data
     await user.save();
+
+    // Return the updated SEE list
     return res.status(200).json(see);
   } catch (error) {
+    console.error(error);
     return handleErrorResponse(res, 500, 'Error updating scores');
   }
 };

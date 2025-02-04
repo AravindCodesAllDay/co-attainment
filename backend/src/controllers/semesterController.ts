@@ -12,15 +12,15 @@ const handleErrorResponse = (
   return res.status(status).json({ message });
 };
 
-// Get all semester titles and IDs from a specific bundle
+// Get all semester titles and IDs from a specific batch
 export const getSemesters = async (req: Request, res: Response) => {
   try {
-    const { userId, bundleId } = req.params;
+    const { userId, batchId } = req.params;
     if (
       !mongoose.Types.ObjectId.isValid(userId) ||
-      !mongoose.Types.ObjectId.isValid(bundleId)
+      !mongoose.Types.ObjectId.isValid(batchId)
     ) {
-      return handleErrorResponse(res, 400, 'Invalid user ID or bundle ID.');
+      return handleErrorResponse(res, 400, 'Invalid user ID or batch ID.');
     }
 
     const user = await User.findById(userId);
@@ -28,17 +28,15 @@ export const getSemesters = async (req: Request, res: Response) => {
       return handleErrorResponse(res, 404, 'User not found.');
     }
 
-    const bundle = user.bundles.find((bundle) =>
-      (bundle as unknown as { _id: mongoose.Types.ObjectId })._id.equals(
-        bundleId
-      )
+    const batch = user.batches.find((batch) =>
+      (batch as unknown as { _id: mongoose.Types.ObjectId })._id.equals(batchId)
     );
 
-    if (!bundle) {
-      return handleErrorResponse(res, 404, 'Bundle not found.');
+    if (!batch) {
+      return handleErrorResponse(res, 404, 'Batch not found.');
     }
 
-    const sems = (bundle as unknown as { semlists: ISemester[] }).semlists.map(
+    const sems = (batch as unknown as { semlists: ISemester[] }).semlists.map(
       (sem) => ({
         semesterId: sem._id,
         title: sem.title,
@@ -52,16 +50,16 @@ export const getSemesters = async (req: Request, res: Response) => {
   }
 };
 
-// Add a new semester to a bundle
+// Add a new semester to a batch
 export const addSemester = async (req: Request, res: Response) => {
   try {
     const { userId } = req.params;
-    const { title, bundleId } = req.body;
+    const { title, batchId } = req.body;
 
     if (
       !title ||
       !mongoose.Types.ObjectId.isValid(userId) ||
-      !mongoose.Types.ObjectId.isValid(bundleId)
+      !mongoose.Types.ObjectId.isValid(batchId)
     ) {
       return handleErrorResponse(res, 400, 'Invalid inputs.');
     }
@@ -71,14 +69,12 @@ export const addSemester = async (req: Request, res: Response) => {
       return handleErrorResponse(res, 404, 'User not found.');
     }
 
-    const bundle = user.bundles.find((bundle) =>
-      (bundle as unknown as { _id: mongoose.Types.ObjectId })._id.equals(
-        bundleId
-      )
+    const batch = user.batches.find((batch) =>
+      (batch as unknown as { _id: mongoose.Types.ObjectId })._id.equals(batchId)
     );
 
-    if (!bundle) {
-      return handleErrorResponse(res, 404, 'Bundle not found.');
+    if (!batch) {
+      return handleErrorResponse(res, 404, 'Batch not found.');
     }
 
     const newSem = new Semester({
@@ -88,7 +84,7 @@ export const addSemester = async (req: Request, res: Response) => {
       seelists: [],
     });
 
-    (bundle as unknown as { semlists: ISemester[] }).semlists.push(newSem);
+    (batch as unknown as { semlists: ISemester[] }).semlists.push(newSem);
     await user.save();
 
     return res.status(201).json(newSem);
@@ -98,21 +94,21 @@ export const addSemester = async (req: Request, res: Response) => {
   }
 };
 
-// Delete a semester from a bundle
+// Delete a semester from a batch
 export const deleteSemester = async (req: Request, res: Response) => {
   try {
     const { userId } = req.params;
-    const { bundleId, semId } = req.body;
+    const { batchId, semId } = req.body;
 
     if (
       !mongoose.Types.ObjectId.isValid(userId) ||
-      !mongoose.Types.ObjectId.isValid(bundleId) ||
+      !mongoose.Types.ObjectId.isValid(batchId) ||
       !mongoose.Types.ObjectId.isValid(semId)
     ) {
       return handleErrorResponse(
         res,
         400,
-        'Invalid user ID, bundle ID, or semester ID.'
+        'Invalid user ID, batch ID, or semester ID.'
       );
     }
 
@@ -121,15 +117,15 @@ export const deleteSemester = async (req: Request, res: Response) => {
       return handleErrorResponse(res, 404, 'User not found');
     }
 
-    const bundle = user.bundles.find((bundle) =>
-      (bundle as any)._id.equals(bundleId)
+    const batch = user.batches.find((batch) =>
+      (batch as any)._id.equals(batchId)
     );
 
-    if (!bundle) {
-      return handleErrorResponse(res, 404, 'Bundle not found.');
+    if (!batch) {
+      return handleErrorResponse(res, 404, 'Batch not found.');
     }
 
-    const semIndex = bundle.semlists.findIndex((list) =>
+    const semIndex = batch.semlists.findIndex((list) =>
       (list as any)._id.equals(semId)
     );
 
@@ -137,7 +133,7 @@ export const deleteSemester = async (req: Request, res: Response) => {
       return handleErrorResponse(res, 404, 'Semester not found');
     }
 
-    bundle.semlists.splice(semIndex, 1);
+    batch.semlists.splice(semIndex, 1);
     await user.save();
 
     return res.status(200).json({ message: 'Semester deleted successfully.' });

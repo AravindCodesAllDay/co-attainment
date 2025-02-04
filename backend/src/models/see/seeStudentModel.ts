@@ -1,15 +1,24 @@
-import { Schema, Document } from 'mongoose';
+import mongoose, { Document, Schema } from 'mongoose';
 
-export interface ISeeStudent extends Document {
+// Define the ISeeStudent interface
+interface ISeeStudent extends Document {
+  _id: mongoose.Types.ObjectId;
   rollno: string;
   name: string;
   scores: Map<string, number>;
 }
 
-const seeStudentSchema = new Schema<ISeeStudent>({
+// Define the schema
+const SeeStudentSchema = new Schema<ISeeStudent>({
   rollno: { type: String, required: true },
   name: { type: String, required: true },
-  scores: { type: Map, of: Number, default: {} },
+  scores: { type: Map, of: Number },
 });
 
-export { seeStudentSchema };
+// Create the model
+const SeeStudentModel = mongoose.model<ISeeStudent>(
+  'SeeStudent',
+  SeeStudentSchema
+);
+
+export { SeeStudentModel, ISeeStudent };

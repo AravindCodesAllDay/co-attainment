@@ -5,7 +5,7 @@ import {
   createSeeList,
   updateSeeScores,
   deleteSeeList,
-} from '../controllers/seecontroller';
+} from '../controllers/seeController';
 
 const router = express.Router();
 
