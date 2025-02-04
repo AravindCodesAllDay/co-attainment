@@ -3,6 +3,7 @@ import { Namelist, INamelist } from '../namelist/namelistModel';
 import { Semester, ISemester } from '../semester/semesterModel';
 
 export interface IBatch extends Document {
+  _id: mongoose.Types.ObjectId;
   title: string;
   namelists: INamelist[];
   semlists: ISemester[];

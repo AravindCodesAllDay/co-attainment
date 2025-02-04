@@ -2,6 +2,7 @@ import mongoose, { Schema, Document, Model } from 'mongoose';
 import { coStudentSchema, ICoStudent } from './coStudentModel';
 
 export interface ICoList extends Document {
+  _id: mongoose.Types.ObjectId;
   title: string;
   average: number;
   rows: string[];

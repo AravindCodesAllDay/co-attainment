@@ -4,6 +4,7 @@ import { PtList, IPtList } from '../pt/ptListModel';
 import { See, ISee } from '../see/seeModel';
 
 export interface ISemester extends Document {
+  _id: mongoose.Types.ObjectId;
   title: string;
   courselists: ICoList[];
   ptlists: IPtList[];

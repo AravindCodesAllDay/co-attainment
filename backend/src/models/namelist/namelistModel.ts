@@ -2,6 +2,7 @@ import mongoose, { Schema, Document, Model } from 'mongoose';
 import { nameStudentSchema, INameStudent } from './nameStudentModel';
 
 export interface INamelist extends Document {
+  _id: mongoose.Types.ObjectId;
   title: string;
   students: INameStudent[];
 }

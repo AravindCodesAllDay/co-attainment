@@ -34,12 +34,12 @@ export const getCourses = async (req: Request, res: Response) => {
 
     const batch = user.batches.find((batch: IBatch) =>
       batch._id.equals(batchId)
-    ); // Explicitly typing the batch as IBatch
+    ) as IBatch; // Explicitly type the batch as IBatch
     if (!batch) return handleErrorResponse(res, 404, 'Batch not found.');
 
     const semester = batch.semlists.find((sem: ISemester) =>
       sem._id.equals(semId)
-    ); // Explicitly typing the semester as ISemester
+    ) as ISemester; // Explicitly type the semester as ISemester
     if (!semester) return handleErrorResponse(res, 404, 'Semester not found.');
 
     const courses = semester.courselists.map((course: ICoList) => ({
@@ -73,17 +73,17 @@ export const getCourseDetails = async (req: Request, res: Response) => {
 
     const batch = user.batches.find((batch: IBatch) =>
       batch._id.equals(batchId)
-    ); // Explicitly typing the batch as IBatch
+    ) as IBatch; // Explicitly type the batch as IBatch
     if (!batch) return handleErrorResponse(res, 404, 'Batch not found.');
 
     const semester = batch.semlists.find((sem: ISemester) =>
       sem._id.equals(semId)
-    ); // Explicitly typing the semester as ISemester
+    ) as ISemester; // Explicitly type the semester as ISemester
     if (!semester) return handleErrorResponse(res, 404, 'Semester not found.');
 
     const course = semester.courselists.find((co: ICoList) =>
       co._id.equals(coId)
-    ); // Explicitly typing the course as ICo
+    ) as ICoList; // Explicitly type the course as ICo
     if (!course) return handleErrorResponse(res, 404, 'Course not found.');
 
     return res.status(200).json(course);
@@ -115,7 +115,7 @@ export const addCourseList = async (req: Request, res: Response) => {
 
     const batch = user.batches.find((batch: IBatch) =>
       batch._id.equals(batchId)
-    ); // Explicitly typing the batch as IBatch
+    ) as IBatch; // Explicitly type the batch as IBatch
     if (!batch) return handleErrorResponse(res, 404, 'Batch not found.');
 
     const sem = batch.semlists.find((sem: ISemester) => sem._id.equals(semId)); // Explicitly typing the semester as ISemester
@@ -164,7 +164,7 @@ export const deleteCourseList = async (req: Request, res: Response) => {
 
     const batch = user.batches.find((batch: IBatch) =>
       batch._id.equals(batchId)
-    ); // Explicitly typing the batch as IBatch
+    ) as IBatch; // Explicitly type the batch as IBatch
     if (!batch) return handleErrorResponse(res, 404, 'Batch not found.');
 
     const sem = batch.semlists.find((sem: ISemester) => sem._id.equals(semId)); // Explicitly typing the semester as ISemester
