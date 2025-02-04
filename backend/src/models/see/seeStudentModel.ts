@@ -9,7 +9,7 @@ interface ISeeStudent extends Document {
 }
 
 // Define the schema
-const SeeStudentSchema = new Schema<ISeeStudent>({
+const seeStudentSchema = new Schema<ISeeStudent>({
   rollno: { type: String, required: true },
   name: { type: String, required: true },
   scores: { type: Map, of: Number },
@@ -18,7 +18,7 @@ const SeeStudentSchema = new Schema<ISeeStudent>({
 // Create the model
 const SeeStudentModel = mongoose.model<ISeeStudent>(
   'SeeStudent',
-  SeeStudentSchema
+  seeStudentSchema
 );
 
-export { SeeStudentModel, ISeeStudent };
+export { SeeStudentModel, ISeeStudent, seeStudentSchema };
