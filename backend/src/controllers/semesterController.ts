@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import mongoose from 'mongoose';
 import { User } from '../models/user/userModel';
-import { Sem } from '../models/user.model';
+import { Semester, ISemester } from '../models/semester/semesterModel';
 
 // Utility function to handle error responses
 const handleErrorResponse = (
@@ -38,7 +38,7 @@ export const getSemesters = async (req: Request, res: Response) => {
       return handleErrorResponse(res, 404, 'Bundle not found.');
     }
 
-    const sems = (bundle as unknown as { semlists: Sem[] }).semlists.map(
+    const sems = (bundle as unknown as { semlists: ISemester[] }).semlists.map(
       (sem) => ({
         semesterId: sem._id,
         title: sem.title,
@@ -81,14 +81,14 @@ export const addSemester = async (req: Request, res: Response) => {
       return handleErrorResponse(res, 404, 'Bundle not found.');
     }
 
-    const newSem = new Sem({
+    const newSem = new Semester({
       title,
       courselists: [],
       ptlists: [],
       seelists: [],
     });
 
-    (bundle as unknown as { semlists: Sem[] }).semlists.push(newSem);
+    (bundle as unknown as { semlists: ISemester[] }).semlists.push(newSem);
     await user.save();
 
     return res.status(201).json(newSem);

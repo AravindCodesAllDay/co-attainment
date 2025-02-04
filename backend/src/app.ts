@@ -10,7 +10,7 @@ import CourseRoutes from './routes/courseRoutes';
 import NamelistRoutes from './routes/namelistRoutes';
 import CoTypeRoutes from './routes/cotypeRoutes';
 import SemesterRoutes from './routes/semesterRoutes';
-import BundleRoutes from './routes/bundleRoutes';
+import BundleRoutes from './routes/batchRoutes';
 import UserRoutes from './routes/userRoutes';
 
 // Initialize express app

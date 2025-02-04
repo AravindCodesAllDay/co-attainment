@@ -14,22 +14,22 @@ const handleErrorResponse = (
 // Get PTs from a semester
 export const getPTs = async (req: Request, res: Response) => {
   try {
-    const { userId, bundleId, semId } = req.params;
+    const { userId, batchId, semId } = req.params;
     if (
       !mongoose.Types.ObjectId.isValid(userId) ||
-      !mongoose.Types.ObjectId.isValid(bundleId) ||
+      !mongoose.Types.ObjectId.isValid(batchId) ||
       !mongoose.Types.ObjectId.isValid(semId)
     ) {
-      return handleErrorResponse(res, 400, 'Invalid user ID or bundle ID.');
+      return handleErrorResponse(res, 400, 'Invalid user ID or batch ID.');
     }
 
     const user = await User.findById(userId);
     if (!user) return handleErrorResponse(res, 404, 'User not found.');
 
-    const bundle = user.bundles.find((b) => (b as any)._id.equals(bundleId));
-    if (!bundle) return handleErrorResponse(res, 404, 'Bundle not found.');
+    const batch = user.batches.find((b) => (b as any)._id.equals(batchId));
+    if (!batch) return handleErrorResponse(res, 404, 'Batch not found.');
 
-    const semester = bundle.semlists.find((s) => (s as any)._id.equals(semId));
+    const semester = batch.semlists.find((s) => (s as any)._id.equals(semId));
     if (!semester) return handleErrorResponse(res, 404, 'Semester not found.');
 
     const pts = semester.ptlists.map((pt) => ({
@@ -47,11 +47,11 @@ export const getPTs = async (req: Request, res: Response) => {
 // Get PT details
 export const getPTDetails = async (req: Request, res: Response) => {
   try {
-    const { userId, bundleId, semId, ptId } = req.params;
+    const { userId, batchId, semId, ptId } = req.params;
 
     if (
       !mongoose.Types.ObjectId.isValid(userId) ||
-      !mongoose.Types.ObjectId.isValid(bundleId) ||
+      !mongoose.Types.ObjectId.isValid(batchId) ||
       !mongoose.Types.ObjectId.isValid(semId) ||
       !mongoose.Types.ObjectId.isValid(ptId)
     ) {
@@ -61,10 +61,10 @@ export const getPTDetails = async (req: Request, res: Response) => {
     const user = await User.findById(userId);
     if (!user) return handleErrorResponse(res, 404, 'User not found.');
 
-    const bundle = user.bundles.find((b) => (b as any)._id.equals(bundleId));
-    if (!bundle) return handleErrorResponse(res, 404, 'Bundle not found.');
+    const batch = user.batches.find((b) => (b as any)._id.equals(batchId));
+    if (!batch) return handleErrorResponse(res, 404, 'Batch not found.');
 
-    const semester = bundle.semlists.find((s) => (s as any)._id.equals(semId));
+    const semester = batch.semlists.find((s) => (s as any)._id.equals(semId));
     if (!semester) return handleErrorResponse(res, 404, 'Semester not found.');
 
     const pt = semester.ptlists.find((p) => (p as any)._id.equals(ptId));
@@ -81,7 +81,7 @@ export const getPTDetails = async (req: Request, res: Response) => {
 export const createPT = async (req: Request, res: Response) => {
   try {
     const { userId } = req.params;
-    const { title, maxMark, structure, bundleId, semId, namelistId } = req.body;
+    const { title, maxMark, structure, batchId, semId, namelistId } = req.body;
 
     if (!title) return handleErrorResponse(res, 400, 'Title is required');
     if (typeof maxMark !== 'number')
@@ -92,13 +92,13 @@ export const createPT = async (req: Request, res: Response) => {
     const user = await User.findById(userId);
     if (!user) return handleErrorResponse(res, 404, 'User not found');
 
-    const bundle = user.bundles.find((b) => (b as any)._id.equals(bundleId));
-    if (!bundle) return handleErrorResponse(res, 404, 'Bundle not found');
+    const batch = user.batches.find((b) => (b as any)._id.equals(batchId));
+    if (!batch) return handleErrorResponse(res, 404, 'Batch not found');
 
-    const sem = bundle.semlists.find((s) => (s as any)._id.equals(semId));
+    const sem = batch.semlists.find((s) => (s as any)._id.equals(semId));
     if (!sem) return handleErrorResponse(res, 404, 'Semester not found');
 
-    const namelist = bundle.namelists.find((n) =>
+    const namelist = batch.namelists.find((n) =>
       (n as any)._id.equals(namelistId)
     );
     if (!namelist) return handleErrorResponse(res, 404, 'Namelist not found');
@@ -134,7 +134,7 @@ export const createPT = async (req: Request, res: Response) => {
 export const updateStudentScore = async (req: Request, res: Response) => {
   try {
     const { userId } = req.params;
-    const { ptId, stdId, scores, bundleId, semId } = req.body;
+    const { ptId, stdId, scores, batchId, semId } = req.body;
 
     if (
       !mongoose.Types.ObjectId.isValid(ptId) ||
@@ -147,10 +147,10 @@ export const updateStudentScore = async (req: Request, res: Response) => {
     const user = await User.findById(userId);
     if (!user) return handleErrorResponse(res, 404, 'User not found');
 
-    const bundle = user.bundles.find((b) => (b as any)._id.equals(bundleId));
-    if (!bundle) return handleErrorResponse(res, 404, 'Bundle not found');
+    const batch = user.batches.find((b) => (b as any)._id.equals(batchId));
+    if (!batch) return handleErrorResponse(res, 404, 'Batch not found');
 
-    const sem = bundle.semlists.find((s) => (s as any)._id.equals(semId));
+    const sem = batch.semlists.find((s) => (s as any)._id.equals(semId));
     if (!sem) return handleErrorResponse(res, 404, 'Semester not found');
 
     const ptList = sem.ptlists.find((pt) => (pt as any)._id.equals(ptId));
@@ -178,15 +178,15 @@ export const updateStudentScore = async (req: Request, res: Response) => {
 export const deletePT = async (req: Request, res: Response) => {
   try {
     const { userId } = req.params;
-    const { ptId, bundleId, semId } = req.body;
+    const { ptId, batchId, semId } = req.body;
 
     const user = await User.findById(userId);
     if (!user) return handleErrorResponse(res, 404, 'User not found');
 
-    const bundle = user.bundles.find((b) => (b as any)._id.equals(bundleId));
-    if (!bundle) return handleErrorResponse(res, 404, 'Bundle not found');
+    const batch = user.batches.find((b) => (b as any)._id.equals(batchId));
+    if (!batch) return handleErrorResponse(res, 404, 'Batch not found');
 
-    const sem = bundle.semlists.find((s) => (s as any)._id.equals(semId));
+    const sem = batch.semlists.find((s) => (s as any)._id.equals(semId));
     if (!sem) return handleErrorResponse(res, 404, 'Semester not found');
 
     sem.ptlists = sem.ptlists.filter((pt) => !(pt as any)._id.equals(ptId));

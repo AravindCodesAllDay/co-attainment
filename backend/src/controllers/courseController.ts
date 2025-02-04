@@ -1,8 +1,11 @@
 import { Request, Response } from 'express';
 import mongoose from 'mongoose';
 import { User } from '../models/user/userModel';
-import { ICoStudent } from '../models/user.model';
 import { CoList } from '../models/course/courselModel';
+import { ICoStudent } from '../models/course/coStudentModel';
+import { IBatch } from '../models/batch/batchModel';
+import { ISemester } from '../models/semester/semesterModel';
+import { ICoList } from '../models/course/courselModel';
 
 // Utility function to handle error responses
 const handleErrorResponse = (
@@ -16,11 +19,11 @@ const handleErrorResponse = (
 // Get courses from a semester
 export const getCourses = async (req: Request, res: Response) => {
   try {
-    const { userId, bundleId, semId } = req.params;
+    const { userId, batchId, semId } = req.params;
 
     if (
       !mongoose.Types.ObjectId.isValid(userId) ||
-      !mongoose.Types.ObjectId.isValid(bundleId) ||
+      !mongoose.Types.ObjectId.isValid(batchId) ||
       !mongoose.Types.ObjectId.isValid(semId)
     ) {
       return handleErrorResponse(res, 400, 'Invalid IDs provided.');
@@ -29,13 +32,17 @@ export const getCourses = async (req: Request, res: Response) => {
     const user = await User.findById(userId);
     if (!user) return handleErrorResponse(res, 404, 'User not found.');
 
-    const bundle = user.bundles.find((bundle) => bundle._id.equals(bundleId));
-    if (!bundle) return handleErrorResponse(res, 404, 'Bundle not found.');
+    const batch = user.batches.find((batch: IBatch) =>
+      batch._id.equals(batchId)
+    ); // Explicitly typing the batch as IBatch
+    if (!batch) return handleErrorResponse(res, 404, 'Batch not found.');
 
-    const semester = bundle.semlists.find((sem) => sem._id.equals(semId));
+    const semester = batch.semlists.find((sem: ISemester) =>
+      sem._id.equals(semId)
+    ); // Explicitly typing the semester as ISemester
     if (!semester) return handleErrorResponse(res, 404, 'Semester not found.');
 
-    const courses = semester.courselists.map((course) => ({
+    const courses = semester.courselists.map((course: ICoList) => ({
       courseId: course._id,
       title: course.title,
     }));
@@ -50,11 +57,11 @@ export const getCourses = async (req: Request, res: Response) => {
 // Get course details
 export const getCourseDetails = async (req: Request, res: Response) => {
   try {
-    const { userId, bundleId, semId, coId } = req.params;
+    const { userId, batchId, semId, coId } = req.params;
 
     if (
       !mongoose.Types.ObjectId.isValid(userId) ||
-      !mongoose.Types.ObjectId.isValid(bundleId) ||
+      !mongoose.Types.ObjectId.isValid(batchId) ||
       !mongoose.Types.ObjectId.isValid(semId) ||
       !mongoose.Types.ObjectId.isValid(coId)
     ) {
@@ -64,13 +71,19 @@ export const getCourseDetails = async (req: Request, res: Response) => {
     const user = await User.findById(userId);
     if (!user) return handleErrorResponse(res, 404, 'User not found.');
 
-    const bundle = user.bundles.find((bundle) => bundle._id.equals(bundleId));
-    if (!bundle) return handleErrorResponse(res, 404, 'Bundle not found.');
+    const batch = user.batches.find((batch: IBatch) =>
+      batch._id.equals(batchId)
+    ); // Explicitly typing the batch as IBatch
+    if (!batch) return handleErrorResponse(res, 404, 'Batch not found.');
 
-    const semester = bundle.semlists.find((sem) => sem._id.equals(semId));
+    const semester = batch.semlists.find((sem: ISemester) =>
+      sem._id.equals(semId)
+    ); // Explicitly typing the semester as ISemester
     if (!semester) return handleErrorResponse(res, 404, 'Semester not found.');
 
-    const course = semester.courselists.find((co) => co._id.equals(coId));
+    const course = semester.courselists.find((co: ICoList) =>
+      co._id.equals(coId)
+    ); // Explicitly typing the course as ICo
     if (!course) return handleErrorResponse(res, 404, 'Course not found.');
 
     return res.status(200).json(course);
@@ -84,13 +97,13 @@ export const getCourseDetails = async (req: Request, res: Response) => {
 export const addCourseList = async (req: Request, res: Response) => {
   try {
     const { userId } = req.params;
-    const { title, namelistId, bundleId, semId, rows } = req.body;
+    const { title, namelistId, batchId, semId, rows } = req.body;
 
     if (
       !title ||
       !Array.isArray(rows) ||
       !mongoose.Types.ObjectId.isValid(namelistId) ||
-      !mongoose.Types.ObjectId.isValid(bundleId) ||
+      !mongoose.Types.ObjectId.isValid(batchId) ||
       !mongoose.Types.ObjectId.isValid(semId) ||
       !mongoose.Types.ObjectId.isValid(userId)
     ) {
@@ -100,13 +113,15 @@ export const addCourseList = async (req: Request, res: Response) => {
     const user = await User.findById(userId);
     if (!user) return handleErrorResponse(res, 404, 'User not found.');
 
-    const bundle = user.bundles.find((bundle) => bundle._id.equals(bundleId));
-    if (!bundle) return handleErrorResponse(res, 404, 'Bundle not found.');
+    const batch = user.batches.find((batch: IBatch) =>
+      batch._id.equals(batchId)
+    ); // Explicitly typing the batch as IBatch
+    if (!batch) return handleErrorResponse(res, 404, 'Batch not found.');
 
-    const sem = bundle.semlists.find((sem) => sem._id.equals(semId));
+    const sem = batch.semlists.find((sem: ISemester) => sem._id.equals(semId)); // Explicitly typing the semester as ISemester
     if (!sem) return handleErrorResponse(res, 404, 'Semester not found.');
 
-    const namelist = bundle.namelists.find((namelist) =>
+    const namelist = batch.namelists.find((namelist) =>
       namelist._id.equals(namelistId)
     );
     if (!namelist) return handleErrorResponse(res, 404, 'Namelist not found.');
@@ -138,24 +153,26 @@ export const addCourseList = async (req: Request, res: Response) => {
 export const deleteCourseList = async (req: Request, res: Response) => {
   try {
     const { userId } = req.params;
-    const { coId, bundleId, semId } = req.body;
+    const { coId, batchId, semId } = req.body;
 
-    if (!coId || !userId || !bundleId || !semId) {
+    if (!coId || !userId || !batchId || !semId) {
       return handleErrorResponse(res, 400, 'Invalid input data');
     }
 
     const user = await User.findById(userId);
     if (!user) return handleErrorResponse(res, 404, 'User not found.');
 
-    const bundle = user.bundles.find((bundle) => bundle._id.equals(bundleId));
-    if (!bundle) return handleErrorResponse(res, 404, 'Bundle not found.');
+    const batch = user.batches.find((batch: IBatch) =>
+      batch._id.equals(batchId)
+    ); // Explicitly typing the batch as IBatch
+    if (!batch) return handleErrorResponse(res, 404, 'Batch not found.');
 
-    const sem = bundle.semlists.find((sem) => sem._id.equals(semId));
+    const sem = batch.semlists.find((sem: ISemester) => sem._id.equals(semId)); // Explicitly typing the semester as ISemester
     if (!sem) return handleErrorResponse(res, 404, 'Semester not found.');
 
-    const coListIndex = sem.courselists.findIndex((list) =>
+    const coListIndex = sem.courselists.findIndex((list: ICoList) =>
       list._id.equals(coId)
-    );
+    ); // Explicitly typing the course as ICo
     if (coListIndex === -1)
       return handleErrorResponse(res, 404, 'COlist not found');
 

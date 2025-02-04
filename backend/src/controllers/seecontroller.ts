@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import mongoose from 'mongoose';
 import { User } from '../models/user/userModel';
 import { See } from '../models/see/seeModel';
-import { ISeeStudent } from '../models/user.model';
+import { ISeeStudent } from '../models/see/seeStudentModel';
 
 const handleErrorResponse = (
   res: Response,
@@ -117,7 +117,7 @@ export const createSeeList = async (req: Request, res: Response) => {
     const students: ISeeStudent[] = namelist.students.map((student) => ({
       rollno: student.rollno,
       name: student.name,
-      scores: new Map(courses.map((course) => [course, 0])),
+      scores: Object.fromEntries(courses.map((course) => [course, 0])),
     }));
 
     const newSEEList = new See({ title, courses, students });

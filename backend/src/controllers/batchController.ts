@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import mongoose from 'mongoose';
-import { Bundle } from '../models/user.model';
+import { Batch } from '../models/batch/batchModel';
 import { User } from '../models/user/userModel';
 
 // Utility function to handle error responses
@@ -12,34 +12,34 @@ const handleErrorResponse = (
   return res.status(status).json({ message });
 };
 
-// Get all bundle titles and IDs for a user
-export const getBundles = async (req: Request, res: Response) => {
+// Get all batch titles and IDs for a user
+export const getBatches = async (req: Request, res: Response) => {
   try {
     const { userId } = req.params;
     if (!mongoose.Types.ObjectId.isValid(userId)) {
       return handleErrorResponse(res, 400, 'Invalid user ID.');
     }
 
-    const user = await User.findById(userId, 'bundles._id bundles.title');
+    const user = await User.findById(userId, 'batches._id batches.title');
 
     if (!user) {
       return handleErrorResponse(res, 404, 'User not found.');
     }
 
-    const bundles = user.bundles.map((bundle) => ({
-      bundleId: bundle._id,
-      title: bundle.title,
+    const batches = user.batches.map((batch) => ({
+      batchId: batch._id,
+      title: batch.title,
     }));
 
-    return res.status(200).json(bundles);
+    return res.status(200).json(batches);
   } catch (error) {
     console.error((error as Error).message);
     return handleErrorResponse(res, 500, 'Internal Server Error');
   }
 };
 
-// Add a new bundle
-export const addBundle = async (req: Request, res: Response) => {
+// Add a new batch
+export const addBatch = async (req: Request, res: Response) => {
   try {
     const { userId } = req.params;
     const { title } = req.body;
@@ -62,13 +62,13 @@ export const addBundle = async (req: Request, res: Response) => {
       return handleErrorResponse(res, 404, 'User not found.');
     }
 
-    const newBundle = new Bundle({
+    const newBatch = new Batch({
       title,
       namelists: [],
       semlists: [],
     });
 
-    user.bundles.push(newBundle);
+    user.batches.push(newBatch);
     await user.save();
 
     return res.status(201).json(user);
@@ -78,17 +78,17 @@ export const addBundle = async (req: Request, res: Response) => {
   }
 };
 
-// Delete a bundle
-export const deleteBundle = async (req: Request, res: Response) => {
+// Delete a batch
+export const deleteBatch = async (req: Request, res: Response) => {
   try {
     const { userId } = req.params;
-    const { bundleId } = req.body;
+    const { batchId } = req.body;
 
     if (
       !mongoose.Types.ObjectId.isValid(userId) ||
-      !mongoose.Types.ObjectId.isValid(bundleId)
+      !mongoose.Types.ObjectId.isValid(batchId)
     ) {
-      return handleErrorResponse(res, 400, 'Invalid user ID or bundle ID.');
+      return handleErrorResponse(res, 400, 'Invalid user ID or batch ID.');
     }
 
     const user = await User.findById(userId);
@@ -97,18 +97,18 @@ export const deleteBundle = async (req: Request, res: Response) => {
       return handleErrorResponse(res, 404, 'User not found.');
     }
 
-    const bundleIndex = user.bundles.findIndex((list) =>
-      (list as any)._id.equals(bundleId)
+    const batchIndex = user.batches.findIndex((list) =>
+      (list as any)._id.equals(batchId)
     );
 
-    if (bundleIndex === -1) {
-      return handleErrorResponse(res, 404, 'Bundle not found.');
+    if (batchIndex === -1) {
+      return handleErrorResponse(res, 404, 'Batch not found.');
     }
 
-    user.bundles.splice(bundleIndex, 1);
+    user.batches.splice(batchIndex, 1);
     await user.save();
 
-    return res.status(200).json({ message: 'Bundle deleted successfully.' });
+    return res.status(200).json({ message: 'Batch deleted successfully.' });
   } catch (error) {
     console.error((error as Error).message);
     return handleErrorResponse(res, 500, 'Internal Server Error');

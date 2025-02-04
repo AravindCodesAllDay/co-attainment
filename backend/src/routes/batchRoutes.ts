@@ -3,7 +3,7 @@ import {
   getBundles,
   addBundle,
   deleteBundle,
-} from '../controllers/bundleController';
+} from '../controllers/batchController';
 
 const router = express.Router();
 

@@ -3,14 +3,14 @@ import { IBatch } from '../batch/batchModel';
 
 export interface IUser extends Document {
   email: string;
-  bundles: IBatch[];
+  batches: IBatch[];
   cotypes: any[];
 }
 
 const userSchema = new Schema<IUser>(
   {
     email: { type: String, required: true, unique: true },
-    bundles: [{ type: Schema.Types.ObjectId, ref: 'Bundle' }],
+    batches: [{ type: Schema.Types.ObjectId, ref: 'Bundle' }],
     cotypes: { type: [String], default: [] },
   },
   { timestamps: true }
