@@ -1,21 +1,24 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
-import { CoList, ICoList } from '../course/coListModel';
+import { CoList, ICoList } from '../course/courselModel';
 import { PtList, IPtList } from '../pt/ptListModel';
 import { See, ISee } from '../see/seeModel';
 
-export interface ISem extends Document {
+export interface ISemester extends Document {
   title: string;
   courselists: ICoList[];
   ptlists: IPtList[];
   seelists: ISee[];
 }
 
-const semSchema = new Schema<ISem>({
+const semesterSchema = new Schema<ISemester>({
   title: { type: String, required: true },
   courselists: [CoList.schema],
   ptlists: [PtList.schema],
   seelists: [See.schema],
 });
 
-const Sem: Model<ISem> = mongoose.model<ISem>('Semester', semSchema);
-export { Sem };
+const Semester: Model<ISemester> = mongoose.model<ISemester>(
+  'Semester',
+  semesterSchema
+);
+export { Semester };

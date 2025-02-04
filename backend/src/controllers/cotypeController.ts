@@ -1,25 +1,33 @@
-import express, { Request, Response } from 'express';
+import { Request, Response } from 'express';
 import mongoose from 'mongoose';
-
 import { User } from '../models/user/userModel';
 
-const router = express.Router();
+// Utility function for error handling
+const handleErrorResponse = (
+  res: Response,
+  status: number,
+  message: string
+): Response => {
+  return res.status(status).json({ message });
+};
 
 // Add a cotype
-router.post('/:userId', async (req: Request, res: Response) => {
+export const addCotype = async (req: Request, res: Response) => {
   const { userId } = req.params;
   const { cotype } = req.body;
 
   if (!mongoose.Types.ObjectId.isValid(userId) || !cotype) {
-    return res
-      .status(400)
-      .json({ message: 'User ID and cotype must be provided.' });
+    return handleErrorResponse(
+      res,
+      400,
+      'User ID and cotype must be provided.'
+    );
   }
 
   try {
     const user = await User.findById(userId);
     if (!user) {
-      return res.status(404).json({ message: 'User not found.' });
+      return handleErrorResponse(res, 404, 'User not found.');
     }
 
     user.cotypes.push(cotype);
@@ -34,47 +42,48 @@ router.post('/:userId', async (req: Request, res: Response) => {
       error: (error as Error).message,
     });
   }
-});
+};
 
 // Get all cotypes
-router.get('/:userId', async (req: Request, res: Response) => {
+export const getCotypes = async (req: Request, res: Response) => {
   const { userId } = req.params;
 
   if (!userId) {
-    return res.status(400).json({ message: 'User ID must be provided.' });
+    return handleErrorResponse(res, 400, 'User ID must be provided.');
   }
 
   try {
     const user = await User.findById(userId);
     if (!user) {
-      return res.status(404).json({ message: 'User not found.' });
+      return handleErrorResponse(res, 404, 'User not found.');
     }
 
-    const cotypes = user.cotypes;
-    return res.status(200).json(cotypes);
+    return res.status(200).json(user.cotypes);
   } catch (error) {
     return res.status(500).json({
       message: 'Error fetching cotypes',
       error: (error as Error).message,
     });
   }
-});
+};
 
 // Delete a cotype
-router.delete('/:userId', async (req: Request, res: Response) => {
+export const deleteCotype = async (req: Request, res: Response) => {
   const { userId } = req.params;
   const { cotype } = req.body;
 
   if (!mongoose.Types.ObjectId.isValid(userId) || !cotype) {
-    return res
-      .status(400)
-      .json({ message: 'User ID and cotype must be provided.' });
+    return handleErrorResponse(
+      res,
+      400,
+      'User ID and cotype must be provided.'
+    );
   }
 
   try {
     const user = await User.findById(userId);
     if (!user) {
-      return res.status(404).json({ message: 'User not found.' });
+      return handleErrorResponse(res, 404, 'User not found.');
     }
 
     user.cotypes = user.cotypes.filter((ct) => ct !== cotype);
@@ -89,6 +98,4 @@ router.delete('/:userId', async (req: Request, res: Response) => {
       error: (error as Error).message,
     });
   }
-});
-
-export default router;
+};

@@ -1,9 +1,9 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
-import { IBundle } from '../batch/batchModel';
+import { IBatch } from '../batch/batchModel';
 
 export interface IUser extends Document {
   email: string;
-  bundles: IBundle[];
+  bundles: IBatch[];
   cotypes: any[];
 }
 

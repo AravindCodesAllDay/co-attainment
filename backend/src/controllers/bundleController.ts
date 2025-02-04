@@ -1,10 +1,9 @@
-import express, { Request, Response } from 'express';
+import { Request, Response } from 'express';
 import mongoose from 'mongoose';
+import { Bundle } from '../models/user.model';
+import { User } from '../models/user/userModel';
 
-import { User, Bundle } from '../models/user/userModel';
-
-const router = express.Router();
-
+// Utility function to handle error responses
 const handleErrorResponse = (
   res: Response,
   status: number,
@@ -13,15 +12,15 @@ const handleErrorResponse = (
   return res.status(status).json({ message });
 };
 
-// Route to get all bundle titles and IDs
-router.get('/:userId', async (req: Request, res: Response) => {
+// Get all bundle titles and IDs for a user
+export const getBundles = async (req: Request, res: Response) => {
   try {
     const { userId } = req.params;
     if (!mongoose.Types.ObjectId.isValid(userId)) {
       return handleErrorResponse(res, 400, 'Invalid user ID.');
     }
 
-    const user = await User.findById(userId, 'bundles._id bundles.title'); // Only fetch bundle ID and title
+    const user = await User.findById(userId, 'bundles._id bundles.title');
 
     if (!user) {
       return handleErrorResponse(res, 404, 'User not found.');
@@ -37,10 +36,10 @@ router.get('/:userId', async (req: Request, res: Response) => {
     console.error((error as Error).message);
     return handleErrorResponse(res, 500, 'Internal Server Error');
   }
-});
+};
 
 // Add a new bundle
-router.post('/:userId', async (req: Request, res: Response) => {
+export const addBundle = async (req: Request, res: Response) => {
   try {
     const { userId } = req.params;
     const { title } = req.body;
@@ -70,7 +69,6 @@ router.post('/:userId', async (req: Request, res: Response) => {
     });
 
     user.bundles.push(newBundle);
-
     await user.save();
 
     return res.status(201).json(user);
@@ -78,13 +76,14 @@ router.post('/:userId', async (req: Request, res: Response) => {
     console.error((error as Error).message);
     return handleErrorResponse(res, 500, 'Internal Server Error');
   }
-});
+};
 
-// Route to delete a bundle
-router.delete('/:userId', async (req: Request, res: Response) => {
+// Delete a bundle
+export const deleteBundle = async (req: Request, res: Response) => {
   try {
     const { userId } = req.params;
     const { bundleId } = req.body;
+
     if (
       !mongoose.Types.ObjectId.isValid(userId) ||
       !mongoose.Types.ObjectId.isValid(bundleId)
@@ -103,11 +102,10 @@ router.delete('/:userId', async (req: Request, res: Response) => {
     );
 
     if (bundleIndex === -1) {
-      return handleErrorResponse(res, 404, 'PT list not found');
+      return handleErrorResponse(res, 404, 'Bundle not found.');
     }
 
     user.bundles.splice(bundleIndex, 1);
-
     await user.save();
 
     return res.status(200).json({ message: 'Bundle deleted successfully.' });
@@ -115,6 +113,4 @@ router.delete('/:userId', async (req: Request, res: Response) => {
     console.error((error as Error).message);
     return handleErrorResponse(res, 500, 'Internal Server Error');
   }
-});
-
-export default router;
+};

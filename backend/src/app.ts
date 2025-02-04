@@ -4,14 +4,14 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 
 // Import routes
-import PtRoutes from './routes/pt.routes';
-import SeeRoutes from './routes/see.routes';
-import CourseRoutes from './routes/course.routes';
-import NamelistRoutes from './routes/namelist.routes';
-import CoTypeRoutes from './routes/cotype.routes';
-import SemesterRoutes from './routes/semester.routes';
-import BundleRoutes from './routes/bundle.routes';
-import UserRoutes from './routes/user.routes';
+import PtRoutes from './routes/ptRoutes';
+import SeeRoutes from './routes/seeRoutes';
+import CourseRoutes from './routes/courseRoutes';
+import NamelistRoutes from './routes/namelistRoutes';
+import CoTypeRoutes from './routes/cotypeRoutes';
+import SemesterRoutes from './routes/semesterRoutes';
+import BundleRoutes from './routes/bundleRoutes';
+import UserRoutes from './routes/userRoutes';
 
 // Initialize express app
 const app = express();

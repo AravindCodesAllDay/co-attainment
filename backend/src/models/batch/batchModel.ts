@@ -1,18 +1,18 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
 import { Namelist, INamelist } from '../namelist/namelistModel';
-import { Sem, ISem } from '../sem/semModel';
+import { Semester, ISemester } from '../semester/semesterModel';
 
-export interface IBundle extends Document {
+export interface IBatch extends Document {
   title: string;
   namelists: INamelist[];
-  semlists: ISem[];
+  semlists: ISemester[];
 }
 
-const bundleSchema = new Schema<IBundle>({
+const batchSchema = new Schema<IBatch>({
   title: { type: String, required: true },
   namelists: [Namelist.schema],
-  semlists: [Sem.schema],
+  semlists: [Semester.schema],
 });
 
-const Bundle: Model<IBundle> = mongoose.model<IBundle>('Bundle', bundleSchema);
-export { Bundle };
+const Batch: Model<IBatch> = mongoose.model<IBatch>('Batch', batchSchema);
+export { Batch };

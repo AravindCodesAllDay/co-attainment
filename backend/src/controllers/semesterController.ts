@@ -1,10 +1,9 @@
-import express, { Request, Response } from 'express';
+import { Request, Response } from 'express';
 import mongoose from 'mongoose';
+import { User } from '../models/user/userModel';
+import { Sem } from '../models/user.model';
 
-import { User, ISem, Sem } from '../models/user/userModel';
-
-const router = express.Router();
-
+// Utility function to handle error responses
 const handleErrorResponse = (
   res: Response,
   status: number,
@@ -13,8 +12,8 @@ const handleErrorResponse = (
   return res.status(status).json({ message });
 };
 
-// Route to get all sems titles and IDs from a bundle
-router.get('/:bundleId/:userId', async (req: Request, res: Response) => {
+// Get all semester titles and IDs from a specific bundle
+export const getSemesters = async (req: Request, res: Response) => {
   try {
     const { userId, bundleId } = req.params;
     if (
@@ -25,7 +24,6 @@ router.get('/:bundleId/:userId', async (req: Request, res: Response) => {
     }
 
     const user = await User.findById(userId);
-
     if (!user) {
       return handleErrorResponse(res, 404, 'User not found.');
     }
@@ -40,7 +38,7 @@ router.get('/:bundleId/:userId', async (req: Request, res: Response) => {
       return handleErrorResponse(res, 404, 'Bundle not found.');
     }
 
-    const sems = (bundle as unknown as { semlists: ISem[] }).semlists.map(
+    const sems = (bundle as unknown as { semlists: Sem[] }).semlists.map(
       (sem) => ({
         semesterId: sem._id,
         title: sem.title,
@@ -52,10 +50,10 @@ router.get('/:bundleId/:userId', async (req: Request, res: Response) => {
     console.error((error as Error).message);
     return handleErrorResponse(res, 500, 'Internal Server Error');
   }
-});
+};
 
-// Add a new semester
-router.post('/:userId', async (req: Request, res: Response) => {
+// Add a new semester to a bundle
+export const addSemester = async (req: Request, res: Response) => {
   try {
     const { userId } = req.params;
     const { title, bundleId } = req.body;
@@ -90,9 +88,7 @@ router.post('/:userId', async (req: Request, res: Response) => {
       seelists: [],
     });
 
-    (bundle as unknown as { semlists: (typeof newSem)[] }).semlists.push(
-      newSem
-    );
+    (bundle as unknown as { semlists: Sem[] }).semlists.push(newSem);
     await user.save();
 
     return res.status(201).json(newSem);
@@ -100,13 +96,14 @@ router.post('/:userId', async (req: Request, res: Response) => {
     console.error((error as Error).message);
     return handleErrorResponse(res, 500, 'Internal Server Error');
   }
-});
+};
 
-// Route to delete a semester
-router.delete('/:userId', async (req: Request, res: Response) => {
+// Delete a semester from a bundle
+export const deleteSemester = async (req: Request, res: Response) => {
   try {
     const { userId } = req.params;
     const { bundleId, semId } = req.body;
+
     if (
       !mongoose.Types.ObjectId.isValid(userId) ||
       !mongoose.Types.ObjectId.isValid(bundleId) ||
@@ -137,17 +134,15 @@ router.delete('/:userId', async (req: Request, res: Response) => {
     );
 
     if (semIndex === -1) {
-      return handleErrorResponse(res, 404, 'sem list not found');
+      return handleErrorResponse(res, 404, 'Semester not found');
     }
 
     bundle.semlists.splice(semIndex, 1);
-
     await user.save();
+
     return res.status(200).json({ message: 'Semester deleted successfully.' });
   } catch (error) {
     console.error((error as Error).message);
     return handleErrorResponse(res, 500, 'Internal Server Error');
   }
-});
-
-export default router;
+};
