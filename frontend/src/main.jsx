@@ -3,6 +3,7 @@ import ReactDOM from "react-dom/client";
 import { HashRouter, Route, Routes } from "react-router-dom";
 import Modal from "react-modal";
 import "./index.css";
+
 import ViewCourse from "./pages/coursepage/ViewCourse";
 import ViewCourses from "./pages/coursepage/ViewCourses";
 import Login from "./pages/loginpage/Login";
@@ -16,7 +17,6 @@ import ViewSaa from "./pages/saapage/ViewSaa";
 import Dashboard from "./pages/dasboardpage/Dashboard";
 import ViewSems from "./pages/sempage/ViewSems";
 
-// Set the app element for react-modal
 Modal.setAppElement("#root");
 
 ReactDOM.createRoot(document.getElementById("root")).render(
@@ -28,8 +28,9 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         <Route path="/dashboard" element={<Dashboard />} />
 
         <Route path="/namelists/:bundleId" element={<ViewNamelists />} />
+
         <Route
-          path="/namelists/:namelistId/:bundleId"
+          path="/namelists/:bundleId/:namelistId"
           element={<ViewNamelist />}
         />
 
@@ -59,6 +60,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         />
 
         <Route path="/see/:bundleId/:semesterId" element={<ViewSaas />} />
+
         <Route path="/see/:bundleId/:semesterId/:seeid" element={<ViewSaa />} />
       </Routes>
     </HashRouter>

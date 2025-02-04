@@ -58,7 +58,7 @@ const ViewNamelists = () => {
               key={title._id}
               className="p-4 bg-gray-200 rounded-md shadow-md hover:shadow-2xl cursor-pointer"
               onClick={() =>
-                navigate(`/namelists/${title.namelistId}/${bundleId}`)
+                navigate(`/namelists/${bundleId}/${title.namelistId}`)
               }
             >
               {title.title}
