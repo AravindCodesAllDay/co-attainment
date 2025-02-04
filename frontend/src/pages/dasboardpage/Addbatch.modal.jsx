@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import close from "../../assets/close.svg";
 
-const AddbundleModal = ({ show, onClose, onAddItem }) => {
+const AddbatchModal = ({ show, onClose, onAddItem }) => {
   const user = JSON.parse(localStorage.getItem("user") || "{}");
   const [bundleName, setBundleName] = useState("");
 
@@ -56,10 +56,10 @@ const AddbundleModal = ({ show, onClose, onAddItem }) => {
           className="absolute top-2 right-2 text-xl cursor-pointer"
           src={close}
         />
-        <h2 className="text-xl mb-4 font-bold">Add Bundle</h2>
+        <h2 className="text-xl mb-4 font-bold">Add Batch</h2>
         <form onSubmit={postbun}>
           <label className="block mb-2">
-            Bundle Name:
+            Batch Name:
             <input
               type="text"
               value={bundleName}
@@ -79,4 +79,4 @@ const AddbundleModal = ({ show, onClose, onAddItem }) => {
   );
 };
 
-export default AddbundleModal;
+export default AddbatchModal;

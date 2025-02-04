@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../../components/Navbar";
-import AddbundleModal from "./Addbundle.modal";
+import AddbatchModal from "./Addbatch.modal";
 
 function Dashboard() {
   const user = JSON.parse(localStorage.getItem("user") || "{}");
@@ -44,10 +44,6 @@ function Dashboard() {
     fetchbundle();
   }, []);
 
-  // const handleBundleClick = (bundleId) => {
-  //   navigate(`/sem/${bundleId}`);
-  // };
-
   return (
     <>
       <Navbar />
@@ -56,7 +52,7 @@ function Dashboard() {
           onClick={handleOpenModal}
           className="bg-green-600 text-xl p-2 w-fit text-white border-none rounded-md mt-4"
         >
-          Add Bundle
+          Add Batch
         </button>
       </div>
       <div className="grid grid-cols-4 gap-4 p-4 ">
@@ -64,13 +60,13 @@ function Dashboard() {
           <div
             key={index}
             className="p-4 bg-gray-200 rounded-md shadow-md hover:shadow-2xl cursor-pointer"
-            onClick={() => navigate(`/sem/${item.bundleId}`)} // Updated to navigate to AddSem page
+            onClick={() => navigate(`/namelists/${item.bundleId}`)}
           >
             {item.title}
           </div>
         ))}
       </div>
-      <AddbundleModal
+      <AddbatchModal
         show={showModal}
         onClose={handleCloseModal}
         onAddItem={handleAddItem}
