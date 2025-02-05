@@ -1,7 +1,10 @@
 import { Request, Response } from 'express';
 import mongoose from 'mongoose';
+
 import { Batch } from '../models/batch/batchModel';
 import { User } from '../models/user/userModel';
+
+import { verifyToken } from './userController';
 
 // Utility function to handle error responses
 const handleErrorResponse = (
@@ -15,7 +18,9 @@ const handleErrorResponse = (
 // Get all batch titles and IDs for a user
 export const getBatches = async (req: Request, res: Response) => {
   try {
-    const { userId } = req.params;
+    const authHeader = req.headers.authorization;
+    const userId = await verifyToken(authHeader);
+
     if (!mongoose.Types.ObjectId.isValid(userId)) {
       return handleErrorResponse(res, 400, 'Invalid user ID.');
     }
@@ -41,7 +46,8 @@ export const getBatches = async (req: Request, res: Response) => {
 // Add a new batch
 export const addBatch = async (req: Request, res: Response) => {
   try {
-    const { userId } = req.params;
+    const authHeader = req.headers.authorization;
+    const userId = await verifyToken(authHeader);
     const { title } = req.body;
 
     if (!title || !userId) {
@@ -81,7 +87,8 @@ export const addBatch = async (req: Request, res: Response) => {
 // Delete a batch
 export const deleteBatch = async (req: Request, res: Response) => {
   try {
-    const { userId } = req.params;
+    const authHeader = req.headers.authorization;
+    const userId = await verifyToken(authHeader);
     const { batchId } = req.body;
 
     if (

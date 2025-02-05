@@ -10,7 +10,7 @@ import CourseRoutes from './routes/courseRoutes';
 import NamelistRoutes from './routes/namelistRoutes';
 import CoTypeRoutes from './routes/cotypeRoutes';
 import SemesterRoutes from './routes/semesterRoutes';
-import BundleRoutes from './routes/batchRoutes';
+import BatchRoutes from './routes/batchRoutes';
 import UserRoutes from './routes/userRoutes';
 
 // Initialize express app
@@ -27,7 +27,7 @@ app.use('/see', SeeRoutes);
 app.use('/course', CourseRoutes);
 app.use('/namelist', NamelistRoutes);
 app.use('/cotype', CoTypeRoutes);
-app.use('/bundle', BundleRoutes);
+app.use('/batch', BatchRoutes);
 app.use('/semester', SemesterRoutes);
 app.use('/user', UserRoutes);
 
