@@ -28,11 +28,6 @@ function Dashboard() {
     setError(null);
     try {
       const token = localStorage.getItem("token");
-      if (!token) {
-        console.warn("No token found. Redirecting to login.");
-        navigate("/");
-        return;
-      }
       const response = await fetch(`${import.meta.env.VITE_API}/batch`, {
         method: "GET",
         headers: {
@@ -44,6 +39,7 @@ function Dashboard() {
         throw new Error("Network response was not ok");
       }
       const data = await response.json();
+      console.log(data);
       setItems(data);
     } catch (error) {
       console.error("Error fetching namelist", error);
