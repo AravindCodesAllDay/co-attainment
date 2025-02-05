@@ -5,49 +5,73 @@ const Login = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [emailError, setEmailError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const user = JSON.parse(localStorage.getItem("user"));
   useEffect(() => {
-    const checkLogin = () => {
-      if (user) {
-        navigate("/dashboard");
-      }
-    };
-    checkLogin();
-  }, [navigate, user]);
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    const emailPattern = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
-    if (emailPattern.test(email)) {
-      setEmailError("");
+    const checkTokenValidity = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) return;
 
       try {
         const response = await fetch(
-          `${import.meta.env.VITE_API}/user/${email}`,
+          `${import.meta.env.VITE_API}/user/verifytoken`,
           {
-            method: "POST",
+            method: "GET",
             headers: {
               "Content-Type": "application/json",
+              Authorization: token,
             },
           }
         );
 
         if (response.ok) {
-          const data = await response.json();
-          localStorage.setItem("token", JSON.stringify(data.token));
-
           navigate("/dashboard");
         } else {
-          const data = await response.json();
-          console.error("Error logging in:", data.message);
+          throw new Error("Invalid token");
         }
       } catch (error) {
-        console.error("Error logging in:", error);
+        console.error("Token validation failed:", error);
+        localStorage.clear();
       }
-    } else {
+    };
+
+    checkTokenValidity();
+  }, []); // <--- Empty dependency array ensures it runs only once
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const emailPattern = /^[a-zA-Z0-9._%+-]+@gmail\.com$/i;
+    if (!emailPattern.test(email)) {
       setEmailError("Please enter a valid Gmail address.");
+      return;
+    }
+
+    setEmailError("");
+    setLoading(true);
+
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API}/user`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        localStorage.setItem("token", data.token);
+        navigate("/dashboard");
+      } else {
+        setEmailError(data.message || "Failed to log in.");
+      }
+    } catch (error) {
+      setEmailError("Network error. Please try again.");
+      console.error("Error logging in:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -68,15 +92,19 @@ const Login = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="mt-1 p-2 border w-full rounded"
+              disabled={loading}
             />
             {emailError && <p className="text-red-500 mt-2">{emailError}</p>}
           </div>
           <div className="flex justify-center">
             <button
               type="submit"
-              className="border-2 border-none bg-green-600 text-xl text-white p-2 rounded-md"
+              className={`border-2 border-none bg-green-600 text-xl text-white p-2 rounded-md ${
+                loading ? "opacity-50 cursor-not-allowed" : ""
+              }`}
+              disabled={loading}
             >
-              Submit
+              {loading ? "Loading..." : "Submit"}
             </button>
           </div>
         </form>

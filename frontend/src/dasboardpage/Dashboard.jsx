@@ -1,14 +1,14 @@
-// Dashboard.jsx
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import Navbar from "../../components/Navbar";
+
 import AddbatchModal from "./Addbatch.modal";
 
 function Dashboard() {
-  const user = JSON.parse(localStorage.getItem("user") || "{}");
   const navigate = useNavigate();
   const [showModal, setShowModal] = useState(false);
   const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const handleOpenModal = () => {
     setShowModal(true);
@@ -16,37 +16,49 @@ function Dashboard() {
 
   const handleCloseModal = () => {
     setShowModal(false);
-    fetchbundle();
+    fetchbatch();
   };
 
   const handleAddItem = (newItem) => {
     setItems([...items, newItem]);
   };
 
-  const fetchbundle = async () => {
+  const fetchbatch = async () => {
+    setLoading(true);
+    setError(null);
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_API}/bundle/${user.userId}`
-      );
+      const token = localStorage.getItem("token");
+      if (!token) {
+        console.warn("No token found. Redirecting to login.");
+        navigate("/");
+        return;
+      }
+      const response = await fetch(`${import.meta.env.VITE_API}/batch`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token,
+        },
+      });
       if (!response.ok) {
         throw new Error("Network response was not ok");
       }
       const data = await response.json();
       setItems(data);
-      console.log(data);
     } catch (error) {
       console.error("Error fetching namelist", error);
-      setError("Failed to fetch student data");
+      setError("Failed to fetch batch data");
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchbundle();
+    fetchbatch();
   }, []);
 
   return (
     <>
-      <Navbar />
       <div className="flex justify-end p-2 font-primary">
         <button
           onClick={handleOpenModal}
@@ -56,15 +68,25 @@ function Dashboard() {
         </button>
       </div>
       <div className="grid grid-cols-4 gap-4 p-4 ">
-        {items.map((item, index) => (
-          <div
-            key={index}
-            className="p-4 bg-gray-200 rounded-md shadow-md hover:shadow-2xl cursor-pointer"
-            onClick={() => navigate(`/namelists/${item.bundleId}`)}
-          >
-            {item.title}
-          </div>
-        ))}
+        {loading ? (
+          <p className="text-center col-span-4">Loading batches...</p>
+        ) : error ? (
+          <p className="text-center col-span-4 text-red-600">{error}</p>
+        ) : items.length === 0 ? (
+          <p className="text-center col-span-4 text-gray-500">
+            No batches available.
+          </p>
+        ) : (
+          items.map((item, index) => (
+            <div
+              key={index}
+              className="p-4 bg-gray-200 rounded-md shadow-md hover:shadow-2xl cursor-pointer"
+              onClick={() => navigate(`/namelists/${item.bundleId}`)}
+            >
+              {item.title}
+            </div>
+          ))
+        )}
       </div>
       <AddbatchModal
         show={showModal}

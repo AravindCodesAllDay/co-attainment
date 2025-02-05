@@ -7,16 +7,44 @@ import profile from "../assets/profile.svg";
 const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { bundleId, semesterId } = useParams();
+  const { batchId, semesterId } = useParams();
   const dropdownRef = useRef(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const user = JSON.parse(localStorage.getItem("user"));
 
   useEffect(() => {
-    if (!user) {
-      navigate("/");
-    }
-  }, [navigate, user]);
+    const verifyUserToken = async () => {
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        console.warn("No token found. Redirecting to login.");
+        navigate("/");
+        return;
+      }
+
+      try {
+        const response = await fetch(
+          `${import.meta.env.VITE_API}/user/verifytoken`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: token,
+            },
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+      } catch (error) {
+        console.error("Token verification failed:", error);
+        localStorage.clear();
+        navigate("/");
+      }
+    };
+
+    verifyUserToken();
+  }, []);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -43,8 +71,8 @@ const Navbar = () => {
     location.pathname.startsWith("/sem")
   ) {
     navLinks.push(
-      { label: "Namelist", path: `/namelists/${bundleId}` },
-      { label: "Sems", path: `/sem/${bundleId}` }
+      { label: "Namelist", path: `/namelists/${batchId}` },
+      { label: "Sems", path: `/sem/${batchId}` }
     );
   }
   if (
@@ -54,12 +82,12 @@ const Navbar = () => {
     location.pathname.startsWith("/coattainment")
   ) {
     navLinks.push(
-      { label: "Course", path: `/courses/${bundleId}/${semesterId}` },
-      { label: "PtLists", path: `/ptlists/${bundleId}/${semesterId}` },
-      { label: "See", path: `/see/${bundleId}/${semesterId}` },
+      { label: "Course", path: `/courses/${batchId}/${semesterId}` },
+      { label: "PtLists", path: `/ptlists/${batchId}/${semesterId}` },
+      { label: "See", path: `/see/${batchId}/${semesterId}` },
       {
         label: "Co-attainment",
-        path: `/coattainment/${bundleId}/${semesterId}`,
+        path: `/coattainment/${batchId}/${semesterId}`,
       }
     );
   }
@@ -72,16 +100,16 @@ const Navbar = () => {
   }
 
   return (
-    <div className="bg-sky-600 p-3 flex items-center w-screen gap-6 relative">
+    <div className="bg-sky-400 p-3 flex items-center w-full gap-6 relative">
       <img
-        className="ml-12 cursor-pointer size-12 rounded-full"
+        className="cursor-pointer size-10 rounded-full"
         src={logo}
-        alt="SITLOGO"
+        alt="nothing logo"
         onClick={() => navigate("/dashboard")}
       />
-      <div className="flex gap-6 text-white font-bold">
+      <ul className="flex gap-6 text-white font-bold">
         {navLinks.map((link) => (
-          <h2
+          <li
             key={link.path}
             onClick={() => navigate(link.path)}
             className={
@@ -89,20 +117,20 @@ const Navbar = () => {
             }
           >
             {link.label}
-          </h2>
+          </li>
         ))}
-      </div>
+      </ul>
       <div className="ml-auto relative" ref={dropdownRef}>
         <img
-          className="cursor-pointer"
+          className="cursor-pointer size-8"
           src={profile}
           alt="Profile"
           onClick={changeDropdownOpen}
         />
         {dropdownOpen && (
-          <div className="absolute right-0 mt-1 w-48 bg-white rounded-md shadow-lg p-2">
+          <div className="absolute right-0 mt-1 w-48 bg-white rounded-md shadow-lg p-1">
             <div
-              className="block px-4 py-2 text-gray-800 hover:bg-gray-200 cursor-pointer"
+              className="block p-2 text-gray-800 hover:bg-gray-200 cursor-pointer"
               onClick={onExit}
             >
               Logout

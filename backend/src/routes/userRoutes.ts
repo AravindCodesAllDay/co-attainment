@@ -1,9 +1,13 @@
 import express from 'express';
-import { loginOrCreateUser } from '../controllers/userController';
+import {
+  loginOrCreateUser,
+  verifyTokenApi,
+} from '../controllers/userController';
 
 const router = express.Router();
 
-// Login route or create a new user, and issue a JWT token
 router.post('/', loginOrCreateUser);
+
+router.get('/verifytoken', verifyTokenApi);
 
 export default router;
