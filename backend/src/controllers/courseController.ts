@@ -6,6 +6,7 @@ import { ICoStudent } from '../models/course/coStudentModel';
 import { IBatch } from '../models/batch/batchModel';
 import { ISemester } from '../models/semester/semesterModel';
 import { ICoList } from '../models/course/courselModel';
+import { verifyToken } from './userController';
 
 // Utility function to handle error responses
 const handleErrorResponse = (
@@ -19,7 +20,9 @@ const handleErrorResponse = (
 // Get courses from a semester
 export const getCourses = async (req: Request, res: Response) => {
   try {
-    const { userId, batchId, semId } = req.params;
+    const authHeader = req.headers.authorization;
+    const userId = await verifyToken(authHeader);
+    const { batchId, semId } = req.params;
 
     if (
       !mongoose.Types.ObjectId.isValid(userId) ||
@@ -57,7 +60,9 @@ export const getCourses = async (req: Request, res: Response) => {
 // Get course details
 export const getCourseDetails = async (req: Request, res: Response) => {
   try {
-    const { userId, batchId, semId, coId } = req.params;
+    const authHeader = req.headers.authorization;
+    const userId = await verifyToken(authHeader);
+    const { batchId, semId, coId } = req.params;
 
     if (
       !mongoose.Types.ObjectId.isValid(userId) ||
@@ -96,7 +101,8 @@ export const getCourseDetails = async (req: Request, res: Response) => {
 // Add a new course list
 export const addCourseList = async (req: Request, res: Response) => {
   try {
-    const { userId } = req.params;
+    const authHeader = req.headers.authorization;
+    const userId = await verifyToken(authHeader);
     const { title, namelistId, batchId, semId, rows } = req.body;
 
     if (
@@ -152,7 +158,8 @@ export const addCourseList = async (req: Request, res: Response) => {
 // Delete COlist by ID
 export const deleteCourseList = async (req: Request, res: Response) => {
   try {
-    const { userId } = req.params;
+    const authHeader = req.headers.authorization;
+    const userId = await verifyToken(authHeader);
     const { coId, batchId, semId } = req.body;
 
     if (!coId || !userId || !batchId || !semId) {

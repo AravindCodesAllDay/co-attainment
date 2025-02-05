@@ -8,9 +8,9 @@ import {
 
 const router = express.Router();
 
-router.get('/:bundleId/:semId/:userId', getCourses);
-router.get('/:bundleId/:semId/:coId/:userId', getCourseDetails);
-router.post('/:userId', addCourseList);
-router.delete('/:userId', deleteCourseList);
+router.get('/:bundleId/:semId', getCourses);
+router.get('/:bundleId/:semId/:coId', getCourseDetails);
+router.post('/', addCourseList);
+router.delete('/', deleteCourseList);
 
 export default router;

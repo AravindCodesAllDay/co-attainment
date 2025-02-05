@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 import { User } from '../models/user/userModel';
 import { See } from '../models/see/seeModel';
 import { ISeeStudent, SeeStudentModel } from '../models/see/seeStudentModel';
+import { verifyToken } from './userController';
 
 const handleErrorResponse = (
   res: Response,
@@ -15,7 +16,9 @@ const handleErrorResponse = (
 // Get SEE lists from a semester
 export const getSeeFromSemester = async (req: Request, res: Response) => {
   try {
-    const { userId, batchId, semId } = req.params;
+    const authHeader = req.headers.authorization;
+    const userId = await verifyToken(authHeader);
+    const { batchId, semId } = req.params;
 
     if (
       !mongoose.Types.ObjectId.isValid(userId) ||
@@ -50,7 +53,9 @@ export const getSeeFromSemester = async (req: Request, res: Response) => {
 // Get SEE details
 export const getSeeDetails = async (req: Request, res: Response) => {
   try {
-    const { userId, batchId, semId, seeId } = req.params;
+    const authHeader = req.headers.authorization;
+    const userId = await verifyToken(authHeader);
+    const { batchId, semId, seeId } = req.params;
 
     if (
       !mongoose.Types.ObjectId.isValid(userId) ||
@@ -85,7 +90,8 @@ export const getSeeDetails = async (req: Request, res: Response) => {
 // Create a SEE list
 export const createSeeList = async (req: Request, res: Response) => {
   try {
-    const { userId } = req.params;
+    const authHeader = req.headers.authorization;
+    const userId = await verifyToken(authHeader);
     const { title, courses, batchId, semId, namelistId } = req.body;
 
     if (
@@ -143,7 +149,8 @@ export const createSeeList = async (req: Request, res: Response) => {
 // Update SEE student scores
 export const updateSeeScores = async (req: Request, res: Response) => {
   try {
-    const { userId } = req.params;
+    const authHeader = req.headers.authorization;
+    const userId = await verifyToken(authHeader);
     const { seeId, stdId, scores, semId, batchId } = req.body;
 
     // Validate input data
@@ -210,5 +217,42 @@ export const updateSeeScores = async (req: Request, res: Response) => {
 
 // Delete SEE list
 export const deleteSeeList = async (req: Request, res: Response) => {
-  return res.status(200).json({ message: 'Delete SEE list route' });
+  try {
+    const authHeader = req.headers.authorization;
+    const userId = await verifyToken(authHeader);
+    const { seeId, semId, batchId } = req.body;
+
+    if (
+      !mongoose.Types.ObjectId.isValid(userId) ||
+      !mongoose.Types.ObjectId.isValid(batchId) ||
+      !mongoose.Types.ObjectId.isValid(semId) ||
+      !mongoose.Types.ObjectId.isValid(seeId)
+    ) {
+      return handleErrorResponse(res, 400, 'Invalid input data');
+    }
+
+    const user = await User.findById(userId);
+    if (!user) return handleErrorResponse(res, 404, 'User not found.');
+
+    const batch = user.batches.find((b) => (b as any)._id.equals(batchId));
+    if (!batch) return handleErrorResponse(res, 404, 'Batch not found.');
+
+    const semester = batch.semlists.find((s) => (s as any)._id.equals(semId));
+    if (!semester) return handleErrorResponse(res, 404, 'Semester not found.');
+
+    const seeIndex = semester.seelists.findIndex((s) =>
+      (s as any)._id.equals(seeId)
+    );
+    if (seeIndex === -1)
+      return handleErrorResponse(res, 404, 'SEE list not found.');
+
+    semester.seelists.splice(seeIndex, 1);
+
+    await user.save();
+
+    return res.status(200).json({ message: 'SEE list deleted successfully' });
+  } catch (error) {
+    console.error(error);
+    return handleErrorResponse(res, 500, 'Error deleting SEE list');
+  }
 };

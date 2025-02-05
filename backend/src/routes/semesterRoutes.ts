@@ -8,12 +8,12 @@ import {
 const router = express.Router();
 
 // Route to get all semester titles and IDs from a specific bundle
-router.get('/:bundleId/:userId', getSemesters);
+router.get('/:bundleId', getSemesters);
 
 // Add a new semester to a bundle
-router.post('/:userId', addSemester);
+router.post('/', addSemester);
 
 // Delete a semester from a bundle
-router.delete('/:userId', deleteSemester);
+router.delete('/', deleteSemester);
 
 export default router;

@@ -9,10 +9,10 @@ import {
 
 const router = express.Router();
 
-router.get('/:bundleId/:semId/:userId', getSeeFromSemester);
-router.get('/:bundleId/:semId/:seeId/:userId', getSeeDetails);
-router.post('/:userId', createSeeList);
-router.put('/score/:userId', updateSeeScores);
-router.delete('/:userId', deleteSeeList);
+router.get('/:bundleId/:semId', getSeeFromSemester);
+router.get('/:bundleId/:semId/:seeId', getSeeDetails);
+router.post('/', createSeeList);
+router.put('/score', updateSeeScores);
+router.delete('/', deleteSeeList);
 
 export default router;

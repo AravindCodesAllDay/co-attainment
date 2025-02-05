@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import mongoose from 'mongoose';
 import { Namelist } from '../models/namelist/namelistModel';
 import { User } from '../models/user/userModel';
+import { verifyToken } from './userController';
 
 // Utility function to handle error responses
 const handleErrorResponse = (
@@ -15,7 +16,9 @@ const handleErrorResponse = (
 // Get all namelists of a specific batch
 export const getNamelists = async (req: Request, res: Response) => {
   try {
-    const { userId, batchId } = req.params;
+    const authHeader = req.headers.authorization;
+    const userId = await verifyToken(authHeader);
+    const { batchId } = req.params;
 
     if (
       !mongoose.Types.ObjectId.isValid(userId) ||
@@ -42,7 +45,8 @@ export const getNamelists = async (req: Request, res: Response) => {
 // Create a new namelist in a specific batch
 export const createNamelist = async (req: Request, res: Response) => {
   try {
-    const { userId } = req.params;
+    const authHeader = req.headers.authorization;
+    const userId = await verifyToken(authHeader);
     const { title, batchId } = req.body;
 
     if (
@@ -79,7 +83,8 @@ export const createNamelist = async (req: Request, res: Response) => {
 // Delete a namelist
 export const deleteNamelist = async (req: Request, res: Response) => {
   try {
-    const { userId } = req.params;
+    const authHeader = req.headers.authorization;
+    const userId = await verifyToken(authHeader);
     const { namelistId, batchId } = req.body;
 
     if (

@@ -50,7 +50,7 @@ export const loginOrCreateUser = async (
   res: Response
 ): Promise<Response> => {
   try {
-    const { email } = req.params;
+    const { email } = req.body;
 
     if (!email) {
       return res.status(400).json({ message: 'Invalid input data' });

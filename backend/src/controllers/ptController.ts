@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import mongoose from 'mongoose';
 import { PtList } from '../models/pt/ptListModel';
 import { User } from '../models/user/userModel';
+import { verifyToken } from './userController';
 
 const handleErrorResponse = (
   res: Response,
@@ -14,7 +15,9 @@ const handleErrorResponse = (
 // Get PTs from a semester
 export const getPTs = async (req: Request, res: Response) => {
   try {
-    const { userId, batchId, semId } = req.params;
+    const authHeader = req.headers.authorization;
+    const userId = await verifyToken(authHeader);
+    const { batchId, semId } = req.params;
     if (
       !mongoose.Types.ObjectId.isValid(userId) ||
       !mongoose.Types.ObjectId.isValid(batchId) ||
@@ -47,7 +50,9 @@ export const getPTs = async (req: Request, res: Response) => {
 // Get PT details
 export const getPTDetails = async (req: Request, res: Response) => {
   try {
-    const { userId, batchId, semId, ptId } = req.params;
+    const { batchId, semId, ptId } = req.params;
+    const authHeader = req.headers.authorization;
+    const userId = await verifyToken(authHeader);
 
     if (
       !mongoose.Types.ObjectId.isValid(userId) ||
@@ -80,7 +85,8 @@ export const getPTDetails = async (req: Request, res: Response) => {
 // Create a new PT list
 export const createPT = async (req: Request, res: Response) => {
   try {
-    const { userId } = req.params;
+    const authHeader = req.headers.authorization;
+    const userId = await verifyToken(authHeader);
     const { title, maxMark, structure, batchId, semId, namelistId } = req.body;
 
     if (!title) return handleErrorResponse(res, 400, 'Title is required');
@@ -133,7 +139,8 @@ export const createPT = async (req: Request, res: Response) => {
 // Update student scores
 export const updateStudentScore = async (req: Request, res: Response) => {
   try {
-    const { userId } = req.params;
+    const authHeader = req.headers.authorization;
+    const userId = await verifyToken(authHeader);
     const { ptId, stdId, scores, batchId, semId } = req.body;
 
     if (
@@ -177,7 +184,8 @@ export const updateStudentScore = async (req: Request, res: Response) => {
 // Delete PT list
 export const deletePT = async (req: Request, res: Response) => {
   try {
-    const { userId } = req.params;
+    const authHeader = req.headers.authorization;
+    const userId = await verifyToken(authHeader);
     const { ptId, batchId, semId } = req.body;
 
     const user = await User.findById(userId);

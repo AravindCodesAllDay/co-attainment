@@ -9,10 +9,10 @@ import {
 
 const router = express.Router();
 
-router.get('/:bundleId/:semId/:userId', getPTs);
-router.get('/:bundleId/:semId/:ptId/:userId', getPTDetails);
-router.post('/:userId', createPT);
-router.put('/score/:userId', updateStudentScore);
-router.delete('/:userId', deletePT);
+router.get('/:bundleId/:semId', getPTs);
+router.get('/:bundleId/:semId/:ptId', getPTDetails);
+router.post('/', createPT);
+router.put('/score', updateStudentScore);
+router.delete('/', deletePT);
 
 export default router;

@@ -7,8 +7,8 @@ import {
 
 const router = express.Router();
 
-router.get('/:userId', getBatches);
-router.post('/:userId', addBatch);
-router.delete('/:userId', deleteBatch);
+router.get('/', getBatches);
+router.post('/', addBatch);
+router.delete('/', deleteBatch);
 
 export default router;

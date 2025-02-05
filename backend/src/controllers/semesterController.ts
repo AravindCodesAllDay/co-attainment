@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import mongoose from 'mongoose';
 import { User } from '../models/user/userModel';
 import { Semester, ISemester } from '../models/semester/semesterModel';
+import { verifyToken } from './userController';
 
 // Utility function to handle error responses
 const handleErrorResponse = (
@@ -15,7 +16,9 @@ const handleErrorResponse = (
 // Get all semester titles and IDs from a specific batch
 export const getSemesters = async (req: Request, res: Response) => {
   try {
-    const { userId, batchId } = req.params;
+    const authHeader = req.headers.authorization;
+    const userId = await verifyToken(authHeader);
+    const { batchId } = req.params;
     if (
       !mongoose.Types.ObjectId.isValid(userId) ||
       !mongoose.Types.ObjectId.isValid(batchId)
@@ -53,7 +56,8 @@ export const getSemesters = async (req: Request, res: Response) => {
 // Add a new semester to a batch
 export const addSemester = async (req: Request, res: Response) => {
   try {
-    const { userId } = req.params;
+    const authHeader = req.headers.authorization;
+    const userId = await verifyToken(authHeader);
     const { title, batchId } = req.body;
 
     if (
@@ -97,7 +101,8 @@ export const addSemester = async (req: Request, res: Response) => {
 // Delete a semester from a batch
 export const deleteSemester = async (req: Request, res: Response) => {
   try {
-    const { userId } = req.params;
+    const authHeader = req.headers.authorization;
+    const userId = await verifyToken(authHeader);
     const { batchId, semId } = req.body;
 
     if (

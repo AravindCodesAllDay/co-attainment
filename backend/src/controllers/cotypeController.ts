@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import mongoose from 'mongoose';
 import { User } from '../models/user/userModel';
+import { verifyToken } from './userController';
 
 // Utility function for error handling
 const handleErrorResponse = (
@@ -13,7 +14,8 @@ const handleErrorResponse = (
 
 // Add a cotype
 export const addCotype = async (req: Request, res: Response) => {
-  const { userId } = req.params;
+  const authHeader = req.headers.authorization;
+  const userId = await verifyToken(authHeader);
   const { cotype } = req.body;
 
   if (!mongoose.Types.ObjectId.isValid(userId) || !cotype) {
@@ -46,7 +48,8 @@ export const addCotype = async (req: Request, res: Response) => {
 
 // Get all cotypes
 export const getCotypes = async (req: Request, res: Response) => {
-  const { userId } = req.params;
+  const authHeader = req.headers.authorization;
+  const userId = await verifyToken(authHeader);
 
   if (!userId) {
     return handleErrorResponse(res, 400, 'User ID must be provided.');
@@ -69,7 +72,8 @@ export const getCotypes = async (req: Request, res: Response) => {
 
 // Delete a cotype
 export const deleteCotype = async (req: Request, res: Response) => {
-  const { userId } = req.params;
+  const authHeader = req.headers.authorization;
+  const userId = await verifyToken(authHeader);
   const { cotype } = req.body;
 
   if (!mongoose.Types.ObjectId.isValid(userId) || !cotype) {

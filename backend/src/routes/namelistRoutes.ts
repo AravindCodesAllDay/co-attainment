@@ -7,8 +7,8 @@ import {
 
 const router = express.Router();
 
-router.get('/:bundleId/:userId', getNamelists);
-router.post('/:userId', createNamelist);
-router.delete('/:userId', deleteNamelist);
+router.get('/:bundleId', getNamelists);
+router.post('/', createNamelist);
+router.delete('/', deleteNamelist);
 
 export default router;
