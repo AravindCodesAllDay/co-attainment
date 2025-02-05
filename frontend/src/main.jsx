@@ -4,18 +4,18 @@ import { HashRouter, Route, Routes } from "react-router-dom";
 import Modal from "react-modal";
 import "./index.css";
 
-import ViewCourse from "./pages/coursepage/ViewCourse";
-import ViewCourses from "./pages/coursepage/ViewCourses";
-import Login from "./pages/loginpage/Login";
-import ViewNamelist from "./pages/namelistpage/ViewNamelist";
-import ViewNamelists from "./pages/namelistpage/ViewNamelists";
-import ViewPtList from "./pages/ptpage/ViewPtList";
-import ViewPtLists from "./pages/ptpage/ViewPtLists";
-import SelectCoatt from "./pages/co-attainment/SelectCoatt";
-import ViewSaas from "./pages/saapage/ViewSaas";
-import ViewSaa from "./pages/saapage/ViewSaa";
-import Dashboard from "./pages/dasboardpage/Dashboard";
-import ViewSems from "./pages/sempage/ViewSems";
+import ViewCourse from "./coursepage/ViewCourse";
+import ViewCourses from "./coursepage/ViewCourses";
+import Login from "./loginpage/Login";
+import ViewNamelist from "./namelistpage/ViewNamelist";
+import ViewNamelists from "./namelistpage/ViewNamelists";
+import ViewPtList from "./ptpage/ViewPtList";
+import ViewPtLists from "./ptpage/ViewPtLists";
+import SelectCoatt from "./co-attainment/SelectCoatt";
+import ViewSaas from "./saapage/ViewSaas";
+import ViewSaa from "./saapage/ViewSaa";
+import Dashboard from "./dasboardpage/Dashboard";
+import ViewSems from "./sempage/ViewSems";
 
 Modal.setAppElement("#root");
 

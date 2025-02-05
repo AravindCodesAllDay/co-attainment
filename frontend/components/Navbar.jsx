@@ -67,6 +67,10 @@ const Navbar = () => {
     navLinks.push({ label: "Dashboard", path: "/dashboard" });
   }
 
+  function changeDropdownOpen() {
+    setDropdownOpen(!dropdownOpen);
+  }
+
   return (
     <div className="bg-sky-600 p-3 flex items-center w-screen gap-6 relative">
       <img
@@ -89,17 +93,14 @@ const Navbar = () => {
         ))}
       </div>
       <div className="ml-auto relative" ref={dropdownRef}>
-        <img className="cursor-pointer" src={profile} alt="Profile" />
+        <img
+          className="cursor-pointer"
+          src={profile}
+          alt="Profile"
+          onClick={changeDropdownOpen}
+        />
         {dropdownOpen && (
           <div className="absolute right-0 mt-1 w-48 bg-white rounded-md shadow-lg p-2">
-            <div
-              className="block px-4 py-2 text-gray-800 hover:bg-gray-200 cursor-pointer border-b-2"
-              onClick={() =>
-                navigate(`/coattainment/${bundleId}/${semesterId}`)
-              }
-            >
-              Create Co
-            </div>
             <div
               className="block px-4 py-2 text-gray-800 hover:bg-gray-200 cursor-pointer"
               onClick={onExit}
