@@ -32,7 +32,6 @@ const ViewNamelists = () => {
 
         const data = await response.json();
         setNamelists(data);
-        console.log(data);
       } catch (error) {
         console.error("Error while fetching:", error);
       } finally {

@@ -44,7 +44,7 @@ const Navbar = () => {
     };
 
     verifyUserToken();
-  }, []);
+  }, [batchId, semesterId, navigate]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {

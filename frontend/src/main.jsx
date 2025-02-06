@@ -4,8 +4,7 @@ import ReactDOM from "react-dom/client";
 import { HashRouter, Route, Routes } from "react-router-dom";
 import "./index.css";
 
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
+import Layout from "./layout";
 import ViewCourse from "./coursepage/ViewCourse";
 import ViewCourses from "./coursepage/ViewCourses";
 import Login from "./loginpage/Login";
@@ -26,57 +25,40 @@ ReactDOM.createRoot(document.getElementById("root")).render(
     <HashRouter>
       <Routes>
         <Route path="/" element={<Login />} />
-        <Route
-          path="*"
-          element={
-            <div className="min-h-screen w-full flex flex-col">
-              <Navbar />
-              <div className="flex-grow">
-                <Routes>
-                  <Route path="/dashboard" element={<Dashboard />} />
-                  <Route
-                    path="/namelists/:batchId"
-                    element={<ViewNamelists />}
-                  />
-                  <Route
-                    path="/namelists/:batchId/:namelistId"
-                    element={<ViewNamelist />}
-                  />
-                  <Route path="/sem/:batchId" element={<ViewSems />} />
-                  <Route
-                    path="/courses/:batchId/:semesterId/"
-                    element={<ViewCourses />}
-                  />
-                  <Route
-                    path="/courses/:batchId/:semesterId/:courseId/"
-                    element={<ViewCourse />}
-                  />
-                  <Route
-                    path="/ptlists/:batchId/:semesterId"
-                    element={<ViewPtLists />}
-                  />
-                  <Route
-                    path="/ptlists/:batchId/:semesterId/:ptlistid"
-                    element={<ViewPtList />}
-                  />
-                  <Route
-                    path="/coattainment/:batchId/:semesterId"
-                    element={<SelectCoatt />}
-                  />
-                  <Route
-                    path="/see/:batchId/:semesterId"
-                    element={<ViewSaas />}
-                  />
-                  <Route
-                    path="/see/:batchId/:semesterId/:seeid"
-                    element={<ViewSaa />}
-                  />
-                </Routes>
-              </div>
-              <Footer />
-            </div>
-          }
-        />
+        <Route element={<Layout />}>
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/namelists/:batchId" element={<ViewNamelists />} />
+          <Route
+            path="/namelists/:batchId/:namelistId"
+            element={<ViewNamelist />}
+          />
+          <Route path="/sem/:batchId" element={<ViewSems />} />
+          <Route
+            path="/courses/:batchId/:semesterId"
+            element={<ViewCourses />}
+          />
+          <Route
+            path="/courses/:batchId/:semesterId/:courseId"
+            element={<ViewCourse />}
+          />
+          <Route
+            path="/ptlists/:batchId/:semesterId"
+            element={<ViewPtLists />}
+          />
+          <Route
+            path="/ptlists/:batchId/:semesterId/:ptlistid"
+            element={<ViewPtList />}
+          />
+          <Route
+            path="/coattainment/:batchId/:semesterId"
+            element={<SelectCoatt />}
+          />
+          <Route path="/see/:batchId/:semesterId" element={<ViewSaas />} />
+          <Route
+            path="/see/:batchId/:semesterId/:seeid"
+            element={<ViewSaa />}
+          />
+        </Route>
       </Routes>
     </HashRouter>
   </React.StrictMode>

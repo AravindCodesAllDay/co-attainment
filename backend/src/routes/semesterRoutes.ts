@@ -8,7 +8,7 @@ import {
 const router = express.Router();
 
 // Route to get all semester titles and IDs from a specific bundle
-router.get('/:bundleId', getSemesters);
+router.get('/:batchId', getSemesters);
 
 // Add a new semester to a bundle
 router.post('/', addSemester);
