@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import * as XLSX from "xlsx";
+
 import del from "../../assets/delete.svg";
 import edit from "../../assets/edit.svg";
+import infoIcon from "../../assets/info.svg";
 import AddStudentModal from "./AddStudent.modal";
-import EditNamelistModal from "./EditNamelist.Modal";
+import EditNamelistModal from "./EditNamelist.modal";
 
 const ViewNamelist = () => {
-  const { namelistId } = useParams();
-  const { batchId } = useParams();
-
+  const { batchId, namelistId } = useParams();
   const [studentName, setStudentName] = useState("");
   const [rollNo, setRollNo] = useState("");
   const [regno, setRegNo] = useState("");
@@ -16,12 +17,12 @@ const ViewNamelist = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
-
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editStudentData, setEditStudentData] = useState({
     name: "",
     rollno: "",
   });
+  const [isInfoVisible, setIsInfoVisible] = useState(false);
 
   const handleEditClick = (student) => {
     setEditStudentData(student);
@@ -37,16 +38,18 @@ const ViewNamelist = () => {
           method: "DELETE",
           headers: {
             "Content-Type": "application/json",
-
             Authorization: token,
           },
           body: JSON.stringify({
-            namelistId: namelistId,
+            namelistId,
+            batchId,
             studentId: student._id,
           }),
         }
       );
-      const data = await response.json();
+      if (!response.ok) {
+      }
+      fetchStudent();
     } catch (error) {
       console.log("An error occured while deleting");
     }
@@ -67,11 +70,13 @@ const ViewNamelist = () => {
           body: JSON.stringify({
             namelistId,
             batchId,
-            studentDetail: {
-              name: studentName,
-              rollno: rollNo,
-              registration_no: regno,
-            },
+            studentDetails: [
+              {
+                name: studentName,
+                rollno: rollNo,
+                registration_no: regno,
+              },
+            ],
           }),
         }
       );
@@ -93,10 +98,45 @@ const ViewNamelist = () => {
     }
   };
 
+  const handleExcelUpload = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      const data = new Uint8Array(e.target.result);
+      const workbook = XLSX.read(data, { type: "array" });
+      const sheetName = workbook.SheetNames[0];
+      const sheet = workbook.Sheets[sheetName];
+      const jsonData = XLSX.utils.sheet_to_json(sheet);
+
+      try {
+        const token = localStorage.getItem("token");
+        await fetch(`${import.meta.env.VITE_API}/namelist/student`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: token,
+          },
+          body: JSON.stringify({
+            namelistId,
+            batchId,
+            studentDetails: jsonData,
+          }),
+        });
+        fetchStudent();
+      } catch (error) {
+        console.error("Error uploading students", error);
+      }
+    };
+    reader.readAsArrayBuffer(file);
+  };
+
   const fetchStudent = async () => {
     setIsLoading(true);
     try {
       const token = localStorage.getItem("token");
+
       const response = await fetch(
         `${import.meta.env.VITE_API}/namelist/student/${batchId}/${namelistId}`,
         {
@@ -126,14 +166,49 @@ const ViewNamelist = () => {
 
   return (
     <>
-      <div className="flex justify-end p-2 font-primary">
-        <button
-          className="bg-green-600 text-xl p-2 w-fit text-white border-2 border-none rounded-md mt-4"
-          onClick={() => setIsModalOpen(true)}
-        >
-          Add Student
-        </button>
+      <div className="flex justify-between items-center p-2 px-4 font-primary">
+        <h2 className="font-bold text-2xl text-blue-600 mb-6">
+          Namelist {">"} {namelist.title}
+        </h2>
+        <div className="flex gap-4">
+          <button
+            className="bg-green-600 text-xl p-2 text-white rounded-md"
+            onClick={() => setIsModalOpen(true)}
+          >
+            Add Student
+          </button>
+          <label className="bg-blue-600 text-xl p-2 text-white rounded-md cursor-pointer">
+            Add from Excel
+            <input
+              type="file"
+              className="hidden"
+              accept=".xlsx, .xls"
+              onChange={handleExcelUpload}
+            />
+          </label>
+          <img
+            src={infoIcon}
+            className="cursor-pointer w-6"
+            onClick={() => setIsInfoVisible(!isInfoVisible)}
+          />
+        </div>
       </div>
+      {isInfoVisible && (
+        <div className="p-4 bg-gray-100 border rounded-md mb-4">
+          <p>Excel file should have the following headers:</p>
+          <ul className="list-disc pl-5">
+            <li>
+              <b>name</b>: Student Name
+            </li>
+            <li>
+              <b>rollno</b>: Roll Number
+            </li>
+            <li>
+              <b>registration_no</b>: Registration Number
+            </li>
+          </ul>
+        </div>
+      )}
       <AddStudentModal
         isOpen={isModalOpen}
         onRequestClose={() => setIsModalOpen(false)}
@@ -147,7 +222,6 @@ const ViewNamelist = () => {
         error={error}
         title={namelist.title}
       />
-
       <EditNamelistModal
         isOpen={isEditModalOpen}
         onRequestClose={() => setIsEditModalOpen(false)}
@@ -157,11 +231,7 @@ const ViewNamelist = () => {
         namelistId={namelistId}
         fetchStudent={fetchStudent}
       />
-
       <div className="flex justify-center flex-col p-4">
-        <h2 className="font-bold text-2xl text-blue-600 mb-6">
-          {namelist.title}
-        </h2>
         {isLoading ? (
           <div className="flex justify-center mt-4">Loading...</div>
         ) : error ? (

@@ -11,8 +11,7 @@ const EditNamelistModal = ({
   studentId,
   fetchStudent,
 }) => {
-  const user = JSON.parse(localStorage.getItem("user"));
-  const { namelistId, bundleId } = useParams();
+  const { namelistId, batchId } = useParams();
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -22,17 +21,19 @@ const EditNamelistModal = ({
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      const token = localStorage.getItem("token");
       const response = await fetch(
-        `${import.meta.env.VITE_API}/namelist/student/${user.userId}`,
+        `${import.meta.env.VITE_API}/namelist/student`,
         {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
+            Authorization: token,
           },
           body: JSON.stringify({
-            bundleId: bundleId,
-            studentId: studentId,
-            namelistId: namelistId,
+            batchId,
+            studentId,
+            namelistId,
             studentDetail: {
               name: studentData.name,
               rollno: studentData.rollno,
@@ -42,8 +43,8 @@ const EditNamelistModal = ({
         }
       );
       if (response.ok) {
-        fetchStudent(); // Refresh the student list
-        onRequestClose(); // Close modal on success
+        fetchStudent();
+        onRequestClose();
       } else {
         const errorData = await response.json();
         console.error(
@@ -59,7 +60,7 @@ const EditNamelistModal = ({
     <Modal
       isOpen={isOpen}
       onRequestClose={onRequestClose}
-      className="flex justify-center items-center fixed inset-0 z-50 outline-none focus:outline-none bg-opacity-50 bg-gray-800"
+      className="flex justify-center items-center fixed inset-0 z-50 outline-none focus:outline-none bg-black/50"
       overlayClassName="fixed inset-0 bg-black bg-opacity-25"
     >
       <div className="relative w-96 my-6 mx-auto max-w-3xl bg-white rounded-lg shadow-lg p-6">

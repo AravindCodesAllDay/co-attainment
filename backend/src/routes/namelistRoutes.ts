@@ -3,10 +3,10 @@ import {
   getNamelists,
   createNamelist,
   deleteNamelist,
-  addStudentNamelist,
   getStudentsNamelist,
   deleteStudentNamelist,
   editStudentNamelist,
+  addStudents2Namelist,
 } from '../controllers/namelistController';
 
 const router = express.Router();
@@ -16,10 +16,10 @@ router.post('/', createNamelist);
 router.delete('/', deleteNamelist);
 
 // Get students in a namelist
-router.get('/student/:bundleId/:namelistId', getStudentsNamelist);
+router.get('/student/:batchId/:namelistId', getStudentsNamelist);
 
 // Add a student to a namelist
-router.post('/student', addStudentNamelist);
+router.post('/student', addStudents2Namelist);
 
 // Update student details in a namelist
 router.put('/student', editStudentNamelist);

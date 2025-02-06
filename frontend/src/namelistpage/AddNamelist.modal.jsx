@@ -52,7 +52,7 @@ const AddNamelistModal = ({ showModal, toggleModal }) => {
 
   return (
     <div
-      className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 font-primary"
+      className="fixed inset-0 flex items-center justify-center bg-black/50 font-primary"
       onClick={toggleModal}
     >
       <div

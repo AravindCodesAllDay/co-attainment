@@ -49,12 +49,13 @@ const ViewNamelists = () => {
 
   return (
     <>
-      <div className="flex flex-row justify-end p-2 font-primary">
+      <div className="flex flex-row justify-between items-center p-2 px-4 w-full font-primary">
+        <h2 className="font-bold text-2xl text-blue-600 mb-6">Namelist</h2>
         <button
-          className="bg-green-600 text-xl p-2 w-fit text-white border-2 border-none rounded-md mt-4"
+          className="bg-green-600 text-xl p-2 w-fit text-white border-2 border-none rounded-md cursor-pointer"
           onClick={toggleModal}
         >
-          Add Title
+          Add Namelist
         </button>
       </div>
 

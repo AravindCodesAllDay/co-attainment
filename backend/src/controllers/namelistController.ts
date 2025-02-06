@@ -180,9 +180,8 @@ export const getStudentsNamelist = async (req: Request, res: Response) => {
   }
 };
 
-// Add a student to a namelist
-export const addStudentNamelist = async (req: Request, res: Response) => {
-  const { namelistId, batchId, studentDetail } = req.body;
+export const addStudents2Namelist = async (req: Request, res: Response) => {
+  const { namelistId, batchId, studentDetails } = req.body;
 
   const authHeader = req.headers.authorization;
   const userId = await verifyToken(authHeader);
@@ -191,12 +190,13 @@ export const addStudentNamelist = async (req: Request, res: Response) => {
       !mongoose.Types.ObjectId.isValid(userId) ||
       !mongoose.Types.ObjectId.isValid(namelistId) ||
       !mongoose.Types.ObjectId.isValid(batchId) ||
-      !studentDetail
+      !Array.isArray(studentDetails) ||
+      studentDetails.length === 0
     ) {
       return handleErrorResponse(
         res,
         400,
-        'All required fields must be provided.'
+        'All required fields must be provided, and studentDetails must be a non-empty array.'
       );
     }
 
@@ -211,7 +211,7 @@ export const addStudentNamelist = async (req: Request, res: Response) => {
     );
 
     if (!batch) {
-      return handleErrorResponse(res, 404, 'Bundle not found.');
+      return handleErrorResponse(res, 404, 'Batch not found.');
     }
 
     const namelist = batch.namelists.find((namelist) =>
@@ -224,7 +224,8 @@ export const addStudentNamelist = async (req: Request, res: Response) => {
       return handleErrorResponse(res, 404, 'Namelist not found.');
     }
 
-    namelist.students.push(studentDetail);
+    // Add multiple students to the namelist
+    namelist.students.push(...studentDetails);
     await user.save();
 
     return res.status(200).json(namelist);

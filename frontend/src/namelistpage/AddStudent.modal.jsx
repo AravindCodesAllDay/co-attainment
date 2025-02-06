@@ -20,7 +20,7 @@ const AddStudentModal = ({
       isOpen={isOpen}
       onRequestClose={onRequestClose}
       contentLabel="Add Student"
-      className="fixed inset-0 flex items-center justify-center z-50 p-4 bg-opacity-75 bg-gray-800"
+      className="fixed inset-0 flex items-center justify-center z-50 p-4 bg-black/50"
       overlayClassName="fixed inset-0 bg-gray-800 bg-opacity-75"
       ariaHideApp={false}
     >
