@@ -82,8 +82,6 @@ export const loginOrCreateUser = async (
       console.log('User not found, creating new user...');
       const newUser = new User({ email });
       user = await newUser.save();
-    } else {
-      console.log('User found:', user);
     }
 
     const token = jwt.sign({ id: user.id }, SECRET_KEY, { expiresIn: '24h' });

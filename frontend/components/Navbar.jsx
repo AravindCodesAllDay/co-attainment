@@ -71,7 +71,7 @@ const Navbar = () => {
     location.pathname.startsWith("/sem")
   ) {
     navLinks.push(
-      { label: "Namelist", path: `/namelists/${batchId}` },
+      { label: "Namelists", path: `/namelists/${batchId}` },
       { label: "Sems", path: `/sem/${batchId}` }
     );
   }
@@ -112,9 +112,11 @@ const Navbar = () => {
           <li
             key={link.path}
             onClick={() => navigate(link.path)}
-            className={
-              location.pathname === link.path ? "text-black" : "cursor-pointer"
-            }
+            className={`
+              ${
+                location.pathname.startsWith(link.path) ? "text-black" : ""
+              } cursor-pointer
+            `}
           >
             {link.label}
           </li>

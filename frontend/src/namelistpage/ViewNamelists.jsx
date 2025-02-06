@@ -1,39 +1,47 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import Navbar from "../../components/Navbar";
 import AddNamelistModal from "./AddNamelist.modal";
 
 const ViewNamelists = () => {
-  const { bundleId } = useParams();
+  const { batchId } = useParams();
   const navigate = useNavigate();
-  const user = JSON.parse(localStorage.getItem("user"));
 
   const [showModal, setShowModal] = useState(false);
   const [namelists, setNamelists] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchNamelists = async () => {
-      if (user && user.userId) {
-        try {
-          const response = await fetch(
-            `${import.meta.env.VITE_API}/namelist/${bundleId}/${user.userId}`
-          );
-          if (!response.ok) {
-            throw new Error("Network response was not ok");
+      setLoading(true);
+      try {
+        const token = localStorage.getItem("token");
+        const response = await fetch(
+          `${import.meta.env.VITE_API}/namelist/${batchId}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: token,
+            },
           }
-          const data = await response.json();
-          setNamelists(data);
-          // console.log(data);
-        } catch (error) {
-          console.log("error while fetching:", error);
+        );
+
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
         }
-      } else {
-        console.log("User not found in localStorage");
+
+        const data = await response.json();
+        setNamelists(data);
+        console.log(data);
+      } catch (error) {
+        console.error("Error while fetching:", error);
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchNamelists();
-  }, [namelists]);
+  }, [batchId]);
 
   const toggleModal = () => {
     setShowModal(!showModal);
@@ -41,8 +49,7 @@ const ViewNamelists = () => {
 
   return (
     <>
-      <Navbar />
-      <div className="flex flex-row justify-end   p-2 font-primary">
+      <div className="flex flex-row justify-end p-2 font-primary">
         <button
           className="bg-green-600 text-xl p-2 w-fit text-white border-2 border-none rounded-md mt-4"
           onClick={toggleModal}
@@ -50,23 +57,29 @@ const ViewNamelists = () => {
           Add Title
         </button>
       </div>
+
       <AddNamelistModal showModal={showModal} toggleModal={toggleModal} />
-      {namelists.length ? (
+
+      {loading ? (
+        <div className="flex justify-center mt-4 text-2xl">Loading...</div>
+      ) : namelists.length > 0 ? (
         <div className="grid grid-cols-4 gap-4 p-4">
-          {namelists.map((title, index) => (
+          {namelists.map((namelist) => (
             <div
-              key={title._id}
+              key={namelist.namelistId}
               className="p-4 bg-gray-200 rounded-md shadow-md hover:shadow-2xl cursor-pointer"
               onClick={() =>
-                navigate(`/namelists/${bundleId}/${title.namelistId}`)
+                navigate(`/namelists/${batchId}/${namelist.namelistId}`)
               }
             >
-              {title.title}
+              {namelist.title}
             </div>
           ))}
         </div>
       ) : (
-        <div className="flex justify-center mt-4 text-2xl">Loading...</div>
+        <div className="flex justify-center mt-4 text-2xl">
+          No namelists found.
+        </div>
       )}
     </>
   );

@@ -2,14 +2,12 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import del from "../../assets/delete.svg";
 import edit from "../../assets/edit.svg";
-import Navbar from "../../components/Navbar";
 import AddStudentModal from "./AddStudent.modal";
 import EditNamelistModal from "./EditNamelist.Modal";
 
 const ViewNamelist = () => {
-  const user = JSON.parse(localStorage.getItem("user"));
   const { namelistId } = useParams();
-  const { bundleId } = useParams();
+  const { batchId } = useParams();
 
   const [studentName, setStudentName] = useState("");
   const [rollNo, setRollNo] = useState("");
@@ -32,12 +30,15 @@ const ViewNamelist = () => {
 
   const handledelete = async (student) => {
     try {
+      const token = localStorage.getItem("token");
       const response = await fetch(
-        `${import.meta.env.VITE_API}/namelist/student/${user.userId}`,
+        `${import.meta.env.VITE_API}/namelist/student`,
         {
           method: "DELETE",
           headers: {
             "Content-Type": "application/json",
+
+            Authorization: token,
           },
           body: JSON.stringify({
             namelistId: namelistId,
@@ -54,16 +55,18 @@ const ViewNamelist = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      const token = localStorage.getItem("token");
       const response = await fetch(
-        `${import.meta.env.VITE_API}/namelist/student/${user.userId}`,
+        `${import.meta.env.VITE_API}/namelist/student`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            Authorization: token,
           },
           body: JSON.stringify({
-            namelistId: namelistId,
-            bundleId: bundleId,
+            namelistId,
+            batchId,
             studentDetail: {
               name: studentName,
               rollno: rollNo,
@@ -76,9 +79,9 @@ const ViewNamelist = () => {
         setStudentName("");
         setRollNo("");
         setRegNo("");
-        fetchStudent(); // Refresh the student list
-        setIsModalOpen(false); // Close modal on success
-        setError(""); // Clear any previous error
+        fetchStudent();
+        setIsModalOpen(false);
+        setError("");
       } else {
         const errorData = await response.json();
         setError(
@@ -93,17 +96,22 @@ const ViewNamelist = () => {
   const fetchStudent = async () => {
     setIsLoading(true);
     try {
+      const token = localStorage.getItem("token");
       const response = await fetch(
-        `${
-          import.meta.env.VITE_API
-        }/namelist/student/${bundleId}/${namelistId}/${user.userId}`
+        `${import.meta.env.VITE_API}/namelist/student/${batchId}/${namelistId}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: token,
+          },
+        }
       );
       if (!response.ok) {
         throw new Error("Network response was not ok");
       }
       const data = await response.json();
       setNamelist(data);
-      // console.log(data);
       setIsLoading(false);
     } catch (error) {
       console.error("Error fetching namelist", error);
@@ -118,7 +126,6 @@ const ViewNamelist = () => {
 
   return (
     <>
-      <Navbar />
       <div className="flex justify-end p-2 font-primary">
         <button
           className="bg-green-600 text-xl p-2 w-fit text-white border-2 border-none rounded-md mt-4"

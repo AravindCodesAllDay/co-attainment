@@ -3,31 +3,32 @@ import { useParams } from "react-router-dom";
 import close1 from "../../assets/close.svg";
 
 const AddNamelistModal = ({ showModal, toggleModal }) => {
-  const user = JSON.parse(localStorage.getItem("user"));
-  const { bundleId } = useParams();
+  const { batchId } = useParams();
   const [title, setTitle] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false); // New loading state
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(""); // Reset error state
+    setError("");
 
-    if (!title || !bundleId) {
+    if (!title || !batchId) {
       setError("Title and Bundle ID are required.");
       return;
     }
 
+    setLoading(true); // Start loading
+
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_API}/namelist/${user.userId}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ title: title, bundleId: bundleId }),
-        }
-      );
+      const token = localStorage.getItem("token");
+      const response = await fetch(`${import.meta.env.VITE_API}/namelist`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token,
+        },
+        body: JSON.stringify({ title, batchId }),
+      });
 
       if (response.ok) {
         setTitle("");
@@ -38,11 +39,13 @@ const AddNamelistModal = ({ showModal, toggleModal }) => {
       }
     } catch (error) {
       setError("An error occurred while submitting the form.");
+    } finally {
+      setLoading(false); // Stop loading
     }
   };
 
   const handleClickInsideModal = (e) => {
-    e.stopPropagation(); // Stop propagation to prevent modal from closing
+    e.stopPropagation();
   };
 
   if (!showModal) return null;
@@ -58,7 +61,7 @@ const AddNamelistModal = ({ showModal, toggleModal }) => {
       >
         <img
           src={close1}
-          className="absolute top-2 right-2  text-white p-1 rounded-full cursor-pointer"
+          className="absolute top-2 right-2 p-1 rounded-full cursor-pointer"
           onClick={toggleModal}
         />
         <h2 className="text-xl font-bold mb-4">Add Namelist</h2>
@@ -70,10 +73,19 @@ const AddNamelistModal = ({ showModal, toggleModal }) => {
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             className="border border-gray-300 p-2 rounded w-full mb-4"
-            onClick={handleClickInsideModal} // Prevent modal from closing on input click
+            onClick={handleClickInsideModal}
+            disabled={loading} // Disable input while loading
           />
-          <button type="submit" className="bg-blue-600 text-white p-2 rounded">
-            Submit
+          <button
+            type="submit"
+            className={`p-2 rounded w-full ${
+              loading
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-blue-600 hover:bg-blue-700"
+            } text-white`}
+            disabled={loading} // Disable button while loading
+          >
+            {loading ? "Submitting..." : "Submit"}
           </button>
         </form>
       </div>

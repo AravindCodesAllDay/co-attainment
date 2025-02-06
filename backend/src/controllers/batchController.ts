@@ -30,7 +30,6 @@ export const getBatches = async (req: Request, res: Response) => {
     if (!user) {
       return handleErrorResponse(res, 404, 'User not found.');
     }
-
     const batches = user.batches.map((batch) => ({
       batchId: batch._id,
       title: batch.title,
@@ -77,7 +76,7 @@ export const addBatch = async (req: Request, res: Response) => {
     user.batches.push(newBatch);
     await user.save();
 
-    return res.status(201).json(user);
+    return res.status(201).json({ message: 'batch creates successfully' });
   } catch (error) {
     console.error((error as Error).message);
     return handleErrorResponse(res, 500, 'Internal Server Error');

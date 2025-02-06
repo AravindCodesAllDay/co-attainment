@@ -39,7 +39,6 @@ function Dashboard() {
         throw new Error("Network response was not ok");
       }
       const data = await response.json();
-      console.log(data);
       setItems(data);
     } catch (error) {
       console.error("Error fetching namelist", error);
@@ -77,7 +76,7 @@ function Dashboard() {
             <div
               key={index}
               className="p-4 bg-gray-200 rounded-md shadow-md hover:shadow-2xl cursor-pointer"
-              onClick={() => navigate(`/namelists/${item.bundleId}`)}
+              onClick={() => navigate(`/namelists/${item.batchId}`)}
             >
               {item.title}
             </div>

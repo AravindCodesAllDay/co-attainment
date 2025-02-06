@@ -33,7 +33,7 @@ const AddbatchModal = ({ show, onClose, onAddItem }) => {
       }
 
       const result = await response.json();
-      console.log("Bundle Created:", result);
+      console.log(result.message);
       if (batchName.trim()) {
         onAddItem(batchName);
         setBatchName("");
