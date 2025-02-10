@@ -130,14 +130,20 @@ const Navbar = () => {
           onClick={changeDropdownOpen}
         />
         {dropdownOpen && (
-          <div className="absolute right-0 mt-1 w-48 bg-white rounded-md shadow-lg p-1">
-            <div
+          <ul className="absolute right-0 mt-1 w-48 bg-white rounded-md shadow-lg p-1">
+            <li
+              className="block p-2 text-gray-800 hover:bg-gray-200 cursor-pointer"
+              onClick={() => navigate("/cotype")}
+            >
+              co-type
+            </li>
+            <li
               className="block p-2 text-gray-800 hover:bg-gray-200 cursor-pointer"
               onClick={onExit}
             >
               Logout
-            </div>
-          </div>
+            </li>
+          </ul>
         )}
       </div>
     </div>

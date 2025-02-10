@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
+import bcrypt from 'bcryptjs';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -60,7 +61,88 @@ const isValidGmail = (email: string): boolean => {
   return emailPattern.test(email);
 };
 
-// Function to handle login or create a new user and issue a JWT token
+export const CreateUser = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
+  try {
+    const { email, pswd } = req.body;
+
+    if (!email || !isValidGmail(email) || !pswd) {
+      return res.status(400).json({
+        message: 'Invalid email format. Please use a valid Gmail address.',
+      });
+    }
+
+    let user = await User.findOne({ email });
+    if (user) {
+      return res.status(400).json({ message: 'User already exists' });
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(pswd, salt);
+
+    const newUser = new User({ email, pswd: hashedPassword });
+    await newUser.save();
+
+    const token = jwt.sign(
+      { id: newUser._id, email: newUser.email },
+      process.env.JWT_SECRET as string,
+      {
+        expiresIn: '1h',
+      }
+    );
+
+    return res
+      .status(201)
+      .json({ message: 'User created successfully', token: `Bearer ${token}` });
+  } catch (error) {
+    console.error('Error creating user:', error);
+    return res.status(500).json({
+      message: 'Error creating user',
+      error: (error as Error).message,
+    });
+  }
+};
+
+export const loginUser = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
+  try {
+    const { email, pswd } = req.body;
+
+    if (!email || !isValidGmail(email) || !pswd) {
+      return res.status(400).json({
+        message: 'Invalid email format. Please use a valid Gmail address.',
+      });
+    }
+
+    let user = await User.findOne({ email });
+    if (!user) {
+      return res.status(400).json({ message: 'User not found' });
+    }
+
+    const isMatch = await bcrypt.compare(pswd, user.pswd);
+    if (!isMatch) {
+      return res.status(400).json({ message: 'Incorrect password' });
+    }
+
+    const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET as string, {
+      expiresIn: '24h',
+    });
+    return res
+      .status(200)
+      .json({ message: 'Login successful', token: `Bearer ${token}` });
+  } catch (error) {
+    console.error('Error logging in:', error);
+    return res.status(500).json({
+      message: 'Error logging in',
+      error: (error as Error).message,
+    });
+  }
+};
+
 export const loginOrCreateUser = async (
   req: Request,
   res: Response
@@ -80,7 +162,10 @@ export const loginOrCreateUser = async (
 
     if (!user) {
       console.log('User not found, creating new user...');
-      const newUser = new User({ email });
+      const newUser = new User({
+        email,
+        pswd: '$2b$12$JDT44OGhq45QDA0M5e.c0.TcmVtv/dEl9ST3pPrWCQX.X.82VPI/K',
+      });
       user = await newUser.save();
     }
 

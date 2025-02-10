@@ -7,8 +7,8 @@ import {
 
 const router = express.Router();
 
-router.post('/', addCotype);
 router.get('/', getCotypes);
+router.post('/', addCotype);
 router.delete('/', deleteCotype);
 
 export default router;
