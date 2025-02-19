@@ -121,10 +121,10 @@ export const addCourseList = async (req: Request, res: Response) => {
 
     const batch = user.batches.find((batch: IBatch) =>
       batch._id.equals(batchId)
-    ) as IBatch; // Explicitly type the batch as IBatch
+    ) as IBatch;
     if (!batch) return handleErrorResponse(res, 404, 'Batch not found.');
 
-    const sem = batch.semlists.find((sem: ISemester) => sem._id.equals(semId)); // Explicitly typing the semester as ISemester
+    const sem = batch.semlists.find((sem: ISemester) => sem._id.equals(semId));
     if (!sem) return handleErrorResponse(res, 404, 'Semester not found.');
 
     const namelist = batch.namelists.find((namelist) =>
@@ -144,7 +144,13 @@ export const addCourseList = async (req: Request, res: Response) => {
       } as ICoStudent;
     });
 
-    const newCoList = new CoList({ title, average: 0, rows, students });
+    const newCoList = new CoList({
+      title,
+      average: 0,
+      namelistId,
+      rows,
+      students,
+    });
     sem.courselists.push(newCoList);
     await user.save();
 

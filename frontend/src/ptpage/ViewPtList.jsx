@@ -1,32 +1,38 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import Navbar from "../../components/Navbar";
-import Editptmark from "./EditPtMarks.modal";
+import Editptmark from "./EditPtMarksModal";
 import edit from "../../assets/edit.svg";
 
 export default function ViewPtList() {
-  const { ptlistid, bundleId, semesterId } = useParams();
+  const { ptlistId, batchId, semesterId } = useParams();
 
   const [ptlist, setPtlist] = useState(null);
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const user = JSON.parse(localStorage.getItem("user"));
 
   const fetchStudent = async () => {
     setLoading(true);
     try {
+      const token = localStorage.getItem("token");
       const response = await fetch(
-        `${import.meta.env.VITE_API}/pt/${bundleId}/${semesterId}/${ptlistid}/${
-          user.userId
-        }`
+        `${import.meta.env.VITE_API}/pt/${batchId}/${semesterId}/${ptlistId}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: token,
+          },
+        }
       );
       if (!response.ok) {
         throw new Error("Network response was not ok");
       }
       const data = await response.json();
       setPtlist(data);
+      console.log(data);
     } catch (error) {
       setError(error.message);
     } finally {
@@ -53,7 +59,6 @@ export default function ViewPtList() {
 
   return (
     <>
-      <Navbar />
       <div className="container mx-auto p-4 overflow-x-auto ">
         <h1 className="text-2xl font-bold mb-4">Student List</h1>
         <table className="justify-center items-center table-auto w-full border-collapse border border-gray-200">

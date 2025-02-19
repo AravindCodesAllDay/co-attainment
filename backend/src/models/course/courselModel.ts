@@ -5,6 +5,7 @@ export interface ICoList extends Document {
   _id: mongoose.Types.ObjectId;
   title: string;
   average: number;
+  namelistId: mongoose.Types.ObjectId;
   rows: string[];
   students: ICoStudent[];
 }
@@ -13,6 +14,10 @@ const coListSchema = new Schema<ICoList>(
   {
     title: { type: String, required: true },
     average: { type: Number, default: 0 },
+    namelistId: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+    },
     rows: { type: [String], required: true },
     students: { type: [coStudentSchema] },
   },

@@ -9,8 +9,8 @@ import {
 
 const router = express.Router();
 
-router.get('/:bundleId/:semId', getPTs);
-router.get('/:bundleId/:semId/:ptId', getPTDetails);
+router.get('/:batchId/:semId', getPTs);
+router.get('/:batchId/:semId/:ptId', getPTDetails);
 router.post('/', createPT);
 router.put('/score', updateStudentScore);
 router.delete('/', deletePT);

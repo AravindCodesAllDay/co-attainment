@@ -1,33 +1,37 @@
 import React, { useState, useEffect } from "react";
-import Navbar from "../../components/Navbar";
-import AddPtModal from "./AddPt.modal";
 import { useNavigate, useParams } from "react-router-dom";
+import AddPtModal from "./AddPtModal";
 
 export default function ViewPtLists() {
-  const user = JSON.parse(localStorage.getItem("user"));
   const navigate = useNavigate();
-
-  const { bundleId, semesterId } = useParams();
+  const { batchId, semesterId } = useParams();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [pts, setPts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const fetchPts = async () => {
     try {
+      const token = localStorage.getItem("token");
       const response = await fetch(
-        `${import.meta.env.VITE_API}/pt/${bundleId}/${semesterId}/${
-          user.userId
-        }`
+        `${import.meta.env.VITE_API}/pt/${batchId}/${semesterId}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: token,
+          },
+        }
       );
       if (!response.ok) {
-        throw new Error("Network response was not ok");
+        throw new Error("Failed to fetch PT lists");
       }
       const data = await response.json();
       setPts(data);
-      // console.log(data);
     } catch (error) {
-      console.error("Failed to fetch courses:", error);
+      console.error("Failed to fetch PT lists:", error);
+      setError(error.message);
     } finally {
       setIsLoading(false);
     }
@@ -35,11 +39,10 @@ export default function ViewPtLists() {
 
   useEffect(() => {
     fetchPts();
-  }, [user.userId]);
+  }, []);
 
   return (
     <>
-      <Navbar />
       <div className="flex justify-end p-2 font-primary">
         <button
           className="bg-green-600 text-xl p-2 w-fit text-white border-2 border-none rounded-md mt-4"
@@ -48,20 +51,32 @@ export default function ViewPtLists() {
           Add PtList
         </button>
       </div>
-      <AddPtModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+      <AddPtModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        fetchPts={fetchPts}
+      />
 
       <div className="grid grid-cols-4 gap-4 p-4">
         {isLoading ? (
           <div className="flex justify-center items-center mt-4 text-2xl">
             Loading...
           </div>
+        ) : error ? (
+          <div className="flex justify-center items-center mt-4 text-red-500 text-2xl">
+            {error}
+          </div>
+        ) : pts.length === 0 ? (
+          <div className="flex justify-center items-center mt-4 text-2xl">
+            No PT lists available.
+          </div>
         ) : (
           pts.map((pt) => (
             <div
-              key={pt._id}
+              key={pt.ptId}
               className="p-4 bg-gray-200 rounded-md shadow-md hover:shadow-2xl cursor-pointer"
               onClick={() =>
-                navigate(`/ptlists/${bundleId}/${semesterId}/${pt.ptId}`)
+                navigate(`/ptlists/${batchId}/${semesterId}/${pt.ptId}`)
               }
             >
               {pt.title}

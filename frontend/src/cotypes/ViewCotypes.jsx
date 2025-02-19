@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import del from "../../assets/delete.svg";
-import AddCotype from "./AddCotype.modal";
+import AddCotypeModal from "./AddCotypeModal";
 
 const ViewCotypes = () => {
   const [cotypes, setCotypes] = useState([]);
@@ -69,7 +69,7 @@ const ViewCotypes = () => {
         </button>
       </div>
 
-      <AddCotype
+      <AddCotypeModal
         isOpen={isModalOpen}
         onRequestClose={() => setIsModalOpen(false)}
         fetchCotypes={fetchCotypes}

@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import Navbar from "../../components/Navbar";
-import AddSaamodal from "./AddSaa.modal"; // Adjust the import path as needed
+import AddSeeModal from "./AddSeeModal"; // Adjust the import path as needed
 import { useParams } from "react-router-dom";
 
-function ViewSaas() {
+function ViewSees() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const user = JSON.parse(localStorage.getItem("user"));
   const { bundleId, semesterId } = useParams();
@@ -52,7 +52,7 @@ function ViewSaas() {
           Add Saa
         </button>
       </div>
-      {isModalOpen && <AddSaamodal handleClose={handleCloseModal} />}
+      {isModalOpen && <AddSeeModal handleClose={handleCloseModal} />}
 
       <div className="grid grid-cols-4 gap-4 p-4">
         {isLoading ? (
@@ -75,4 +75,4 @@ function ViewSaas() {
   );
 }
 
-export default ViewSaas;
+export default ViewSees;

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import AddNamelistModal from "./AddNamelist.modal";
+import AddNamelistModal from "./AddNamelistModal";
 
 const ViewNamelists = () => {
   const { batchId } = useParams();

@@ -2,11 +2,8 @@ import React, { useState, useEffect } from "react";
 import close from "../../assets/close.svg";
 import { useParams } from "react-router-dom";
 
-export default function Modal({ isOpen, onClose }) {
-  const user = JSON.parse(localStorage.getItem("user") || "{}");
-
-  const { bundleId } = useParams();
-  const { semesterId } = useParams();
+export default function Modal({ isOpen, onClose, fetchPts }) {
+  const { batchId, semesterId } = useParams();
   const [titles, setTitles] = useState([]);
   const [namelistId, setNamelistId] = useState("");
   const [mainTitle, setMainTitle] = useState("");
@@ -93,10 +90,16 @@ export default function Modal({ isOpen, onClose }) {
   useEffect(() => {
     const fetchTitles = async () => {
       try {
+        const token = localStorage.getItem("token");
         const response = await fetch(
-          `${import.meta.env.VITE_API}/pt/${bundleId}/${semesterId}/${
-            user.userId
-          }`
+          `${import.meta.env.VITE_API}/pt/${batchId}/${semesterId}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: token,
+            },
+          }
         );
         if (!response.ok) {
           throw new Error("Network response was not ok");
@@ -108,30 +111,31 @@ export default function Modal({ isOpen, onClose }) {
       }
     };
 
-    if (user && user.userId) {
-      fetchTitles();
-    }
-  }, [user]);
+    fetchTitles();
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
+      const token = localStorage.getItem("token");
       const response = await fetch(
-        `${import.meta.env.VITE_API}/pt/${user.userId}`,
+        `${import.meta.env.VITE_API}/pt`,
+
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            Authorization: token,
           },
           body: JSON.stringify({
             title: mainTitle,
-            maxMark: Number(mainMark), // Convert mainMark to a number
+            maxMark: Number(mainMark),
             structure: rows.map((row) => ({
               ...row,
-              maxMark: Number(row.maxMark), // Convert each row's maxMark to a number
+              maxMark: Number(row.maxMark),
             })),
-            bundleId,
+            batchId,
             semId: semesterId,
             namelistId,
           }),
@@ -145,7 +149,7 @@ export default function Modal({ isOpen, onClose }) {
       }
 
       const result = await response.json();
-      console.log("PtList created:", result);
+      fetchPts();
       onClose();
     } catch (error) {
       console.error("Error creating PtList:", error);
@@ -154,31 +158,35 @@ export default function Modal({ isOpen, onClose }) {
 
   useEffect(() => {
     const fetchNamelists = async () => {
-      if (user.userId && bundleId) {
-        try {
-          const response = await fetch(
-            `${import.meta.env.VITE_API}/namelist/${bundleId}/${user.userId}`
-          );
-          if (!response.ok) {
-            throw new Error("Network response was not ok");
+      try {
+        const token = localStorage.getItem("token");
+        const response = await fetch(
+          `${import.meta.env.VITE_API}/namelist/${batchId}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: token,
+            },
           }
-          const data = await response.json();
-          setTitles(data);
-        } catch (error) {
-          console.log("Error while fetching:", error);
+        );
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
         }
-      } else {
-        console.log("User not found in localStorage or bundleId missing");
+        const data = await response.json();
+        setTitles(data);
+      } catch (error) {
+        console.log("Error while fetching:", error);
       }
     };
 
     fetchNamelists();
-  }, [user.userId, bundleId]);
+  }, [batchId]);
 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center overflow-y-auto">
+    <div className="fixed inset-0 bg-black/50 flex justify-center items-center overflow-y-auto">
       <div className="bg-white p-4 rounded-md w-1/2 max-h-screen overflow-y-auto">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-2xl">Add PtList</h2>

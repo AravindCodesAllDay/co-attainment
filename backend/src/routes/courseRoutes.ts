@@ -8,8 +8,8 @@ import {
 
 const router = express.Router();
 
-router.get('/:bundleId/:semId', getCourses);
-router.get('/:bundleId/:semId/:coId', getCourseDetails);
+router.get('/:batchId/:semId', getCourses);
+router.get('/:batchId/:semId/:coId', getCourseDetails);
 router.post('/', addCourseList);
 router.delete('/', deleteCourseList);
 

@@ -6,6 +6,7 @@ export interface IPtList extends Document {
   title: string;
   averagemark: number;
   maxMark: number;
+  namelistId: mongoose.Types.ObjectId;
   structure: any[];
   students: IPtStudent[];
 }
@@ -15,6 +16,10 @@ const ptListSchema = new Schema<IPtList>(
     title: { type: String, required: true },
     averagemark: { type: Number, default: 0 },
     maxMark: { type: Number, required: true },
+    namelistId: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+    },
     structure: { type: Schema.Types.Mixed, required: true },
     students: { type: [ptStudentSchema], required: true },
   },

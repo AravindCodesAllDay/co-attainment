@@ -4,17 +4,17 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 
 // Import routes
+import UserRoutes from './routes/userRoutes';
+import BatchRoutes from './routes/batchRoutes';
+import NamelistRoutes from './routes/namelistRoutes';
+import SemesterRoutes from './routes/semesterRoutes';
+import CourseRoutes from './routes/courseRoutes';
 import PtRoutes from './routes/ptRoutes';
 import SeeRoutes from './routes/seeRoutes';
-import CourseRoutes from './routes/courseRoutes';
-import NamelistRoutes from './routes/namelistRoutes';
 import CoTypeRoutes from './routes/cotypeRoutes';
-import SemesterRoutes from './routes/semesterRoutes';
-import BatchRoutes from './routes/batchRoutes';
-import UserRoutes from './routes/userRoutes';
 
-// Initialize express app
 const app = express();
+dotenv.config();
 
 // Middleware
 app.use(cors());
@@ -22,19 +22,15 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Routes
+app.use('/user', UserRoutes);
+app.use('/batch', BatchRoutes);
+app.use('/namelist', NamelistRoutes);
+app.use('/semester', SemesterRoutes);
+app.use('/course', CourseRoutes);
 app.use('/pt', PtRoutes);
 app.use('/see', SeeRoutes);
-app.use('/course', CourseRoutes);
-app.use('/namelist', NamelistRoutes);
 app.use('/cotype', CoTypeRoutes);
-app.use('/batch', BatchRoutes);
-app.use('/semester', SemesterRoutes);
-app.use('/user', UserRoutes);
 
-// Load environment variables
-dotenv.config();
-
-const PORT: number = parseInt(process.env.PORT || '3000', 10);
 const CONNECTION: string = process.env.CONNECTION as string;
 
 if (!CONNECTION) {
@@ -49,11 +45,12 @@ app.get('/', (req: Request, res: Response) => {
 const start = async () => {
   try {
     await mongoose.connect(CONNECTION);
-    console.log('Connected to MongoDB');
 
-    app.listen(PORT, () => {
-      console.log(`App listening on port ${PORT}`);
-    });
+    if (!process.env.VERCEL) {
+      app.listen(3030, () => {
+        console.log(`App listening on port 3030`);
+      });
+    }
   } catch (error) {
     console.error('Error during startup:', error);
     process.exit(1);

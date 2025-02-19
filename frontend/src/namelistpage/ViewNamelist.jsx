@@ -5,8 +5,8 @@ import * as XLSX from "xlsx";
 import del from "../../assets/delete.svg";
 import edit from "../../assets/edit.svg";
 import infoIcon from "../../assets/info.svg";
-import AddStudentModal from "./AddStudent.modal";
-import EditNamelistModal from "./EditNamelist.modal";
+import AddStudentModal from "./AddStudentModal";
+import EditNamelistModal from "./EditNamelistModal";
 
 const ViewNamelist = () => {
   const { batchId, namelistId } = useParams();

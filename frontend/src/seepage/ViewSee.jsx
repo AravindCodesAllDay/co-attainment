@@ -2,8 +2,7 @@ import React from "react";
 import Navbar from "../../components/Navbar";
 import edit from "../../assets/edit.svg";
 
-function ViewSaa() {
-  // Sample data for demonstration purposes
+function ViewSee() {
   const students = [
     { name: "Alice", rollNo: 1, understand: "Yes", apply: "Yes" },
     { name: "Bob", rollNo: 2, understand: "No", apply: "Yes" },
@@ -64,4 +63,4 @@ function ViewSaa() {
   );
 }
 
-export default ViewSaa;
+export default ViewSee;

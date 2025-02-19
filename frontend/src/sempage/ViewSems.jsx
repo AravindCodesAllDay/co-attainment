@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import Addsemmodal from "./Addsem.modal";
+import Addsemmodal from "./AddsemModal";
 
 function ViewSems() {
   const navigate = useNavigate();

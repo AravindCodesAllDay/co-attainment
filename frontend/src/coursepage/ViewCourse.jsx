@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from "react";
-import Navbar from "../../components/Navbar";
 import { useParams } from "react-router-dom";
+
+import EditCoMarksModal from "./EditCoMarksModal";
 import edit from "../../assets/edit.svg";
 import del from "../../assets/delete.svg";
-import EditCoMarksModal from "../coursepage/EditCoMarks.Modal";
 
 export default function ViewCourse() {
-  const user = JSON.parse(localStorage.getItem("user"));
-  const { bundleId, courseId, semesterId } = useParams();
+  const { batchId, courseId, semesterId } = useParams();
 
   const [courselist, setCourselist] = useState(null);
   const [showModal, setShowModal] = useState(false);
@@ -15,10 +14,18 @@ export default function ViewCourse() {
 
   const fetchCourse = async () => {
     try {
+      const token = localStorage.getItem("token");
       const response = await fetch(
         `${
           import.meta.env.VITE_API
-        }/course/${bundleId}/${semesterId}/${courseId}/${user.userId}`
+        }/course/${batchId}/${semesterId}/${courseId}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: token,
+          },
+        }
       );
       const data = await response.json();
       setCourselist(data);
@@ -39,26 +46,23 @@ export default function ViewCourse() {
 
   const handleModalSubmit = async (updatedData) => {
     try {
-      // Prepare the payload
       const payload = {
         scores: updatedData.scores,
         coId: courseId,
-        bundleId: bundleId,
+        batchId,
         semId: semesterId,
         stdId: currentRow._id,
       };
 
-      // Send the update request to the backend
-      const response = await fetch(
-        `${import.meta.env.VITE_API}/score/${user.userId}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(payload),
-        }
-      );
+      const token = localStorage.getItem("token");
+      const response = await fetch(`${import.meta.env.VITE_API}/score`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token,
+        },
+        body: JSON.stringify(payload),
+      });
 
       if (!response.ok) {
         throw new Error("Failed to update scores");
@@ -66,7 +70,6 @@ export default function ViewCourse() {
 
       const updatedCourselist = await response.json();
 
-      // Update the local state
       setCourselist(updatedCourselist);
       handleModalClose();
     } catch (error) {
@@ -80,7 +83,6 @@ export default function ViewCourse() {
 
   return (
     <>
-      <Navbar />
       <div className="container mx-auto px-4">
         <h2 className="text-2xl font-semibold text-gray-800 my-4">
           {courselist ? courselist.title : "Title"}

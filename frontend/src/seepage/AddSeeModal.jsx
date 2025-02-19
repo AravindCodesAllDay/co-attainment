@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import close from "../../assets/close.svg";
 import { useParams } from "react-router-dom";
 
-const AddSaamodal = ({ handleClose }) => {
+const AddSeeModal = ({ handleClose }) => {
   const [courses, setCourses] = useState([{ id: 1, value: "" }]);
   const { bundleId, semesterId } = useParams();
   const user = JSON.parse(localStorage.getItem("user"));
@@ -185,4 +185,4 @@ const AddSaamodal = ({ handleClose }) => {
   );
 };
 
-export default AddSaamodal;
+export default AddSeeModal;

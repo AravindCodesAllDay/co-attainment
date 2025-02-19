@@ -5,19 +5,19 @@ import { HashRouter, Route, Routes } from "react-router-dom";
 import "./index.css";
 
 import Layout from "./layout";
-import ViewCourse from "./coursepage/ViewCourse";
-import ViewCourses from "./coursepage/ViewCourses";
 import Login from "./loginpage/Login";
 import Create from "./loginpage/Create";
-import ViewNamelist from "./namelistpage/ViewNamelist";
-import ViewNamelists from "./namelistpage/ViewNamelists";
-import ViewPtList from "./ptpage/ViewPtList";
-import ViewPtLists from "./ptpage/ViewPtLists";
-import SelectCoatt from "./co-attainment/SelectCoatt";
-import ViewSaas from "./saapage/ViewSaas";
-import ViewSaa from "./saapage/ViewSaa";
 import Dashboard from "./dasboardpage/Dashboard";
+import ViewNamelists from "./namelistpage/ViewNamelists";
+import ViewNamelist from "./namelistpage/ViewNamelist";
 import ViewSems from "./sempage/ViewSems";
+import ViewCourses from "./coursepage/ViewCourses";
+import ViewCourse from "./coursepage/ViewCourse";
+import ViewPtLists from "./ptpage/ViewPtLists";
+import ViewPtList from "./ptpage/ViewPtList";
+import ViewSaas from "./seepage/ViewSees";
+import ViewSaa from "./seepage/ViewSee";
+import SelectCoatt from "./co-attainment/SelectCoatt";
 import ViewCotypes from "./cotypes/ViewCotypes";
 
 Modal.setAppElement("#root");
@@ -49,12 +49,12 @@ ReactDOM.createRoot(document.getElementById("root")).render(
             element={<ViewPtLists />}
           />
           <Route
-            path="/ptlists/:batchId/:semesterId/:ptlistid"
+            path="/ptlists/:batchId/:semesterId/:ptlistId"
             element={<ViewPtList />}
           />
           <Route path="/see/:batchId/:semesterId" element={<ViewSaas />} />
           <Route
-            path="/see/:batchId/:semesterId/:seeid"
+            path="/see/:batchId/:semesterId/:seeId"
             element={<ViewSaa />}
           />
           <Route path="/cotype" element={<ViewCotypes />} />

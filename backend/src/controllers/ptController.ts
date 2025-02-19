@@ -121,6 +121,7 @@ export const createPT = async (req: Request, res: Response) => {
       title,
       maxMark,
       structure,
+      namelistId,
       students: populatedStudents,
     });
     sem.ptlists.push(newPTList);

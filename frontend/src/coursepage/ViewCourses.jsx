@@ -1,13 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import Navbar from "../../components/Navbar";
-import AddCourseModal from "./AddCourse.modal";
+import AddCourseModal from "./AddCourseModal";
 
 const ViewCourses = () => {
   const navigate = useNavigate();
-  const user = JSON.parse(localStorage.getItem("user"));
-  const { semesterId } = useParams();
-  const { bundleId } = useParams();
+  const { batchId, semesterId } = useParams();
   const [courses, setCourses] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -15,17 +12,22 @@ const ViewCourses = () => {
 
   const fetchCourses = async () => {
     try {
+      const token = localStorage.getItem("token");
       const response = await fetch(
-        `${import.meta.env.VITE_API}/course/${bundleId}/${semesterId}/${
-          user.userId
-        }`
+        `${import.meta.env.VITE_API}/course/${batchId}/${semesterId}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: token,
+          },
+        }
       );
       if (!response.ok) {
         throw new Error("Network response was not ok");
       }
       const data = await response.json();
       setCourses(data);
-      // console.log(data);
     } catch (error) {
       console.error("Failed to fetch courses:", error);
       setError("Failed to fetch courses.");
@@ -44,7 +46,6 @@ const ViewCourses = () => {
 
   return (
     <>
-      <Navbar />
       <div className="flex justify-end p-2 font-primary">
         <button
           onClick={toggleModal}
@@ -53,7 +54,11 @@ const ViewCourses = () => {
           Add Course
         </button>
       </div>
-      <AddCourseModal isModalOpen={isModalOpen} toggleModal={toggleModal} />
+      <AddCourseModal
+        isModalOpen={isModalOpen}
+        toggleModal={toggleModal}
+        fetchCourses={fetchCourses}
+      />
       <div className="grid grid-cols-4 gap-4 p-4 ">
         {loading ? (
           <div className="flex justify-center mt-4 text-2xl ">Loading...</div>
@@ -62,12 +67,10 @@ const ViewCourses = () => {
         ) : courses.length > 0 ? (
           courses.map((course) => (
             <div
-              key={course._id}
+              key={course.courseId}
               className="p-4 bg-gray-200 rounded-md shadow-md hover:shadow-2xl cursor-pointer"
               onClick={() =>
-                navigate(
-                  `/courses/${bundleId}/${semesterId}/${course.courseId}`
-                )
+                navigate(`/courses/${batchId}/${semesterId}/${course.courseId}`)
               }
             >
               {course.title}

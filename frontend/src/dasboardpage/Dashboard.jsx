@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
-import AddbatchModal from "./Addbatch.modal";
+import AddbatchModal from "./AddbatchModal";
 
 function Dashboard() {
   const navigate = useNavigate();
