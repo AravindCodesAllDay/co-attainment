@@ -9,8 +9,8 @@ import {
 
 const router = express.Router();
 
-router.get('/:bundleId/:semId', getSeeFromSemester);
-router.get('/:bundleId/:semId/:seeId', getSeeDetails);
+router.get('/:batchId/:semId', getSeeFromSemester);
+router.get('/:batchId/:semId/:seeId', getSeeDetails);
 router.post('/', createSeeList);
 router.put('/score', updateSeeScores);
 router.delete('/', deleteSeeList);

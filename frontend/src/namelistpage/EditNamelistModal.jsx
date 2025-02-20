@@ -1,10 +1,8 @@
 import React, { useState } from "react";
 import { useParams } from "react-router-dom";
-import Modal from "react-modal";
 import close from "../../assets/close.svg";
 
 const EditNamelistModal = ({
-  isOpen,
   onRequestClose,
   studentData,
   setStudentData,
@@ -54,19 +52,16 @@ const EditNamelistModal = ({
   };
 
   return (
-    <Modal
-      isOpen={isOpen}
-      onRequestClose={onRequestClose}
-      className="flex justify-center items-center fixed inset-0 z-50 outline-none focus:outline-none bg-black/50"
-      overlayClassName="fixed inset-0 bg-black bg-opacity-25"
-    >
+    <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
       <div className="relative w-96 my-6 mx-auto max-w-3xl bg-white rounded-lg shadow-lg p-6">
-        <img
-          onClick={onRequestClose}
-          className="ml-auto cursor-pointer"
-          src={close}
-        />
-        <h2 className="text-xl font-semibold mb-4">Edit Student</h2>
+        <div className="flex items-center">
+          <h2 className="text-xl font-semibold mb-4">Edit Student</h2>
+          <img
+            onClick={onRequestClose}
+            className="ml-auto cursor-pointer"
+            src={close}
+          />
+        </div>
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <label className="block text-gray-700 text-sm font-bold mb-2">
@@ -116,7 +111,7 @@ const EditNamelistModal = ({
           </div>
         </form>
       </div>
-    </Modal>
+    </div>
   );
 };
 

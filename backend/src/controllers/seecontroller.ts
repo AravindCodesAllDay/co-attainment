@@ -92,15 +92,14 @@ export const createSeeList = async (req: Request, res: Response) => {
   try {
     const authHeader = req.headers.authorization;
     const userId = await verifyToken(authHeader);
-    const { title, courses, batchId, semId, namelistId } = req.body;
+    const { title, courses, batchId, semId } = req.body;
 
     if (
       !title ||
       !Array.isArray(courses) ||
       !mongoose.Types.ObjectId.isValid(userId) ||
       !mongoose.Types.ObjectId.isValid(batchId) ||
-      !mongoose.Types.ObjectId.isValid(semId) ||
-      !mongoose.Types.ObjectId.isValid(namelistId)
+      !mongoose.Types.ObjectId.isValid(semId)
     ) {
       return handleErrorResponse(res, 400, 'Invalid input data');
     }
@@ -114,14 +113,10 @@ export const createSeeList = async (req: Request, res: Response) => {
     const sem = batch.semlists.find((s) => (s as any)._id.equals(semId));
     if (!sem) return handleErrorResponse(res, 404, 'Semester not found.');
 
-    const namelist = batch.namelists.find((n) =>
-      (n as any)._id.equals(namelistId)
-    );
-
-    if (!namelist) return handleErrorResponse(res, 404, 'Namelist not found.');
+    const namelist = sem.namelist;
 
     const students: ISeeStudent[] = await Promise.all(
-      namelist.students.map(async (student) => {
+      namelist.map(async (student) => {
         const newStudent = new SeeStudentModel({
           _id: new mongoose.Types.ObjectId(), // Provide _id for each student
           rollno: student.rollno,

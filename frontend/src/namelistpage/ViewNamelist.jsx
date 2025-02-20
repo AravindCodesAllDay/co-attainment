@@ -10,10 +10,7 @@ import EditNamelistModal from "./EditNamelistModal";
 
 const ViewNamelist = () => {
   const { batchId, semesterId } = useParams();
-  const [studentName, setStudentName] = useState("");
-  const [rollNo, setRollNo] = useState("");
-  const [regno, setRegNo] = useState("");
-  const [namelist, setNamelist] = useState({ title: "", students: [] });
+  const [namelist, setNamelist] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
@@ -52,46 +49,6 @@ const ViewNamelist = () => {
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const token = localStorage.getItem("token");
-      const response = await fetch(`${import.meta.env.VITE_API}/namelist`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: token,
-        },
-        body: JSON.stringify({
-          batchId,
-          semId: semesterId,
-          studentDetails: [
-            {
-              name: studentName,
-              rollno: rollNo,
-              registration_no: regno,
-            },
-          ],
-        }),
-      });
-      if (response.ok) {
-        setStudentName("");
-        setRollNo("");
-        setRegNo("");
-        fetchStudent();
-        setIsModalOpen(false);
-        setError("");
-      } else {
-        const errorData = await response.json();
-        setError(
-          errorData.message || "An error occurred while submitting the namelist"
-        );
-      }
-    } catch (error) {
-      setError("An error occurred while submitting the namelist");
-    }
-  };
-
   const handleExcelUpload = async (event) => {
     const file = event.target.files[0];
     if (!file) return;
@@ -124,6 +81,13 @@ const ViewNamelist = () => {
       }
     };
     reader.readAsArrayBuffer(file);
+  };
+
+  const handleDownloadExcel = () => {
+    const worksheet = XLSX.utils.json_to_sheet(namelist);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Namelist");
+    XLSX.writeFile(workbook, "namelist.xlsx");
   };
 
   const fetchStudent = async () => {
@@ -161,15 +125,18 @@ const ViewNamelist = () => {
   return (
     <>
       <div className="flex justify-between items-center p-2 px-4 font-primary">
-        <h2 className="font-bold text-2xl text-blue-600 mb-6">
-          Namelist {">"} {namelist.title}
-        </h2>
-        <div className="flex gap-4">
+        <h2 className="font-bold text-2xl text-blue-600">Namelist</h2>
+        <div className="flex items-center gap-4">
+          <img
+            src={infoIcon}
+            className="cursor-pointer w-6"
+            onClick={() => setIsInfoVisible(!isInfoVisible)}
+          />
           <button
-            className="bg-green-600 text-xl p-2 text-white rounded-md"
-            onClick={() => setIsModalOpen(true)}
+            className="bg-gray-600 text-xl p-2 text-white rounded-md cursor-pointer"
+            onClick={handleDownloadExcel}
           >
-            Add Student
+            Download Excel
           </button>
           <label className="bg-blue-600 text-xl p-2 text-white rounded-md cursor-pointer">
             Add from Excel
@@ -180,16 +147,17 @@ const ViewNamelist = () => {
               onChange={handleExcelUpload}
             />
           </label>
-          <img
-            src={infoIcon}
-            className="cursor-pointer w-6"
-            onClick={() => setIsInfoVisible(!isInfoVisible)}
-          />
+          <button
+            className="bg-green-600 text-xl p-2 text-white rounded-md cursor-pointer"
+            onClick={() => setIsModalOpen(true)}
+          >
+            Add Student
+          </button>
         </div>
       </div>
       {isInfoVisible && (
         <div className="p-4 bg-gray-100 border rounded-md mb-4">
-          <p>Excel file should have the following headers:</p>
+          <p>Excel file should have the following headers to upload:</p>
           <ul className="list-disc pl-5">
             <li>
               <b>name</b>: Student Name
@@ -203,27 +171,22 @@ const ViewNamelist = () => {
           </ul>
         </div>
       )}
-      <AddStudentModal
-        isOpen={isModalOpen}
-        onRequestClose={() => setIsModalOpen(false)}
-        studentName={studentName}
-        setStudentName={setStudentName}
-        rollNo={rollNo}
-        setRollNo={setRollNo}
-        regno={regno}
-        setRegNo={setRegNo}
-        handleSubmit={handleSubmit}
-        error={error}
-        title={namelist.title}
-      />
-      <EditNamelistModal
-        isOpen={isEditModalOpen}
-        onRequestClose={() => setIsEditModalOpen(false)}
-        studentData={editStudentData}
-        setStudentData={setEditStudentData}
-        studentId={editStudentData._id}
-        fetchStudent={fetchStudent}
-      />
+      {isModalOpen && (
+        <AddStudentModal
+          onRequestClose={() => setIsModalOpen(false)}
+          fetchStudent={fetchStudent}
+          error={error}
+        />
+      )}
+      {isEditModalOpen && (
+        <EditNamelistModal
+          onRequestClose={() => setIsEditModalOpen(false)}
+          studentData={editStudentData}
+          setStudentData={setEditStudentData}
+          studentId={editStudentData._id}
+          fetchStudent={fetchStudent}
+        />
+      )}
       <div className="flex justify-center flex-col p-4">
         {isLoading ? (
           <div className="flex justify-center mt-4">Loading...</div>
@@ -240,9 +203,7 @@ const ViewNamelist = () => {
                 <th className="w-auto py-2">Student Name</th>
                 <th className="w-auto py-2">Roll No</th>
                 <th className="w-auto py-2">Registeration No</th>
-                <th className="w-40 py-2  text-left text-white font-medium">
-                  Actions
-                </th>
+                <th className="w-auto py-2">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -253,7 +214,7 @@ const ViewNamelist = () => {
                   <td className="border px-4 py-2">
                     {student.registration_no}
                   </td>
-                  <td className="py-2 px-4 flex flex-row gap-4 items-center">
+                  <td className="border py-2 px-4 flex flex-row gap-4 items-center justify-center">
                     <img
                       className="cursor-pointer"
                       src={edit}

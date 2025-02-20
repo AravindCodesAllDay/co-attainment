@@ -1,29 +1,52 @@
-import React from "react";
-import Modal from "react-modal";
+import React, { useState } from "react";
 import close from "../../assets/close.svg";
 
-const AddStudentModal = ({
-  isOpen,
-  onRequestClose,
-  studentName,
-  setStudentName,
-  rollNo,
-  setRollNo,
-  regno,
-  setRegNo,
-  handleSubmit,
-  error,
-  title,
-}) => {
+const AddStudentModal = ({ onRequestClose, error, fetchStudent }) => {
+  const [studentName, setStudentName] = useState("");
+  const [rollNo, setRollNo] = useState("");
+  const [regno, setRegNo] = useState("");
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(`${import.meta.env.VITE_API}/namelist`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token,
+        },
+        body: JSON.stringify({
+          batchId,
+          semId: semesterId,
+          studentDetails: [
+            {
+              name: studentName,
+              rollno: rollNo,
+              registration_no: regno,
+            },
+          ],
+        }),
+      });
+      if (response.ok) {
+        setStudentName("");
+        setRollNo("");
+        setRegNo("");
+        fetchStudent();
+        setIsModalOpen(false);
+        setError("");
+      } else {
+        const errorData = await response.json();
+        setError(
+          errorData.message || "An error occurred while submitting the namelist"
+        );
+      }
+    } catch (error) {
+      setError("An error occurred while submitting the namelist");
+    }
+  };
   return (
-    <Modal
-      isOpen={isOpen}
-      onRequestClose={onRequestClose}
-      contentLabel="Add Student"
-      className="fixed inset-0 flex items-center justify-center z-50 p-4 bg-black/50"
-      overlayClassName="fixed inset-0 bg-gray-800 bg-opacity-75"
-      ariaHideApp={false}
-    >
+    <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
       <div className="bg-white p-6 rounded-lg shadow-lg relative w-full max-w-md mx-auto">
         <button
           onClick={onRequestClose}
@@ -32,7 +55,7 @@ const AddStudentModal = ({
           <img className="cursor-pointer" src={close} />
         </button>
         <form className="flex flex-col items-center" onSubmit={handleSubmit}>
-          <p className="mb-4 font-semibold text-lg">{title}</p>
+          <p className="mb-4 font-semibold text-lg">Add Student</p>
           <div className="mb-4 w-full">
             <label className="block text-gray-700 text-sm font-bold mb-2">
               Student Name:
@@ -78,7 +101,7 @@ const AddStudentModal = ({
           {error && <p className="text-red-500 text-xs italic mt-4">{error}</p>}
         </form>
       </div>
-    </Modal>
+    </div>
   );
 };
 
