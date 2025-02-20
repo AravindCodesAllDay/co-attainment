@@ -130,7 +130,6 @@ export default function Modal({ isOpen, onClose, fetchPts }) {
           },
           body: JSON.stringify({
             title: mainTitle,
-            maxMark: Number(mainMark),
             structure: rows.map((row) => ({
               ...row,
               maxMark: Number(row.maxMark),

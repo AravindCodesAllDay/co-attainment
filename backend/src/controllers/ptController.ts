@@ -87,11 +87,9 @@ export const createPT = async (req: Request, res: Response) => {
   try {
     const authHeader = req.headers.authorization;
     const userId = await verifyToken(authHeader);
-    const { title, maxMark, structure, batchId, semId, namelistId } = req.body;
+    const { title, structure, batchId, semId, namelistId } = req.body;
 
     if (!title) return handleErrorResponse(res, 400, 'Title is required');
-    if (typeof maxMark !== 'number')
-      return handleErrorResponse(res, 400, 'MaxMark must be a number');
     if (!Array.isArray(structure))
       return handleErrorResponse(res, 400, 'Structure must be an array');
 
@@ -109,14 +107,21 @@ export const createPT = async (req: Request, res: Response) => {
     );
     if (!namelist) return handleErrorResponse(res, 404, 'Namelist not found');
 
+    const maxMark = structure.reduce(
+      (sum, part) => sum + (part.maxMark ?? 0) * (part.questions?.length ?? 0),
+      0
+    );
+
+    // Populate students with the given structure (without modifying part.maxMark)
     const populatedStudents = namelist.students.map((student) => ({
       rollno: student.rollno,
       name: student.name,
       totalMark: 0,
       typemark: new Map(),
-      parts: [],
+      parts: structure, // Keeping parts unchanged
     }));
 
+    // Create new PT list with correct maxMark for the test
     const newPTList = new PtList({
       title,
       maxMark,
@@ -124,8 +129,8 @@ export const createPT = async (req: Request, res: Response) => {
       namelistId,
       students: populatedStudents,
     });
-    sem.ptlists.push(newPTList);
 
+    sem.ptlists.push(newPTList);
     await user.save();
 
     return res

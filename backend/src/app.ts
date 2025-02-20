@@ -8,9 +8,9 @@ import UserRoutes from './routes/userRoutes';
 import BatchRoutes from './routes/batchRoutes';
 import NamelistRoutes from './routes/namelistRoutes';
 import SemesterRoutes from './routes/semesterRoutes';
-import CourseRoutes from './routes/courseRoutes';
-import PtRoutes from './routes/ptRoutes';
-import SeeRoutes from './routes/seeRoutes';
+// import CourseRoutes from './routes/courseRoutes';
+// import PtRoutes from './routes/ptRoutes';
+// import SeeRoutes from './routes/seeRoutes';
 import CoTypeRoutes from './routes/cotypeRoutes';
 
 const app = express();
@@ -26,9 +26,9 @@ app.use('/user', UserRoutes);
 app.use('/batch', BatchRoutes);
 app.use('/namelist', NamelistRoutes);
 app.use('/semester', SemesterRoutes);
-app.use('/course', CourseRoutes);
-app.use('/pt', PtRoutes);
-app.use('/see', SeeRoutes);
+// app.use('/course', CourseRoutes);
+// app.use('/pt', PtRoutes);
+// app.use('/see', SeeRoutes);
 app.use('/cotype', CoTypeRoutes);
 
 const CONNECTION: string = process.env.CONNECTION as string;

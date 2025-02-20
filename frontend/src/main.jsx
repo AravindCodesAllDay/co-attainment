@@ -8,7 +8,6 @@ import Layout from "./layout";
 import Login from "./loginpage/Login";
 import Create from "./loginpage/Create";
 import Dashboard from "./dasboardpage/Dashboard";
-import ViewNamelists from "./namelistpage/ViewNamelists";
 import ViewNamelist from "./namelistpage/ViewNamelist";
 import ViewSems from "./sempage/ViewSems";
 import ViewCourses from "./coursepage/ViewCourses";
@@ -30,11 +29,8 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         <Route path="/create" element={<Create />} />
         <Route element={<Layout />}>
           <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/namelists/:batchId" element={<ViewNamelists />} />
-          <Route
-            path="/namelists/:batchId/:namelistId"
-            element={<ViewNamelist />}
-          />
+
+          <Route path="/namelists/:batchId" element={<ViewNamelist />} />
           <Route path="/sem/:batchId" element={<ViewSems />} />
           <Route
             path="/courses/:batchId/:semesterId"

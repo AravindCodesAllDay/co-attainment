@@ -1,16 +1,16 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
-import { nameStudentSchema, INameStudent } from './nameStudentModel';
 
 export interface INamelist extends Document {
-  _id: mongoose.Types.ObjectId;
-  title: string;
-  students: INameStudent[];
+  registration_no: number;
+  rollno: string;
+  name: string;
 }
 
 const namelistSchema = new Schema<INamelist>(
   {
-    title: { type: String, required: true },
-    students: { type: [nameStudentSchema] },
+    registration_no: { type: Number, required: true },
+    rollno: { type: String, required: true },
+    name: { type: String, required: true },
   },
   { timestamps: true }
 );

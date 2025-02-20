@@ -1,9 +1,6 @@
 import express from 'express';
 import {
-  getNamelists,
-  createNamelist,
-  deleteNamelist,
-  getStudentsNamelist,
+  getNamelist,
   deleteStudentNamelist,
   editStudentNamelist,
   addStudents2Namelist,
@@ -11,20 +8,12 @@ import {
 
 const router = express.Router();
 
-router.get('/:batchId', getNamelists);
-router.post('/', createNamelist);
-router.delete('/', deleteNamelist);
+router.get('/:batchId', getNamelist);
 
-// Get students in a namelist
-router.get('/student/:batchId/:namelistId', getStudentsNamelist);
+router.post('/', addStudents2Namelist);
 
-// Add a student to a namelist
-router.post('/student', addStudents2Namelist);
+router.put('/', editStudentNamelist);
 
-// Update student details in a namelist
-router.put('/student', editStudentNamelist);
-
-// Delete a student from a namelist
-router.delete('/student', deleteStudentNamelist);
+router.delete('/', deleteStudentNamelist);
 
 export default router;

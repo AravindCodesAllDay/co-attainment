@@ -9,7 +9,7 @@ import AddStudentModal from "./AddStudentModal";
 import EditNamelistModal from "./EditNamelistModal";
 
 const ViewNamelist = () => {
-  const { batchId, namelistId } = useParams();
+  const { batchId } = useParams();
   const [studentName, setStudentName] = useState("");
   const [rollNo, setRollNo] = useState("");
   const [regno, setRegNo] = useState("");
@@ -32,21 +32,17 @@ const ViewNamelist = () => {
   const handledelete = async (student) => {
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch(
-        `${import.meta.env.VITE_API}/namelist/student`,
-        {
-          method: "DELETE",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: token,
-          },
-          body: JSON.stringify({
-            namelistId,
-            batchId,
-            studentId: student._id,
-          }),
-        }
-      );
+      const response = await fetch(`${import.meta.env.VITE_API}/namelist`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token,
+        },
+        body: JSON.stringify({
+          batchId,
+          studentId: student._id,
+        }),
+      });
       if (!response.ok) {
       }
       fetchStudent();
@@ -59,27 +55,23 @@ const ViewNamelist = () => {
     e.preventDefault();
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch(
-        `${import.meta.env.VITE_API}/namelist/student`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: token,
-          },
-          body: JSON.stringify({
-            namelistId,
-            batchId,
-            studentDetails: [
-              {
-                name: studentName,
-                rollno: rollNo,
-                registration_no: regno,
-              },
-            ],
-          }),
-        }
-      );
+      const response = await fetch(`${import.meta.env.VITE_API}/namelist`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token,
+        },
+        body: JSON.stringify({
+          batchId,
+          studentDetails: [
+            {
+              name: studentName,
+              rollno: rollNo,
+              registration_no: regno,
+            },
+          ],
+        }),
+      });
       if (response.ok) {
         setStudentName("");
         setRollNo("");
@@ -112,14 +104,13 @@ const ViewNamelist = () => {
 
       try {
         const token = localStorage.getItem("token");
-        await fetch(`${import.meta.env.VITE_API}/namelist/student`, {
+        await fetch(`${import.meta.env.VITE_API}/namelist`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             Authorization: token,
           },
           body: JSON.stringify({
-            namelistId,
             batchId,
             studentDetails: jsonData,
           }),
@@ -138,7 +129,7 @@ const ViewNamelist = () => {
       const token = localStorage.getItem("token");
 
       const response = await fetch(
-        `${import.meta.env.VITE_API}/namelist/student/${batchId}/${namelistId}`,
+        `${import.meta.env.VITE_API}/namelist/${batchId}`,
         {
           method: "GET",
           headers: {
@@ -162,7 +153,7 @@ const ViewNamelist = () => {
 
   useEffect(() => {
     fetchStudent();
-  }, [namelistId]);
+  }, []);
 
   return (
     <>
@@ -228,7 +219,6 @@ const ViewNamelist = () => {
         studentData={editStudentData}
         setStudentData={setEditStudentData}
         studentId={editStudentData._id}
-        namelistId={namelistId}
         fetchStudent={fetchStudent}
       />
       <div className="flex justify-center flex-col p-4">
@@ -236,7 +226,7 @@ const ViewNamelist = () => {
           <div className="flex justify-center mt-4">Loading...</div>
         ) : error ? (
           <div className="flex justify-center mt-4">{error}</div>
-        ) : namelist.students.length === 0 ? (
+        ) : namelist.length === 0 ? (
           <div className="flex justify-center mt-4">
             No students data available
           </div>
@@ -253,7 +243,7 @@ const ViewNamelist = () => {
               </tr>
             </thead>
             <tbody>
-              {namelist.students.map((student, index) => (
+              {namelist.map((student, index) => (
                 <tr key={index} className="bg-gray-100">
                   <td className="border px-4 py-2">{student.name}</td>
                   <td className="border px-4 py-2">{student.rollno}</td>

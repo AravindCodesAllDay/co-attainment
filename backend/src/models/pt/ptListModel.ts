@@ -1,13 +1,12 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
 import { ptStudentSchema, IPtStudent } from './ptStudentModel';
-import { IPtPart } from './ptPartModel';
+import { IPtPart, ptPartSchema } from './ptPartModel';
 
 export interface IPtList extends Document {
   title: string;
   averagemark: number;
   maxMark: number;
-  namelistId: mongoose.Types.ObjectId;
-  structure: any[];
+  structure: IPtPart[];
   students: IPtStudent[];
 }
 
@@ -16,11 +15,7 @@ const ptListSchema = new Schema<IPtList>(
     title: { type: String, required: true },
     averagemark: { type: Number, default: 0 },
     maxMark: { type: Number, required: true },
-    namelistId: {
-      type: mongoose.Schema.Types.ObjectId,
-      required: true,
-    },
-    structure: { type: Schema.Types.Mixed, required: true },
+    structure: { type: [ptPartSchema], required: true },
     students: { type: [ptStudentSchema], required: true },
   },
   { timestamps: true }

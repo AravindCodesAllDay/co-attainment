@@ -11,7 +11,7 @@ const EditNamelistModal = ({
   studentId,
   fetchStudent,
 }) => {
-  const { namelistId, batchId } = useParams();
+  const { batchId } = useParams();
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -22,26 +22,22 @@ const EditNamelistModal = ({
     e.preventDefault();
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch(
-        `${import.meta.env.VITE_API}/namelist/student`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: token,
+      const response = await fetch(`${import.meta.env.VITE_API}/namelist`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token,
+        },
+        body: JSON.stringify({
+          batchId,
+          studentId,
+          studentDetail: {
+            name: studentData.name,
+            rollno: studentData.rollno,
+            registration_no: studentData.registration_no,
           },
-          body: JSON.stringify({
-            batchId,
-            studentId,
-            namelistId,
-            studentDetail: {
-              name: studentData.name,
-              rollno: studentData.rollno,
-              registration_no: studentData.registration_no,
-            },
-          }),
-        }
-      );
+        }),
+      });
       if (response.ok) {
         fetchStudent();
         onRequestClose();
