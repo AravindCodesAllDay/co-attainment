@@ -108,7 +108,6 @@ export const addCourseList = async (req: Request, res: Response) => {
     if (
       !title ||
       !Array.isArray(rows) ||
-      !mongoose.Types.ObjectId.isValid(namelistId) ||
       !mongoose.Types.ObjectId.isValid(batchId) ||
       !mongoose.Types.ObjectId.isValid(semId) ||
       !mongoose.Types.ObjectId.isValid(userId)
@@ -127,12 +126,9 @@ export const addCourseList = async (req: Request, res: Response) => {
     const sem = batch.semlists.find((sem: ISemester) => sem._id.equals(semId));
     if (!sem) return handleErrorResponse(res, 404, 'Semester not found.');
 
-    const namelist = batch.namelists.find((namelist) =>
-      namelist._id.equals(namelistId)
-    );
-    if (!namelist) return handleErrorResponse(res, 404, 'Namelist not found.');
+    const namelist = sem.namelist;
 
-    const students = namelist.students.map((student) => {
+    const students = namelist.map((student) => {
       const scores = new Map<string, number>();
       rows.forEach((row) => scores.set(row, 0));
 

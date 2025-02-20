@@ -11,7 +11,7 @@ const EditNamelistModal = ({
   studentId,
   fetchStudent,
 }) => {
-  const { batchId } = useParams();
+  const { batchId, semesterId } = useParams();
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -30,6 +30,7 @@ const EditNamelistModal = ({
         },
         body: JSON.stringify({
           batchId,
+          semId: semesterId,
           studentId,
           studentDetail: {
             name: studentData.name,

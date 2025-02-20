@@ -3,7 +3,6 @@ import { useParams } from "react-router-dom";
 
 import EditCoMarksModal from "./EditCoMarksModal";
 import edit from "../../assets/edit.svg";
-import del from "../../assets/delete.svg";
 
 export default function ViewCourse() {
   const { batchId, courseId, semesterId } = useParams();
@@ -123,7 +122,6 @@ export default function ViewCourse() {
                         alt="Edit"
                         onClick={() => handleEditClick(student)}
                       />
-                      <img className="cursor-pointer" src={del} alt="Delete" />
                     </td>
                   </tr>
                 ))}

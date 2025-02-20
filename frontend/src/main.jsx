@@ -30,8 +30,11 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         <Route element={<Layout />}>
           <Route path="/dashboard" element={<Dashboard />} />
 
-          <Route path="/namelists/:batchId" element={<ViewNamelist />} />
           <Route path="/sem/:batchId" element={<ViewSems />} />
+          <Route
+            path="/namelist/:batchId/:semesterId"
+            element={<ViewNamelist />}
+          />
           <Route
             path="/courses/:batchId/:semesterId"
             element={<ViewCourses />}

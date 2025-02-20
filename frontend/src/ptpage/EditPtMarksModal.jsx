@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import close from "../../assets/close.svg";
 
 export default function Editptmark({ student, onClose }) {
-  const user = JSON.parse(localStorage.getItem("user"));
   const [formData, setFormData] = useState({
     name: student.name,
     rollno: student.rollno,
@@ -21,16 +20,13 @@ export default function Editptmark({ student, onClose }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_API}/pt/score/${user.userId}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(formData),
-        }
-      );
+      const response = await fetch(`${import.meta.env.VITE_API}/pt/score}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
       if (!response.ok) {
         throw new Error("Failed to update marks");
       }
@@ -55,7 +51,7 @@ export default function Editptmark({ student, onClose }) {
             <input
               type="text"
               value={formData.name}
-              readOnly
+              disabled
               className="w-full px-3 py-2 border border-gray-300 rounded"
             />
           </div>
@@ -64,7 +60,7 @@ export default function Editptmark({ student, onClose }) {
             <input
               type="text"
               value={formData.rollno}
-              readOnly
+              disabled
               className="w-full px-3 py-2 border border-gray-300 rounded"
             />
           </div>

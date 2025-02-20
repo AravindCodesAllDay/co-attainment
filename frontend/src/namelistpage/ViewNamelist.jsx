@@ -9,7 +9,7 @@ import AddStudentModal from "./AddStudentModal";
 import EditNamelistModal from "./EditNamelistModal";
 
 const ViewNamelist = () => {
-  const { batchId } = useParams();
+  const { batchId, semesterId } = useParams();
   const [studentName, setStudentName] = useState("");
   const [rollNo, setRollNo] = useState("");
   const [regno, setRegNo] = useState("");
@@ -40,6 +40,7 @@ const ViewNamelist = () => {
         },
         body: JSON.stringify({
           batchId,
+          semId: semesterId,
           studentId: student._id,
         }),
       });
@@ -63,6 +64,7 @@ const ViewNamelist = () => {
         },
         body: JSON.stringify({
           batchId,
+          semId: semesterId,
           studentDetails: [
             {
               name: studentName,
@@ -112,6 +114,7 @@ const ViewNamelist = () => {
           },
           body: JSON.stringify({
             batchId,
+            semId: semesterId,
             studentDetails: jsonData,
           }),
         });
@@ -129,7 +132,7 @@ const ViewNamelist = () => {
       const token = localStorage.getItem("token");
 
       const response = await fetch(
-        `${import.meta.env.VITE_API}/namelist/${batchId}`,
+        `${import.meta.env.VITE_API}/namelist/${batchId}/${semesterId}`,
         {
           method: "GET",
           headers: {

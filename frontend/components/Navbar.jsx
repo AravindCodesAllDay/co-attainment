@@ -66,22 +66,18 @@ const Navbar = () => {
 
   const navLinks = [];
 
-  if (
-    location.pathname.startsWith("/namelists") ||
-    location.pathname.startsWith("/sem")
-  ) {
-    navLinks.push(
-      { label: "Namelists", path: `/namelists/${batchId}` },
-      { label: "Sems", path: `/sem/${batchId}` }
-    );
+  if (location.pathname.startsWith("/sem")) {
+    navLinks.push({ label: "Sems", path: `/sem/${batchId}` });
   }
   if (
+    location.pathname.startsWith("/namelist") ||
     location.pathname.startsWith("/courses") ||
     location.pathname.startsWith("/ptlists") ||
     location.pathname.startsWith("/see") ||
     location.pathname.startsWith("/coattainment")
   ) {
     navLinks.push(
+      { label: "Namelist", path: `/namelist/${batchId}/${semesterId}` },
       { label: "Course", path: `/courses/${batchId}/${semesterId}` },
       { label: "PtLists", path: `/ptlists/${batchId}/${semesterId}` },
       { label: "See", path: `/see/${batchId}/${semesterId}` },

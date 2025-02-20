@@ -14,13 +14,14 @@ const handleErrorResponse = (
 
 export const getNamelist = async (req: Request, res: Response) => {
   try {
-    const { batchId } = req.params;
+    const { batchId, semId } = req.params;
     const authHeader = req.headers.authorization;
     const userId = await verifyToken(authHeader);
 
     if (
       !mongoose.isValidObjectId(userId) ||
-      !mongoose.isValidObjectId(batchId)
+      !mongoose.isValidObjectId(batchId) ||
+      !mongoose.isValidObjectId(semId)
     ) {
       return handleErrorResponse(res, 400, 'Invalid user ID or batch ID.');
     }
@@ -30,8 +31,9 @@ export const getNamelist = async (req: Request, res: Response) => {
 
     const batch = user.batches.find((b) => b._id.toString() === batchId);
     if (!batch) return handleErrorResponse(res, 404, 'Batch not found.');
-
-    return res.status(200).json(batch.namelists);
+    const sem = batch.semlists.find((b) => b._id.toString() === semId);
+    if (!sem) return handleErrorResponse(res, 404, 'semester not found.');
+    return res.status(200).json(sem.namelist);
   } catch (error) {
     console.error(error);
     return handleErrorResponse(res, 500, 'Internal Server Error');
@@ -40,13 +42,14 @@ export const getNamelist = async (req: Request, res: Response) => {
 
 export const addStudents2Namelist = async (req: Request, res: Response) => {
   try {
-    const { batchId, studentDetails } = req.body;
+    const { batchId, semId, studentDetails } = req.body;
     const authHeader = req.headers.authorization;
     const userId = await verifyToken(authHeader);
 
     if (
       !mongoose.isValidObjectId(userId) ||
-      !mongoose.isValidObjectId(batchId)
+      !mongoose.isValidObjectId(batchId) ||
+      !mongoose.isValidObjectId(semId)
     ) {
       return handleErrorResponse(res, 400, 'Invalid user ID or batch ID.');
     }
@@ -63,6 +66,8 @@ export const addStudents2Namelist = async (req: Request, res: Response) => {
 
     const batch = user.batches.find((b) => b._id.toString() === batchId);
     if (!batch) return handleErrorResponse(res, 404, 'Batch not found.');
+    const sem = batch.semlists.find((b) => b._id.toString() === semId);
+    if (!sem) return handleErrorResponse(res, 404, 'semester not found.');
 
     studentDetails.forEach((student) => {
       const newStudent = new Namelist({
@@ -70,7 +75,7 @@ export const addStudents2Namelist = async (req: Request, res: Response) => {
         rollno: student.rollno,
         name: student.name,
       });
-      batch.namelists.push(newStudent);
+      sem.namelist.push(newStudent);
     });
 
     await user.save();
@@ -83,13 +88,14 @@ export const addStudents2Namelist = async (req: Request, res: Response) => {
 
 export const editStudentNamelist = async (req: Request, res: Response) => {
   try {
-    const { batchId, studentId, studentDetail } = req.body;
+    const { batchId, semId, studentId, studentDetail } = req.body;
     const authHeader = req.headers.authorization;
     const userId = await verifyToken(authHeader);
 
     if (
       !mongoose.isValidObjectId(userId) ||
       !mongoose.isValidObjectId(batchId) ||
+      !mongoose.isValidObjectId(semId) ||
       !mongoose.isValidObjectId(studentId)
     ) {
       return handleErrorResponse(
@@ -109,7 +115,9 @@ export const editStudentNamelist = async (req: Request, res: Response) => {
     const batch = user.batches.find((b) => b._id.toString() === batchId);
     if (!batch) return handleErrorResponse(res, 404, 'Batch not found.');
 
-    const student = batch.namelists.find(
+    const sem = batch.semlists.find((b) => b._id.toString() === semId);
+    if (!sem) return handleErrorResponse(res, 404, 'semester not found.');
+    const student = sem.namelist.find(
       (s) => (s._id as mongoose.Types.ObjectId).toString() === studentId
     );
     if (!student) return handleErrorResponse(res, 404, 'Student not found.');
@@ -130,13 +138,14 @@ export const editStudentNamelist = async (req: Request, res: Response) => {
 
 export const deleteStudentNamelist = async (req: Request, res: Response) => {
   try {
-    const { batchId, studentId } = req.body;
+    const { batchId, semId, studentId } = req.body;
     const authHeader = req.headers.authorization;
     const userId = await verifyToken(authHeader);
 
     if (
       !mongoose.isValidObjectId(userId) ||
       !mongoose.isValidObjectId(batchId) ||
+      !mongoose.isValidObjectId(semId) ||
       !mongoose.isValidObjectId(studentId)
     ) {
       return handleErrorResponse(
@@ -152,14 +161,16 @@ export const deleteStudentNamelist = async (req: Request, res: Response) => {
     const batch = user.batches.find((b) => b._id.toString() === batchId);
     if (!batch) return handleErrorResponse(res, 404, 'Batch not found.');
 
-    const studentIndex = batch.namelists.findIndex(
+    const sem = batch.semlists.find((b) => b._id.toString() === semId);
+    if (!sem) return handleErrorResponse(res, 404, 'semester not found.');
+    const studentIndex = sem.namelist.findIndex(
       (s) => (s._id as mongoose.Types.ObjectId).toString() === studentId
     );
 
     if (studentIndex === -1)
       return handleErrorResponse(res, 404, 'Student not found.');
 
-    batch.namelists.splice(studentIndex, 1);
+    sem.namelist.splice(studentIndex, 1);
     await user.save();
 
     return res.status(200).json({ message: 'Student deleted successfully.' });

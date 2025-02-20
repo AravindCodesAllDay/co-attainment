@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import Navbar from "../../components/Navbar";
 import Editptmark from "./EditPtMarksModal";
 import edit from "../../assets/edit.svg";
 
@@ -31,6 +30,7 @@ export default function ViewPtList() {
         throw new Error("Network response was not ok");
       }
       const data = await response.json();
+      console.log(data);
       setPtlist(data);
       console.log(data);
     } catch (error) {
@@ -101,9 +101,13 @@ export default function ViewPtList() {
           <tbody>
             {ptlist &&
               ptlist.students.map((student) => (
-                <tr className="justify-center" key={student.id}>
-                  <td className="border  border-gray-300 px-4 py-2 cursor-pointer">
-                    <img src={edit} onClick={() => handleEditClick(student)} />
+                <tr className="justify-center" key={student.rollno}>
+                  <td className="border border-gray-300 px-4 py-2 cursor-pointer">
+                    <img
+                      src={edit}
+                      onClick={() => handleEditClick(student)}
+                      alt="Edit"
+                    />
                   </td>
                   <td className="border border-gray-300 px-4 py-2 font-bold">
                     {student.name}
@@ -112,12 +116,12 @@ export default function ViewPtList() {
                     {student.rollno}
                   </td>
                   {student.parts.map((part, pIndex) =>
-                    part.map((question, qIndex) => (
+                    part.questions.map((question, qIndex) => (
                       <td
-                        key={qIndex}
+                        key={`${pIndex}-${qIndex}`}
                         className="border border-gray-300 px-4 py-2"
                       >
-                        {question.structure.maxMark}
+                        {question.mark}
                       </td>
                     ))
                   )}

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import close from "../../assets/close.svg";
 import { useParams } from "react-router-dom";
 
@@ -7,8 +7,6 @@ const AddCourseModal = ({ isModalOpen, toggleModal, fetchCourses }) => {
   const { batchId, semesterId } = useParams();
 
   const [title, setTitle] = useState("");
-  const [namelistId, setNamelistId] = useState("");
-  const [titles, setTitles] = useState([]);
   const [rows, setRows] = useState([""]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -38,7 +36,6 @@ const AddCourseModal = ({ isModalOpen, toggleModal, fetchCourses }) => {
         },
         body: JSON.stringify({
           title,
-          namelistId,
           batchId,
           semId: semesterId,
           rows,
@@ -59,35 +56,6 @@ const AddCourseModal = ({ isModalOpen, toggleModal, fetchCourses }) => {
       setLoading(false);
     }
   };
-
-  useEffect(() => {
-    const fetchNamelists = async () => {
-      try {
-        const token = localStorage.getItem("token");
-        const response = await fetch(
-          `${import.meta.env.VITE_API}/namelist/${batchId}`,
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: token,
-            },
-          }
-        );
-
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
-
-        const data = await response.json();
-        setTitles(data);
-      } catch (error) {
-        console.log("Error while fetching:", error);
-      }
-    };
-
-    fetchNamelists();
-  }, [batchId]);
 
   return (
     <div className="fixed inset-0 flex items-center justify-center z-50 bg-black/50 p-2">
@@ -114,25 +82,6 @@ const AddCourseModal = ({ isModalOpen, toggleModal, fetchCourses }) => {
               onChange={(e) => setTitle(e.target.value)}
               className="border border-gray-300 p-2 mb-2 rounded"
             />
-            <label className="block text-gray-700 text-sm font-bold mb-2">
-              Namelist
-            </label>
-            <select
-              name="namelist"
-              value={namelistId}
-              onChange={(e) => setNamelistId(e.target.value)}
-              className="border border-gray-300 p-2 mb-2 rounded-lg"
-            >
-              <option value="" disabled>
-                Select namelist
-              </option>
-
-              {titles.map((title) => (
-                <option key={title.namelistId} value={title.namelistId}>
-                  {title.title}
-                </option>
-              ))}
-            </select>
 
             {rows.map((tableRow, tableRowIndex) => (
               <input

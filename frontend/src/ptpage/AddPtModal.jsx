@@ -1,14 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import close from "../../assets/close.svg";
 import { useParams } from "react-router-dom";
 
 export default function Modal({ isOpen, onClose, fetchPts }) {
   const { batchId, semesterId } = useParams();
-  const [titles, setTitles] = useState([]);
-  const [namelistId, setNamelistId] = useState("");
   const [mainTitle, setMainTitle] = useState("");
   const [mainMark, setMainMark] = useState("");
-  const [ptlist, setptlist] = useState("");
   const [rows, setRows] = useState([
     {
       title: "Part 1",
@@ -87,33 +84,6 @@ export default function Modal({ isOpen, onClose, fetchPts }) {
     setRows(newRows);
   };
 
-  useEffect(() => {
-    const fetchTitles = async () => {
-      try {
-        const token = localStorage.getItem("token");
-        const response = await fetch(
-          `${import.meta.env.VITE_API}/pt/${batchId}/${semesterId}`,
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: token,
-            },
-          }
-        );
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
-        const data = await response.json();
-        setptlist(data);
-      } catch (error) {
-        console.error("Error occurred while fetching:", error);
-      }
-    };
-
-    fetchTitles();
-  }, []);
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -136,7 +106,6 @@ export default function Modal({ isOpen, onClose, fetchPts }) {
             })),
             batchId,
             semId: semesterId,
-            namelistId,
           }),
         }
       );
@@ -154,33 +123,6 @@ export default function Modal({ isOpen, onClose, fetchPts }) {
       console.error("Error creating PtList:", error);
     }
   };
-
-  useEffect(() => {
-    const fetchNamelists = async () => {
-      try {
-        const token = localStorage.getItem("token");
-        const response = await fetch(
-          `${import.meta.env.VITE_API}/namelist/${batchId}`,
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: token,
-            },
-          }
-        );
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
-        const data = await response.json();
-        setTitles(data);
-      } catch (error) {
-        console.log("Error while fetching:", error);
-      }
-    };
-
-    fetchNamelists();
-  }, [batchId]);
 
   if (!isOpen) return null;
 
@@ -215,26 +157,6 @@ export default function Modal({ isOpen, onClose, fetchPts }) {
               onChange={(e) => setMainMark(e.target.value)}
               className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
             />
-          </div>
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2">
-              Namelist
-            </label>
-            <select
-              name="namelist"
-              value={namelistId}
-              onChange={(e) => setNamelistId(e.target.value)}
-              className="border border-gray-300 p-2 mb-2 rounded-lg w-full"
-            >
-              <option value="" disabled>
-                Select namelist
-              </option>
-              {titles.map((title) => (
-                <option key={title.namelistId} value={title.namelistId}>
-                  {title.title}
-                </option>
-              ))}
-            </select>
           </div>
           {rows.map((row, rowIndex) => (
             <div key={rowIndex} className="mb-4">

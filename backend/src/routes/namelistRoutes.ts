@@ -8,7 +8,7 @@ import {
 
 const router = express.Router();
 
-router.get('/:batchId', getNamelist);
+router.get('/:batchId/:semId', getNamelist);
 
 router.post('/', addStudents2Namelist);
 
