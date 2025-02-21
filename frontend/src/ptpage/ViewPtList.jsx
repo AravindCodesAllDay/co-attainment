@@ -4,7 +4,7 @@ import Editptmark from "./EditPtMarksModal";
 import edit from "../../assets/edit.svg";
 
 export default function ViewPtList() {
-  const { ptlistId, batchId, semesterId } = useParams();
+  const { seeId, batchId, semesterId } = useParams();
 
   const [ptlist, setPtlist] = useState(null);
   const [selectedStudent, setSelectedStudent] = useState(null);
@@ -17,7 +17,7 @@ export default function ViewPtList() {
     try {
       const token = localStorage.getItem("token");
       const response = await fetch(
-        `${import.meta.env.VITE_API}/pt/${batchId}/${semesterId}/${ptlistId}`,
+        `${import.meta.env.VITE_API}/pt/${batchId}/${semesterId}/${seeId}`,
         {
           method: "GET",
           headers: {
@@ -30,9 +30,7 @@ export default function ViewPtList() {
         throw new Error("Network response was not ok");
       }
       const data = await response.json();
-      console.log(data);
       setPtlist(data);
-      console.log(data);
     } catch (error) {
       setError(error.message);
     } finally {

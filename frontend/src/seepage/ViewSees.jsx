@@ -80,7 +80,9 @@ function ViewSees() {
             <div
               key={pt.seeId}
               className="p-4 bg-gray-200 rounded-md shadow-md hover:shadow-2xl cursor-pointer"
-              onClick={() => navigate(`/see/${pt.seeId}`)}
+              onClick={() =>
+                navigate(`/see/${batchId}/${semesterId}/${pt.seeId}`)
+              }
             >
               {pt.title}
             </div>

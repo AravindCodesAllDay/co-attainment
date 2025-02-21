@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import close from "../../assets/close.svg";
 
 export default function Editptmark({ student, onClose }) {
