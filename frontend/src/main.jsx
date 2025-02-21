@@ -1,21 +1,23 @@
 import React from "react";
+import Modal from "react-modal";
 import ReactDOM from "react-dom/client";
 import { HashRouter, Route, Routes } from "react-router-dom";
-import Modal from "react-modal";
 import "./index.css";
 
-import ViewCourse from "./pages/coursepage/ViewCourse";
-import ViewCourses from "./pages/coursepage/ViewCourses";
-import Login from "./pages/loginpage/Login";
-import ViewNamelist from "./pages/namelistpage/ViewNamelist";
-import ViewNamelists from "./pages/namelistpage/ViewNamelists";
-import ViewPtList from "./pages/ptpage/ViewPtList";
-import ViewPtLists from "./pages/ptpage/ViewPtLists";
-import SelectCoatt from "./pages/co-attainment/SelectCoatt";
-import ViewSaas from "./pages/saapage/ViewSaas";
-import ViewSaa from "./pages/saapage/ViewSaa";
-import Dashboard from "./pages/dasboardpage/Dashboard";
-import ViewSems from "./pages/sempage/ViewSems";
+import Layout from "./layout";
+import Login from "./loginpage/Login";
+import Create from "./loginpage/Create";
+import Dashboard from "./dasboardpage/Dashboard";
+import ViewNamelist from "./namelistpage/ViewNamelist";
+import ViewSems from "./sempage/ViewSems";
+import ViewCourses from "./coursepage/ViewCourses";
+import ViewCourse from "./coursepage/ViewCourse";
+import ViewPtLists from "./ptpage/ViewPtLists";
+import ViewPtList from "./ptpage/ViewPtList";
+import ViewSees from "./seepage/ViewSees";
+// import ViewSee from "./seepage/ViewSee";
+import SelectCoatt from "./co-attainment/SelectCoatt";
+import ViewCotypes from "./cotypes/ViewCotypes";
 
 Modal.setAppElement("#root");
 
@@ -24,44 +26,42 @@ ReactDOM.createRoot(document.getElementById("root")).render(
     <HashRouter>
       <Routes>
         <Route path="/" element={<Login />} />
+        <Route path="/create" element={<Create />} />
+        <Route element={<Layout />}>
+          <Route path="/dashboard" element={<Dashboard />} />
 
-        <Route path="/dashboard" element={<Dashboard />} />
-
-        <Route path="/namelists/:bundleId" element={<ViewNamelists />} />
-
-        <Route
-          path="/namelists/:bundleId/:namelistId"
-          element={<ViewNamelist />}
-        />
-
-        <Route path="/sem/:bundleId" element={<ViewSems />} />
-
-        <Route
-          path="/courses/:bundleId/:semesterId/"
-          element={<ViewCourses />}
-        />
-        <Route
-          path="/courses/:bundleId/:semesterId/:courseId/"
-          element={<ViewCourse />}
-        />
-
-        <Route
-          path="/ptlists/:bundleId/:semesterId"
-          element={<ViewPtLists />}
-        />
-        <Route
-          path="/ptlists/:bundleId/:semesterId/:ptlistid"
-          element={<ViewPtList />}
-        />
-
-        <Route
-          path="/coattainment/:bundleId/:semesterId"
-          element={<SelectCoatt />}
-        />
-
-        <Route path="/see/:bundleId/:semesterId" element={<ViewSaas />} />
-
-        <Route path="/see/:bundleId/:semesterId/:seeid" element={<ViewSaa />} />
+          <Route path="/sem/:batchId" element={<ViewSems />} />
+          <Route
+            path="/namelist/:batchId/:semesterId"
+            element={<ViewNamelist />}
+          />
+          <Route
+            path="/courses/:batchId/:semesterId"
+            element={<ViewCourses />}
+          />
+          <Route
+            path="/courses/:batchId/:semesterId/:courseId"
+            element={<ViewCourse />}
+          />
+          <Route
+            path="/ptlists/:batchId/:semesterId"
+            element={<ViewPtLists />}
+          />
+          <Route
+            path="/ptlists/:batchId/:semesterId/:ptlistId"
+            element={<ViewPtList />}
+          />
+          <Route path="/see/:batchId/:semesterId" element={<ViewSees />} />
+          {/* <Route
+            path="/see/:batchId/:semesterId/:seeId"
+            element={<ViewSee />}
+          /> */}
+          <Route path="/cotype" element={<ViewCotypes />} />
+          <Route
+            path="/coattainment/:batchId/:semesterId"
+            element={<SelectCoatt />}
+          />
+        </Route>
       </Routes>
     </HashRouter>
   </React.StrictMode>
