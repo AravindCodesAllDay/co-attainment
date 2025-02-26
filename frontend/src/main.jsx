@@ -48,7 +48,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
             element={<ViewPtLists />}
           />
           <Route
-            path="/ptlists/:batchId/:semesterId/:ptlistId"
+            path="/ptlists/:batchId/:semesterId/:ptId"
             element={<ViewPtList />}
           />
           <Route path="/see/:batchId/:semesterId" element={<ViewSees />} />

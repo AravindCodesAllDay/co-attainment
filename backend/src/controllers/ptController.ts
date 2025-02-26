@@ -74,7 +74,6 @@ export const getPTDetails = async (req: Request, res: Response) => {
 
     const pt = semester.ptlists.find((p) => (p as any)._id.equals(ptId));
     if (!pt) return handleErrorResponse(res, 404, 'PT not found.');
-
     return res.status(200).json(pt);
   } catch (error) {
     console.error(error);

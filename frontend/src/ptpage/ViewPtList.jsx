@@ -4,7 +4,7 @@ import Editptmark from "./EditPtMarksModal";
 import edit from "../../assets/edit.svg";
 
 export default function ViewPtList() {
-  const { seeId, batchId, semesterId } = useParams();
+  const { ptId, batchId, semesterId } = useParams();
 
   const [ptlist, setPtlist] = useState(null);
   const [selectedStudent, setSelectedStudent] = useState(null);
@@ -17,7 +17,7 @@ export default function ViewPtList() {
     try {
       const token = localStorage.getItem("token");
       const response = await fetch(
-        `${import.meta.env.VITE_API}/pt/${batchId}/${semesterId}/${seeId}`,
+        `${import.meta.env.VITE_API}/pt/${batchId}/${semesterId}/${ptId}`,
         {
           method: "GET",
           headers: {
