@@ -4,7 +4,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 
 // Import routes
-import UserRoutes from './routes/userRoutes';
+// import UserRoutes from './routes/userRoutes';
 // import BatchRoutes from './routes/batchRoutes';
 // import SemesterRoutes from './routes/semesterRoutes';
 // import NamelistRoutes from './routes/namelistRoutes';
@@ -22,7 +22,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Routes
-app.use('/user', UserRoutes);
+// app.use('/user', UserRoutes);
 // app.use('/batch', BatchRoutes);
 // app.use('/semester', SemesterRoutes);
 // app.use('/namelist', NamelistRoutes);
