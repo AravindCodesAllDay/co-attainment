@@ -10,7 +10,7 @@ import SemesterRoutes from './routes/semesterRoutes';
 import NamelistRoutes from './routes/namelistRoutes';
 import CourseRoutes from './routes/courseRoutes';
 import PtRoutes from './routes/ptRoutes';
-// import SeeRoutes from './routes/seeRoutes';
+import SeeRoutes from './routes/seeRoutes';
 import CoTypeRoutes from './routes/cotypeRoutes';
 
 const app = express();
@@ -28,7 +28,7 @@ app.use('/semester', SemesterRoutes);
 app.use('/namelist', NamelistRoutes);
 app.use('/course', CourseRoutes);
 app.use('/pt', PtRoutes);
-// app.use('/see', SeeRoutes);
+app.use('/see', SeeRoutes);
 app.use('/cotype', CoTypeRoutes);
 
 
