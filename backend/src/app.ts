@@ -5,13 +5,13 @@ import dotenv from 'dotenv';
 
 // Import routes
 import UserRoutes from './routes/userRoutes';
-// import BatchRoutes from './routes/batchRoutes';
-// import SemesterRoutes from './routes/semesterRoutes';
-// import NamelistRoutes from './routes/namelistRoutes';
-// import CourseRoutes from './routes/courseRoutes';
-// import PtRoutes from './routes/ptRoutes';
+import BatchRoutes from './routes/batchRoutes';
+import SemesterRoutes from './routes/semesterRoutes';
+import NamelistRoutes from './routes/namelistRoutes';
+import CourseRoutes from './routes/courseRoutes';
+import PtRoutes from './routes/ptRoutes';
 // import SeeRoutes from './routes/seeRoutes';
-// import CoTypeRoutes from './routes/cotypeRoutes';
+import CoTypeRoutes from './routes/cotypeRoutes';
 
 const app = express();
 dotenv.config();
@@ -23,13 +23,13 @@ app.use(express.urlencoded({ extended: true }));
 
 // Routes
 app.use('/user', UserRoutes);
-// app.use('/batch', BatchRoutes);
-// app.use('/semester', SemesterRoutes);
-// app.use('/namelist', NamelistRoutes);
-// app.use('/course', CourseRoutes);
-// app.use('/pt', PtRoutes);
+app.use('/batch', BatchRoutes);
+app.use('/semester', SemesterRoutes);
+app.use('/namelist', NamelistRoutes);
+app.use('/course', CourseRoutes);
+app.use('/pt', PtRoutes);
 // app.use('/see', SeeRoutes);
-// app.use('/cotype', CoTypeRoutes);
+app.use('/cotype', CoTypeRoutes);
 
 
 app.get('/', (req: Request, res: Response) => {
