@@ -31,6 +31,11 @@ app.use('/pt', PtRoutes);
 app.use('/see', SeeRoutes);
 app.use('/cotype', CoTypeRoutes);
 
+
+app.get('/', (req: Request, res: Response) => {
+  res.send('Welcome to the CO-attainment API');
+});
+
 const CONNECTION: string = process.env.CONNECTION as string;
 
 if (!CONNECTION) {
@@ -38,29 +43,17 @@ if (!CONNECTION) {
   process.exit(1);
 }
 
-app.get('/', (req: Request, res: Response) => {
-  res.send('Welcome to the CO-attainment API');
-});
-
 const start = async () => {
   try {
     await mongoose.connect(CONNECTION);
-
-    if (!process.env.VERCEL) {
-      app.listen(3030, () => {
-        console.log(`App listening on port 3030`);
-      });
-    }
+    console.log('MongoDB connected successfully');
   } catch (error) {
     console.error('Error during startup:', error);
     process.exit(1);
   }
-
-  process.on('SIGINT', async () => {
-    await mongoose.connection.close();
-    console.log('MongoDB disconnected through app termination');
-    process.exit(0);
-  });
 };
 
 start();
+
+// 🚀 Export the Express app as a handler for Vercel
+export default app;
