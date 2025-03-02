@@ -14,8 +14,7 @@ import ViewCourses from "./coursepage/ViewCourses";
 import ViewCourse from "./coursepage/ViewCourse";
 import ViewPtLists from "./ptpage/ViewPtLists";
 import ViewPtList from "./ptpage/ViewPtList";
-import ViewSees from "./seepage/ViewSees";
-// import ViewSee from "./seepage/ViewSee";
+import ViewSee from "./seepage/ViewSee";
 import SelectCoatt from "./co-attainment/SelectCoatt";
 import ViewCotypes from "./cotypes/ViewCotypes";
 
@@ -48,14 +47,13 @@ ReactDOM.createRoot(document.getElementById("root")).render(
             element={<ViewPtLists />}
           />
           <Route
-            path="/ptlists/:batchId/:semesterId/:ptlistId"
+            path="/ptlists/:batchId/:semesterId/:ptId"
             element={<ViewPtList />}
           />
-          <Route path="/see/:batchId/:semesterId" element={<ViewSees />} />
-          {/* <Route
-            path="/see/:batchId/:semesterId/:seeId"
+          <Route
+            path="/see/:batchId/:semesterId"
             element={<ViewSee />}
-          /> */}
+          />
           <Route path="/cotype" element={<ViewCotypes />} />
           <Route
             path="/coattainment/:batchId/:semesterId"

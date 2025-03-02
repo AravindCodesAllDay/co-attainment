@@ -7,18 +7,27 @@ const AddCourseModal = ({ isModalOpen, toggleModal, fetchCourses }) => {
   const { batchId, semesterId } = useParams();
 
   const [title, setTitle] = useState("");
-  const [rows, setRows] = useState([""]);
+  const [structure, setStructure] = useState({});
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleAddTableRow = () => {
-    setRows([...rows, ""]);
+    setStructure({ ...structure, "": 0 });
   };
 
-  const handleTableRowChange = (tableRowIndex, event) => {
-    const values = [...rows];
-    values[tableRowIndex] = event.target.value;
-    setRows(values);
+  const handleTableRowChange = (key, event) => {
+    const newRows = { ...structure };
+    newRows[key] = Number(event.target.value);
+    setStructure(newRows);
+  };
+
+  const handleRowNameChange = (oldKey, event) => {
+    const newKey = event.target.value;
+    if (newKey in structure) return;
+
+    const newRows = { ...structure, [newKey]: structure[oldKey] };
+    delete newRows[oldKey];
+    setStructure(newRows);
   };
 
   const handleSubmit = async (e) => {
@@ -38,7 +47,7 @@ const AddCourseModal = ({ isModalOpen, toggleModal, fetchCourses }) => {
           title,
           batchId,
           semId: semesterId,
-          rows,
+          structure,
         }),
       });
 
@@ -83,15 +92,23 @@ const AddCourseModal = ({ isModalOpen, toggleModal, fetchCourses }) => {
               className="border border-gray-300 p-2 mb-2 rounded"
             />
 
-            {rows.map((tableRow, tableRowIndex) => (
-              <input
-                key={tableRowIndex}
-                type="text"
-                placeholder="Table Row Name"
-                value={tableRow}
-                onChange={(e) => handleTableRowChange(tableRowIndex, e)}
-                className="border border-gray-300 p-2 mb-2 rounded-lg"
-              />
+            {Object.entries(structure).map(([rowName, marks], index) => (
+              <div key={index} className="flex space-x-2 mb-2">
+                <input
+                  type="text"
+                  placeholder="Table Row Name"
+                  value={rowName}
+                  onChange={(e) => handleRowNameChange(rowName, e)}
+                  className="border border-gray-300 p-2 rounded-lg w-1/2"
+                />
+                <input
+                  type="number"
+                  placeholder="Marks"
+                  value={marks}
+                  onChange={(e) => handleTableRowChange(rowName, e)}
+                  className="border border-gray-300 p-2 rounded-lg w-1/2"
+                />
+              </div>
             ))}
             <button
               type="button"

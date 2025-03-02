@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 import { User } from '../models/user/userModel';
 import { verifyToken } from './userController';
 import { Namelist } from '../models/namelist/namelistModel';
+import { See } from '../models/see/seeModel';
 
 const handleErrorResponse = (
   res: Response,
@@ -75,7 +76,12 @@ export const addStudents2Namelist = async (req: Request, res: Response) => {
         rollno: student.rollno,
         name: student.name,
       });
+      const seeStudent = new See({
+        rollno: student.rollno,
+        name: student.name,
+      });
       sem.namelist.push(newStudent);
+      sem.seelist.push(seeStudent);
     });
 
     await user.save();
@@ -166,11 +172,11 @@ export const deleteStudentNamelist = async (req: Request, res: Response) => {
     const studentIndex = sem.namelist.findIndex(
       (s) => (s._id as mongoose.Types.ObjectId).toString() === studentId
     );
-
     if (studentIndex === -1)
       return handleErrorResponse(res, 404, 'Student not found.');
 
     sem.namelist.splice(studentIndex, 1);
+    sem.seelist.splice(studentIndex,1)
     await user.save();
 
     return res.status(200).json({ message: 'Student deleted successfully.' });

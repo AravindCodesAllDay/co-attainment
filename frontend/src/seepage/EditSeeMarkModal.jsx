@@ -1,35 +1,50 @@
 import React, { useState } from "react";
+import { useParams } from "react-router-dom";
 import close from "../../assets/close.svg";
 
-export default function EditSeeMarkModal({ student, onClose }) {
+export default function EditSeeMarkModal({ student, onClose, fetchStudent }) {
+  const { batchId, semesterId } = useParams();
   const [formData, setFormData] = useState({
     name: student.name,
     rollno: student.rollno,
-    parts: student.parts,
+    scores: { ...student.scores }, // Clone scores object
   });
 
-  const handleChange = (e, partIndex, questionIndex) => {
+  const handleChange = (e, course) => {
     const { value } = e.target;
-    setFormData((prevState) => {
-      const updatedParts = [...prevState.parts];
-      updatedParts[partIndex].questions[questionIndex].mark = Number(value);
-      return { ...prevState, parts: updatedParts };
-    });
+    setFormData((prevState) => ({
+      ...prevState,
+      scores: {
+        ...prevState.scores,
+        [course]: Number(value), // Ensure numeric values
+      },
+    }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch(`${import.meta.env.VITE_API}/see/score}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
+      const token = localStorage.getItem("token");
+      const response = await fetch(
+        `${import.meta.env.VITE_API}/see`, 
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: token,
+          },
+          body: JSON.stringify({
+            rollno: formData.rollno,
+            semId: semesterId,
+            batchId,
+            scores: formData.scores,
+          }),
+        }
+      );
       if (!response.ok) {
         throw new Error("Failed to update marks");
       }
+      fetchStudent(); // Refresh list
       onClose();
     } catch (error) {
       console.error("Error updating marks:", error);
@@ -37,12 +52,13 @@ export default function EditSeeMarkModal({ student, onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center">
       <div className="relative bg-white p-6 rounded shadow-lg w-full max-w-3xl h-3/4 overflow-y-auto">
         <img
           src={close}
           onClick={onClose}
-          className="absolute top-2 right-2 text-gray-700 hover:text-gray-900 cursor-pointer"
+          className="absolute top-2 right-2 cursor-pointer"
+          alt="Close"
         />
         <h2 className="text-xl font-bold mb-4">Edit Student Marks</h2>
         <form onSubmit={handleSubmit}>
@@ -52,7 +68,7 @@ export default function EditSeeMarkModal({ student, onClose }) {
               type="text"
               value={formData.name}
               disabled
-              className="w-full px-3 py-2 border border-gray-300 rounded"
+              className="w-full px-3 py-2 border border-gray-300 rounded bg-gray-100"
             />
           </div>
           <div className="mb-4">
@@ -61,26 +77,21 @@ export default function EditSeeMarkModal({ student, onClose }) {
               type="text"
               value={formData.rollno}
               disabled
-              className="w-full px-3 py-2 border border-gray-300 rounded"
+              className="w-full px-3 py-2 border border-gray-300 rounded bg-gray-100"
             />
           </div>
-          {formData.parts.map((part, partIndex) => (
-            <div key={partIndex} className="mb-4">
-              <h3 className="text-lg font-bold mb-2">{part.title}</h3>
-              {part.questions.map((question, questionIndex) => (
-                <div key={questionIndex} className="mb-2">
-                  <label className="block text-gray-700">
-                    Question {question.number} ({question.option})
-                  </label>
-                  <input
-                    type="number"
-                    name={`part-${partIndex}-question-${questionIndex}`}
-                    value={question.mark}
-                    onChange={(e) => handleChange(e, partIndex, questionIndex)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded"
-                  />
-                </div>
-              ))}
+          {/* Render all courses dynamically */}
+          {Object.keys(formData.scores).map((course, index) => (
+            <div key={index} className="mb-4">
+              <label className="block text-gray-700 font-bold">
+                {course.toUpperCase()}
+              </label>
+              <input
+                type="number"
+                value={formData.scores[course] || 0} // Default to 0 if no value
+                onChange={(e) => handleChange(e, course)}
+                className="w-full px-3 py-2 border border-gray-300 rounded"
+              />
             </div>
           ))}
           <div className="flex justify-end">

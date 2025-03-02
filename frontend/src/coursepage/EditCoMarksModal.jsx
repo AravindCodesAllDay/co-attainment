@@ -1,25 +1,44 @@
 import React, { useState } from "react";
+import { useParams } from "react-router-dom";
 
-const EditCoMarksModal = ({ student, rows, onClose, onSubmit }) => {
+const EditCoMarksModal = ({ student, structure = {}, onClose }) => {
+  const { batchId, courseId, semesterId } = useParams();
   const [formData, setFormData] = useState({ ...student });
 
   const handleInputChange = (e, row) => {
-    setFormData({
-      ...formData,
-      scores: {
-        ...formData.scores,
-        [row]: e.target.value,
-      },
-    });
+    setFormData((prev) => ({
+      ...prev,
+      scores: { ...prev.scores, [row]: e.target.value },
+    }));
   };
 
-  const handleSubmit = () => {
-    const total = Object.values(formData.scores).reduce(
-      (sum, val) => sum + parseFloat(val || 0),
-      0
-    );
-    const average = (total / rows.length).toFixed(2);
-    onSubmit({ ...formData, averageScore: average });
+  const handleSubmit = async () => {
+    try {
+      const total = Object.values(formData.scores || {}).reduce(
+        (sum, val) => sum + parseFloat(val || 0),
+        0
+      );
+      const average = (total / Object.keys(structure).length).toFixed(2);
+
+      const token = localStorage.getItem("token");
+      const response = await fetch(`${import.meta.env.VITE_API}/course`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json", Authorization: token },
+        body: JSON.stringify({ 
+          ...formData, 
+          averageScore: average, 
+          coId: courseId, 
+          batchId, 
+          semId: semesterId 
+        }),
+      });
+
+      if (!response.ok) throw new Error("Failed to update scores");
+
+      onClose(await response.json());
+    } catch (error) {
+      console.error("Error while updating scores:", error);
+    }
   };
 
   return (
@@ -27,12 +46,12 @@ const EditCoMarksModal = ({ student, rows, onClose, onSubmit }) => {
       <div className="bg-white p-6 rounded-lg shadow-md w-96">
         <h3 className="text-lg font-semibold mb-4">Edit Marks</h3>
         <div className="space-y-4">
-          {rows.map((row, index) => (
+          {Object.keys(structure).map((row, index) => (
             <div key={index} className="flex justify-between">
               <label className="text-gray-700">{row}:</label>
               <input
                 type="number"
-                value={formData.scores[row] || ""}
+                value={formData.scores?.[row] || ""}
                 onChange={(e) => handleInputChange(e, row)}
                 className="border rounded px-2 py-1 w-20 text-right"
               />

@@ -1,17 +1,17 @@
 import mongoose, { Model, Document } from 'mongoose';
-import { seeStudentSchema, ISeeStudent } from './seeStudentModel';
 
 export interface ISee extends Document {
-  title: string;
-  courses: string[];
-  students: ISeeStudent[];
+  _id: mongoose.Types.ObjectId;
+  rollno: string;
+  name: string;
+  scores: Map<string, number>;
 }
 
 const seeSchema = new mongoose.Schema<ISee>(
   {
-    title: { type: String, required: true },
-    courses: { type: [String] },
-    students: { type: [seeStudentSchema] },
+    rollno: { type: String, required: true },
+    name: { type: String, required: true },
+    scores: { type: Map, of: Number },
   },
   { timestamps: true }
 );

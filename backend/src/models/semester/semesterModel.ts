@@ -10,15 +10,17 @@ export interface ISemester extends Document {
   namelist: INamelist[];
   courselists: ICoList[];
   ptlists: IPtList[];
-  seelists: ISee[];
+  seelist: ISee[];
+  seetypes: string[];
 }
 
 const semesterSchema = new Schema<ISemester>({
   title: { type: String, required: true },
-  namelist: [Namelist.schema],
-  courselists: [CoList.schema],
-  ptlists: [PtList.schema],
-  seelists: [See.schema],
+  namelist: { type: [Namelist.schema], default: [] },
+  courselists: { type: [CoList.schema], default: [] },
+  ptlists: { type: [PtList.schema], default: [] },
+  seelist: { type: [See.schema], default: [] },
+  seetypes: { type: [String], default: [] },
 });
 
 const Semester: Model<ISemester> = mongoose.model<ISemester>(
