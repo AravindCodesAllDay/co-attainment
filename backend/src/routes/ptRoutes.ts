@@ -12,7 +12,7 @@ const router = express.Router();
 router.get('/:batchId/:semId', getPTs);
 router.get('/:batchId/:semId/:ptId', getPTDetails);
 router.post('/', createPT);
-router.put('/score', updateStudentScore);
+router.put('/', updateStudentScore);
 router.delete('/', deletePT);
 
 export default router;

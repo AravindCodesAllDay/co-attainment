@@ -5,7 +5,7 @@ import { useParams } from "react-router-dom";
 export default function Modal({ isOpen, onClose, fetchPts }) {
   const { batchId, semesterId } = useParams();
   const [mainTitle, setMainTitle] = useState("");
-  const [mainMark, setMainMark] = useState("");
+  const [mainMark, setMainMark] = useState(0);
   const [rows, setRows] = useState([
     {
       title: "Part 1",
@@ -47,6 +47,11 @@ export default function Modal({ isOpen, onClose, fetchPts }) {
       }
       return row;
     });
+    const totalMark = newRows.reduce(
+      (sum, part) => sum + (Number(part.maxMark) || 0) * part.questions.length,
+      0
+    );
+    setMainMark(totalMark);
     setRows(newRows);
   };
 
@@ -60,6 +65,11 @@ export default function Modal({ isOpen, onClose, fetchPts }) {
       }
       return row;
     });
+    const totalMark = newRows.reduce(
+      (sum, part) => sum + (Number(part.maxMark) || 0) * part.questions.length,
+      0
+    );
+    setMainMark(totalMark);
     setRows(newRows);
   };
 
@@ -67,6 +77,11 @@ export default function Modal({ isOpen, onClose, fetchPts }) {
     const newRows = rows.map((row, i) =>
       i === index ? { ...row, [field]: value } : row
     );
+    const totalMark = newRows.reduce(
+      (sum, part) => sum + (Number(part.maxMark) || 0) * part.questions.length,
+      0
+    );
+    setMainMark(totalMark);
     setRows(newRows);
   };
 
@@ -154,7 +169,7 @@ export default function Modal({ isOpen, onClose, fetchPts }) {
             <input
               type="Number"
               value={mainMark}
-              onChange={(e) => setMainMark(e.target.value)}
+              disabled
               className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
             />
           </div>

@@ -1,7 +1,9 @@
 import React, { useState } from "react";
+import { useParams } from "react-router-dom";
 import close from "../../assets/close.svg";
 
-export default function Editptmark({ student, onClose }) {
+export default function Editptmark({ student, onClose, fetchStudent }) {
+  const { ptId, batchId, semesterId } = useParams();
   const [formData, setFormData] = useState({
     name: student.name,
     rollno: student.rollno,
@@ -13,6 +15,7 @@ export default function Editptmark({ student, onClose }) {
     setFormData((prevState) => {
       const updatedParts = [...prevState.parts];
       updatedParts[partIndex].questions[questionIndex].mark = Number(value);
+
       return { ...prevState, parts: updatedParts };
     });
   };
@@ -20,16 +23,28 @@ export default function Editptmark({ student, onClose }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch(`${import.meta.env.VITE_API}/pt/score}`, {
+      console.log(formData);
+      const token = localStorage.getItem("token");
+      const response = await fetch(`${import.meta.env.VITE_API}/pt`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
+          Authorization: token,
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          semId: semesterId,
+          batchId,
+          ptId,
+          scores: formData.parts,
+          stdId: formData.rollno,
+        }),
       });
       if (!response.ok) {
         throw new Error("Failed to update marks");
       }
+      const data = await response.json();
+      console.log(data);
+      fetchStudent();
       onClose();
     } catch (error) {
       console.error("Error updating marks:", error);
@@ -37,7 +52,7 @@ export default function Editptmark({ student, onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center">
       <div className="relative bg-white p-6 rounded shadow-lg w-full max-w-3xl h-3/4 overflow-y-auto">
         <img
           src={close}

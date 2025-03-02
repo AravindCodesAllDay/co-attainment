@@ -28,6 +28,7 @@ export default function ViewCourse() {
       );
       const data = await response.json();
       setCourselist(data);
+      console.log(data);
     } catch (error) {
       console.log("Error while fetching:", error);
     }
@@ -39,41 +40,9 @@ export default function ViewCourse() {
   };
 
   const handleModalClose = () => {
+    fetchCourse()
     setShowModal(false);
     setCurrentRow(null);
-  };
-
-  const handleModalSubmit = async (updatedData) => {
-    try {
-      const payload = {
-        scores: updatedData.scores,
-        coId: courseId,
-        batchId,
-        semId: semesterId,
-        stdId: currentRow._id,
-      };
-
-      const token = localStorage.getItem("token");
-      const response = await fetch(`${import.meta.env.VITE_API}/score`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: token,
-        },
-        body: JSON.stringify(payload),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to update scores");
-      }
-
-      const updatedCourselist = await response.json();
-
-      setCourselist(updatedCourselist);
-      handleModalClose();
-    } catch (error) {
-      console.error("Error while updating scores:", error);
-    }
   };
 
   useEffect(() => {
@@ -95,11 +64,12 @@ export default function ViewCourse() {
                     Student Name
                   </th>
                   <th className="py-2 px-4 text-left font-medium">Roll No</th>
-                  {courselist.rows.map((row, index) => (
+                  {Object.keys(courselist.structure).map((key, index) => (
                     <th key={index} className="py-2 px-4 text-left font-medium">
-                      {row}
+                      {key}({courselist.structure[key]})
                     </th>
                   ))}
+
                   <th className="py-2 px-4 text-left font-medium">Average</th>
                   <th className="py-2 px-4 text-left font-medium">Actions</th>
                 </tr>
@@ -109,12 +79,12 @@ export default function ViewCourse() {
                   <tr key={index} className="border-b">
                     <td className="py-2 px-4">{student.name}</td>
                     <td className="py-2 px-4">{student.rollno}</td>
-                    {courselist.rows.map((row, index) => (
+                    {Object.keys(courselist.structure).map((key, index) => (
                       <td key={index} className="py-2 px-4">
-                        {student.scores[row]}
+                        {student.scores[key]}
                       </td>
                     ))}
-                    <td className="py-2 px-4">{student.averageScore}</td>
+                    <td className="py-2 px-4">{student.average}</td>
                     <td className="py-2 px-4 flex flex-row gap-4 items-center">
                       <img
                         className="cursor-pointer"
@@ -135,9 +105,8 @@ export default function ViewCourse() {
       {showModal && (
         <EditCoMarksModal
           student={currentRow}
-          rows={courselist.rows}
+          structure={courselist.structure}
           onClose={handleModalClose}
-          onSubmit={handleModalSubmit}
         />
       )}
     </>

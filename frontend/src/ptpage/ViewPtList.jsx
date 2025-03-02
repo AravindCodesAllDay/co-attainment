@@ -57,7 +57,7 @@ export default function ViewPtList() {
 
   return (
     <>
-      <div className="container mx-auto p-4 overflow-x-auto ">
+      <div className=" mx-auto p-4 overflow-x-auto ">
         <h1 className="text-2xl font-bold mb-4">Student List</h1>
         <table className="justify-center items-center table-auto w-full border-collapse border border-gray-200">
           <thead>
@@ -71,23 +71,26 @@ export default function ViewPtList() {
               <th rowSpan="2" className="border border-gray-300 px-4 py-2">
                 Roll No
               </th>
+              <th rowSpan="2" className="border border-gray-300 px-4 py-2">
+                Mark
+              </th>
               {ptlist &&
-                ptlist.structure.map((part, index) => (
+                ptlist.structure.map((part) => (
                   <th
-                    key={index}
+                    key={part.title}
                     colSpan={part.questions.length}
                     className="border border-gray-300 px-4 py-2"
                   >
-                    {part.title}
+                    {part.title}-({part.maxMark})
                   </th>
                 ))}
             </tr>
             <tr>
               {ptlist &&
-                ptlist.structure.map((part, index) =>
-                  part.questions.map((question, qIndex) => (
+                ptlist.structure.flatMap((part) =>
+                  part.questions.map((question) => (
                     <th
-                      key={qIndex}
+                      key={question._id}
                       className="border border-gray-300 px-4 py-2"
                     >
                       {question.number}({question.option})
@@ -96,6 +99,7 @@ export default function ViewPtList() {
                 )}
             </tr>
           </thead>
+
           <tbody>
             {ptlist &&
               ptlist.students.map((student) => (
@@ -105,13 +109,17 @@ export default function ViewPtList() {
                       src={edit}
                       onClick={() => handleEditClick(student)}
                       alt="Edit"
+                      className="mx-auto"
                     />
                   </td>
                   <td className="border border-gray-300 px-4 py-2 font-bold">
                     {student.name}
                   </td>
-                  <td className="border border-gray-300 px-4 py-2 font-bold">
+                  <td className="border border-gray-300 px-4 py-2 font-bold text-center">
                     {student.rollno}
+                  </td>
+                  <td className="border border-gray-300 px-4 py-2 font-bold text-center">
+                    {student.totalMark}
                   </td>
                   {student.parts.map((part, pIndex) =>
                     part.questions.map((question, qIndex) => (
@@ -132,6 +140,7 @@ export default function ViewPtList() {
         <Editptmark
           student={selectedStudent}
           onClose={() => setIsModalOpen(false)}
+          fetchStudent={fetchStudent}
         />
       )}
     </>

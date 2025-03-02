@@ -135,17 +135,40 @@ export const createPT = async (req: Request, res: Response) => {
   }
 };
 
+interface Question {
+  number: number;
+  option: string;
+  mark: number;
+}
+
+interface ScorePart {
+  title: string;
+  questions: Question[];
+}
+
 // Update student scores
 export const updateStudentScore = async (req: Request, res: Response) => {
   try {
     const authHeader = req.headers.authorization;
     const userId = await verifyToken(authHeader);
-    const { ptId, stdId, scores, batchId, semId } = req.body;
+    const {
+      semId,
+      ptId,
+      stdId,
+      scores,
+      batchId,
+    }: {
+      semId: string;
+      ptId: string;
+      stdId: string;
+      scores: ScorePart[];
+      batchId: string;
+    } = req.body;
 
     if (
       !mongoose.Types.ObjectId.isValid(ptId) ||
       !scores ||
-      typeof scores !== 'object'
+      !Array.isArray(scores)
     ) {
       return handleErrorResponse(res, 400, 'Invalid input data');
     }
@@ -164,10 +187,31 @@ export const updateStudentScore = async (req: Request, res: Response) => {
 
     const student = ptList.students.find((s) => s.rollno === stdId);
     if (!student) return handleErrorResponse(res, 404, 'Student not found');
+    let totalMark = 0;
+    let typeMark = new Map<string, number>();
 
-    for (const part in scores) {
-      student.typemark.set(part, scores[part]);
-    }
+    scores.forEach(({ title, questions }: ScorePart) => {
+      let partTotal = 0;
+      questions.forEach(({ number, option, mark }) => {
+        partTotal += mark;
+        typeMark.set(option, (typeMark.get(option) || 0) + mark);
+      });
+
+      const part = student.parts.find((p) => p.title === title);
+      if (part) {
+        part.questions.forEach((q) => {
+          const newMark = questions.find((qn) => qn.number === q.number)?.mark;
+          if (newMark !== undefined) {
+            q.mark = newMark;
+          }
+        });
+      }
+
+      totalMark += partTotal;
+    });
+
+    student.totalMark = totalMark;
+    student.typemark = typeMark;
 
     await user.save();
 
