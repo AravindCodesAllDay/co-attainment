@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import close from "../../assets/close.svg";
 import { useParams } from "react-router-dom";
 
@@ -6,11 +6,12 @@ export default function Modal({ isOpen, onClose, fetchPts }) {
   const { batchId, semesterId } = useParams();
   const [mainTitle, setMainTitle] = useState("");
   const [mainMark, setMainMark] = useState(0);
+  const [cotypes, setCotypes] = useState([]);
   const [rows, setRows] = useState([
     {
       title: "Part 1",
       maxMark: "",
-      questions: [{ number: 1, option: "understand" }],
+      questions: [{ number: 1, option: "" }],
     },
   ]);
 
@@ -21,7 +22,7 @@ export default function Modal({ isOpen, onClose, fetchPts }) {
       {
         title: `Part ${newPartNumber}`,
         maxMark: "",
-        questions: [{ number: 1, option: "understand" }],
+        questions: [{ number: 1, option: "" }],
       },
     ]);
   };
@@ -41,7 +42,7 @@ export default function Modal({ isOpen, onClose, fetchPts }) {
       if (i === rowIndex) {
         const newQuestions = [
           ...row.questions,
-          { number: row.questions.length + 1, option: "understand" },
+          { number: row.questions.length + 1, option: "" },
         ];
         return { ...row, questions: newQuestions };
       }
@@ -85,6 +86,7 @@ export default function Modal({ isOpen, onClose, fetchPts }) {
     setRows(newRows);
   };
 
+
   const handleQuestionChange = (rowIndex, questionIndex, field, value) => {
     const newRows = rows.map((row, i) =>
       i === rowIndex
@@ -97,6 +99,30 @@ export default function Modal({ isOpen, onClose, fetchPts }) {
         : row
     );
     setRows(newRows);
+  };
+
+  useEffect(() => {
+    fetchCotypes();
+  }, []);
+
+  const fetchCotypes = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(`${import.meta.env.VITE_API}/cotype`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token,
+        },
+      });
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+      const data = await response.json();
+      setCotypes(data);
+    } catch (error) {
+      console.error("Error fetching cotypes:", error);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -226,9 +252,12 @@ export default function Modal({ isOpen, onClose, fetchPts }) {
                       )
                     }
                   >
-                    <option value="understand">Understand</option>
-                    <option value="apply">Apply</option>
-                    <option value="analyse">Analyse</option>
+                  <option value="">Select type</option>
+                    {cotypes.map((cotype,index) => (
+                      <option key={`${questionIndex}${index}`} value={cotype}>
+                        {cotype}
+                      </option>
+                    ))}
                   </select>
                   <img
                     className="text-red-900"
