@@ -28,7 +28,6 @@ export default function ViewCourse() {
       );
       const data = await response.json();
       setCourselist(data);
-      console.log(data);
     } catch (error) {
       console.log("Error while fetching:", error);
     }

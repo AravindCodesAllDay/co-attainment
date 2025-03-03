@@ -47,6 +47,10 @@ const start = async () => {
   try {
     await mongoose.connect(CONNECTION);
     console.log('MongoDB connected successfully');
+    app.listen(3030, () => {
+      console.log(`App listening on port 3030`);
+    });
+  
   } catch (error) {
     console.error('Error during startup:', error);
     process.exit(1);
