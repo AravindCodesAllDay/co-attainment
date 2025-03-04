@@ -84,10 +84,16 @@ const ViewNamelist = () => {
   };
 
   const handleDownloadExcel = () => {
-    const worksheet = XLSX.utils.json_to_sheet(namelist);
+    const filteredData = namelist.map(({ name, rollno, registration_no }) => ({
+      name,
+      rollno,
+      registration_no,
+    }));
+  
+    const worksheet = XLSX.utils.json_to_sheet(filteredData);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Namelist");
-    XLSX.writeFile(workbook, "namelist.xlsx");
+    XLSX.writeFile(workbook, `NAMELIST_${batchId}_Sem${semesterId}.xlsx`);
   };
 
   const fetchStudent = async () => {

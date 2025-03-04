@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import * as XLSX from "xlsx";
+
 import Editptmark from "./EditPtMarksModal";
 import edit from "../../assets/edit.svg";
 
@@ -55,27 +57,66 @@ export default function ViewPtList() {
     return <div>Error: {error}</div>;
   }
 
+  const handleDownloadExcel = () => {
+    if (!ptlist) return;
+
+    const headers = ["Student Name", "Roll No", "Mark"];
+    ptlist.structure.forEach((part) => {
+      part.questions.forEach((question) => {
+        headers.push(
+          `${part.title} - Q${question.number} (${question.option})`
+        );
+      });
+    });
+
+    const data = ptlist.students.map((student) => {
+      const row = [student.name, student.rollno, student.totalMark];
+
+      student.parts.forEach((part, pIndex) => {
+        part.questions.forEach((question) => {
+          row.push(question.mark);
+        });
+      });
+
+      return row;
+    });
+
+    const worksheet = XLSX.utils.aoa_to_sheet([headers, ...data]);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Student PT List");
+    XLSX.writeFile(workbook, `${ptlist.title || "Pt"}_Marks.xlsx`);
+  };
+
   return (
     <>
       <div className=" mx-auto p-4 overflow-x-auto ">
-        <h1 className="text-2xl font-bold mb-4">Student List</h1>
-        <table className="justify-center items-center table-auto w-full border-collapse border border-gray-200">
-          <thead>
-            <tr className="bg-gray-800 text-white">
-              <th rowSpan="2" className="border border-gray-300 px-4 py-2">
-                Actions
-              </th>
-              <th rowSpan="2" className="border border-gray-300 px-4 py-2">
-                Student Name
-              </th>
-              <th rowSpan="2" className="border border-gray-300 px-4 py-2">
-                Roll No
-              </th>
-              <th rowSpan="2" className="border border-gray-300 px-4 py-2">
-                Mark
-              </th>
-              {ptlist &&
-                ptlist.structure.map((part) => (
+        <div className="flex justify-between items-center gap-4 p-2 px-4">
+          <h1 className="text-2xl font-bold">{ptlist ? ptlist.title : "PT"}</h1>
+          <button
+            className="bg-gray-600 text-xl p-2 text-white rounded-md cursor-pointer"
+            onClick={handleDownloadExcel}
+          >
+            Download Excel
+          </button>
+        </div>
+        <div className="overflow-auto">
+        {ptlist ? (
+          <table className="justify-center items-center table-auto w-full border-collapse border border-gray-200">
+            <thead>
+              <tr className="bg-gray-800 text-white">
+                <th rowSpan="2" className="border border-gray-300 px-4 py-2">
+                  Actions
+                </th>
+                <th rowSpan="2" className="border border-gray-300 px-4 py-2">
+                  Student Name
+                </th>
+                <th rowSpan="2" className="border border-gray-300 px-4 py-2">
+                  Roll No
+                </th>
+                <th rowSpan="2" className="border border-gray-300 px-4 py-2">
+                  Mark
+                </th>
+                {ptlist.structure.map((part) => (
                   <th
                     key={part.title}
                     colSpan={part.questions.length}
@@ -84,10 +125,9 @@ export default function ViewPtList() {
                     {part.title}-({part.maxMark})
                   </th>
                 ))}
-            </tr>
-            <tr>
-              {ptlist &&
-                ptlist.structure.flatMap((part) =>
+              </tr>
+              <tr>
+                {ptlist.structure.flatMap((part) =>
                   part.questions.map((question) => (
                     <th
                       key={question._id}
@@ -97,12 +137,11 @@ export default function ViewPtList() {
                     </th>
                   ))
                 )}
-            </tr>
-          </thead>
+              </tr>
+            </thead>
 
-          <tbody>
-            {ptlist &&
-              ptlist.students.map((student) => (
+            <tbody>
+              {ptlist.students.map((student) => (
                 <tr className="justify-center" key={student.rollno}>
                   <td className="border border-gray-300 px-4 py-2 cursor-pointer">
                     <img
@@ -133,8 +172,12 @@ export default function ViewPtList() {
                   )}
                 </tr>
               ))}
-          </tbody>
-        </table>
+            </tbody>
+          </table>
+        ) : (
+          <p>Loading...</p>
+        )}
+        </div>
       </div>
       {isModalOpen && (
         <Editptmark
