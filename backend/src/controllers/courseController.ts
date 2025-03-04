@@ -163,66 +163,70 @@ export const editCourseList = async (req: Request, res: Response) => {
     const userId = await verifyToken(authHeader);
     const { batchId, semId, rollno, coId, scores } = req.body;
 
-    // Validate Object IDs & Roll Number
+    // Validate required fields
     if (
       !mongoose.Types.ObjectId.isValid(batchId) ||
       !mongoose.Types.ObjectId.isValid(semId) ||
       !mongoose.Types.ObjectId.isValid(coId) ||
       !mongoose.Types.ObjectId.isValid(userId) ||
       !rollno ||
-      !scores || typeof scores !== 'object'
+      !scores ||
+      typeof scores !== "object"
     ) {
-      return handleErrorResponse(res, 400, 'Invalid or missing fields.');
+      return handleErrorResponse(res, 400, "Invalid or missing fields.");
     }
 
-    // Find User
+    // Find user
     const user = await User.findById(userId);
-    if (!user) return handleErrorResponse(res, 404, 'User not found.');
+    if (!user) return handleErrorResponse(res, 404, "User not found.");
 
-    // Find Batch
+    // Find batch
     const batch = user.batches.find((batch) => batch._id.equals(batchId));
-    if (!batch) return handleErrorResponse(res, 404, 'Batch not found.');
+    if (!batch) return handleErrorResponse(res, 404, "Batch not found.");
 
-    // Find Semester
+    // Find semester
     const sem = batch.semlists.find((sem) => sem._id.equals(semId));
-    if (!sem) return handleErrorResponse(res, 404, 'Semester not found.');
+    if (!sem) return handleErrorResponse(res, 404, "Semester not found.");
 
-    // Find Course
+    // Find course
     const course = sem.courselists.find((course) => course._id.equals(coId));
-    if (!course) return handleErrorResponse(res, 404, 'Course not found.');
+    if (!course) return handleErrorResponse(res, 404, "Course not found.");
 
-    // Find Student
+    // Find student
     const student = course.students.find((student) => student.rollno === rollno);
-    if (!student) return handleErrorResponse(res, 404, 'Student not found.');
+    if (!student) return handleErrorResponse(res, 404, "Student not found.");
 
-    // Update Student Scores
+    // Update student scores
     student.scores = scores;
 
-    // Get Max Marks
-    const maxMarks = Object.entries(course.structure);
+    // Calculate weighted average percentage
+    let totalObtained = 0;
+    let totalMaxMarks = 0;
 
-    let total = 0;
-    let count = maxMarks.length; // Number of subjects
-
-    maxMarks.forEach(([key, maxMark]) => {
-      const score = typeof scores[key] === 'number' ? scores[key] : Number(scores[key]) || 0;
+    course.structure.forEach((maxMark, key) => {
+      const score = typeof scores[key] === "number" ? scores[key] : Number(scores[key]) || 0;
 
       if (maxMark > 0) {
-        total += score / maxMark;
+        totalObtained += score;
+        totalMaxMarks += maxMark;
       }
     });
 
-    // Calculate Average
-    student.average = count > 0 ? parseFloat(((total * 100) / count).toFixed(2)) : 0;
+    // Compute percentage
+    student.average = totalMaxMarks > 0 ? parseFloat(((totalObtained * 100) / totalMaxMarks).toFixed(2)) : 0;
 
+    console.log(`Updated student average: ${student.average}`);
+
+    // Save updated user data
     await user.save();
 
-    return res.status(200).json({ message: 'Course list updated successfully.', semester: sem });
+    return res.status(200).json({ message: "Course list updated successfully.", semester: sem });
   } catch (error) {
-    console.error('Error updating course list:', (error as Error).message);
-    return handleErrorResponse(res, 500, 'Internal Server Error');
+    console.error("Error updating course list:", (error as Error).message);
+    return handleErrorResponse(res, 500, "Internal Server Error");
   }
 };
+
 
 
 // Delete COlist by ID

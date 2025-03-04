@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import * as XLSX from "xlsx";
+
 import edit from "../../assets/edit.svg";
 import AddSeeModal from "./AddSeeModal";
 import EditSeeMarkModal from "./EditSeeMarkModal";
@@ -34,7 +36,6 @@ export default function ViewSee() {
       const data = await response.json();
       setSeelist(data);
 
-      // Extract unique headers (course names)
       if (data.length > 0) {
         const allCourses = new Set();
         data.forEach((student) => {
@@ -65,16 +66,41 @@ export default function ViewSee() {
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
 
+  const handleDownloadExcel = () => {
+    if (!seelist || seelist.length === 0) return;
+  
+    const excelHeaders = ["Student Name", "Roll No", ...headers];
+  
+    const data = seelist.map((student) => [
+      student.name,
+      student.rollno,
+      ...headers.map((course) => student.scores?.[course] ?? "0"),
+    ]);
+  
+    const worksheet = XLSX.utils.aoa_to_sheet([excelHeaders, ...data]);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "SEE Marks");
+  
+    XLSX.writeFile(workbook, `SEE_Marks_${batchId}_Sem${semesterId}.xlsx`);
+  };
+
   return (
     <div className="container mx-auto p-4">
       <div className="flex justify-between p-2 font-primary">
         <h1 className="text-2xl font-bold">Student List</h1>
+        <div className="flex gap-3">
+        <button
+            className="bg-gray-600 text-xl p-2 text-white rounded-md cursor-pointer"
+            onClick={handleDownloadExcel}
+          >
+            Download Excel
+          </button>
         <button
           className="bg-green-600 text-xl p-2 w-fit text-white border-2 border-none rounded-md"
           onClick={() => setIsAddModalOpen(true)}
         >
           Change Header
-        </button>
+        </button></div>
       </div>
       <table className="table-auto w-full border-collapse border border-gray-200">
         <thead>

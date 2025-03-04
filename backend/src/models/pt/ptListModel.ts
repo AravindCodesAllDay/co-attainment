@@ -4,8 +4,8 @@ import { IPtPart, ptPartSchema } from './ptPartModel';
 
 export interface IPtList extends Document {
   title: string;
-  averagemark: number;
   maxMark: number;
+  types: Map<string, number>;
   structure: IPtPart[];
   students: IPtStudent[];
 }
@@ -13,8 +13,8 @@ export interface IPtList extends Document {
 const ptListSchema = new Schema<IPtList>(
   {
     title: { type: String, required: true },
-    averagemark: { type: Number, default: 0 },
     maxMark: { type: Number, required: true },
+    types: { type: Map, of: Number, default:{} },
     structure: { type: [ptPartSchema], required: true },
     students: { type: [ptStudentSchema], required: true },
   },

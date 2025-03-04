@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import * as XLSX from "xlsx";
 
 import EditCoMarksModal from "./EditCoMarksModal";
 import edit from "../../assets/edit.svg";
@@ -48,13 +49,39 @@ export default function ViewCourse() {
     fetchCourse();
   }, []);
 
+  const handleDownloadExcel = () => {
+    if (!courselist) return;
+  
+    const headers = ["Student Name", "Roll No", ...Object.keys(courselist.structure), "Average"];
+  
+    const data = courselist.students.map((student) => [
+      student.name,
+      student.rollno,
+      ...Object.keys(courselist.structure).map((key) => student.scores[key] ?? "N/A"),
+      student.average,
+    ]);
+  
+    const worksheet = XLSX.utils.aoa_to_sheet([headers, ...data]);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Courses");
+    XLSX.writeFile(workbook, `${courselist.title || "Course"}_Marks.xlsx`);
+  };
+  
   return (
     <>
       <div className="container mx-auto px-4">
-        <h2 className="text-2xl font-semibold text-gray-800 my-4">
-          {courselist ? courselist.title : "Title"}
-        </h2>
-        <div className="overflow-x-auto">
+      <div className="flex justify-between items-center gap-4 p-2 px-4">
+        <h1 className="text-2xl font-semibold text-gray-800">
+          {courselist ? courselist.title : "Student Course List"}
+        </h1>
+          <button
+            className="bg-gray-600 text-xl p-2 text-white rounded-md cursor-pointer"
+            onClick={handleDownloadExcel}
+          >
+            Download Excel
+          </button>
+        </div>
+        <div className="overflow-auto">
           {courselist ? (
             <table className="min-w-full bg-white shadow-md rounded-lg overflow-hidden">
               <thead className="bg-gray-800 text-white">
